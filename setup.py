@@ -6,5 +6,5 @@ setup(name='lo',
       author='Nicolas Barbey',
       author_email='nicolas.barbey@cea.fr',
       install_requires = ['numpy>=1.3.0', 'scipy', ],
-      packages=['lo'],
+      packages=['lo', 'lo.wrappers'],
       )
