@@ -336,8 +336,7 @@ class LinearOperator:
         return LinearOperator(self.shape[::-1], matvec, rmatvec=rmatvec,
                               matmat=matmat, rmatmat=rmatmat, dtype=dtype)
 
-    @property
-    def dense(self):
+    def todense(self):
         A = np.empty(self.shape, dtype=self.dtype)
         x = np.zeros(self.shape[1], dtype=self.dtype)
         for i in xrange(A.shape[1]):
