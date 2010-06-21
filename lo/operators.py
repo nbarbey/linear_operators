@@ -3,7 +3,8 @@ import numpy as np
 from copy import copy
 from interface import LinearOperator
 
-def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64):
+def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64
+               dtypein=None, dtypeout=None):
     "Transform n-dimensional linear operators into LinearOperators"
     sizein = np.prod(shapein)
     sizeout = np.prod(shapeout)
@@ -15,11 +16,12 @@ def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64):
             return rmatvec(x.reshape(shapeout)).reshape(sizein)
     else:
         ndrmatvec = None
-    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype)
+    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, 
+                          dtype=dtype, dtypein=dtypein, dtypeout=dtypeout)
 
 def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
                classout=None, dictin=None, dictout=None,
-               matvec=None, rmatvec=None, dtype=np.float64):
+               matvec=None, rmatvec=None, dtype=np.float64, dtypein=None, dtypeout=None):
     "Wrap linear operation working on ndarray subclasses"
     if xin is not None:
         shapein = xin.shape
@@ -47,7 +49,8 @@ def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
             return rmatvec(xo).reshape(sizein)
     else:
         ndrmatvec = None
-    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype)
+    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype,
+                          dtypein=dtypein, dtypeout=dtypeout)
 
 def diag(d, shape=None):
     "Returns a diagonal Linear Operator"
@@ -78,7 +81,7 @@ def eye(shape, dtype=np.float64):
             return np.concatenate(x, np.zeros(shape[0] - shape[1]))
         return LinearOperator(shape, matvec=matvec, rmatvec=rmatvec, dtype=dtype)
 
-def fftn(shapein, dtype=np.complex128, s=None, axes=None):
+def fftn(shapein, dtypein=np.float64, dtypeout=np.complex128, s=None, axes=None):
     "fftn LinearOperator"
     import numpy.fft
     if s is None:
@@ -89,9 +92,10 @@ def fftn(shapein, dtype=np.complex128, s=None, axes=None):
         return np.fft.fftn(x, s=s, axes=axes)
     def rmatvec(x):
         return np.fft.ifftn(x, s=s, axes=axes)
-    return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
+    return ndoperator(shapein, shapeout, matvec, rmatvec, dtypin=dtypin, 
+                      dtypeout=dtypeout)
 
-def fft2(shapein, dtype=np.complex128, s=None, axes=(-2, -1)):
+def fft2(shapein, dtypein=np.float64, dtypeout=np.complex128, s=None, axes=(-2, -1)):
     "fft2 LinearOperator"
     import numpy.fft
     if len(shapein) != 2:
@@ -104,7 +108,8 @@ def fft2(shapein, dtype=np.complex128, s=None, axes=(-2, -1)):
         return np.fft.fftn(x, s=s, axes=axes)
     def rmatvec(x):
         return np.fft.ifftn(x, s=s, axes=axes)
-    return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
+    return ndoperator(shapein, shapeout, matvec, rmatvec, 
+                      dtypein=dtypein, dtypeout=dtypeout)
 
 def convolve(shapein, kernel, mode='full'):
     """ Linear Operator to convolve two N-dimensional arrays
