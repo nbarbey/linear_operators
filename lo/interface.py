@@ -64,7 +64,7 @@ class LinearOperator:
 
     """
     def __init__(self, shape, matvec, rmatvec=None, matmat=None, rmatmat=None,
-                 dtype=None):
+                 dtypein=None):
 
         shape = tuple(shape)
 
@@ -91,10 +91,10 @@ class LinearOperator:
         else:
             self._rmatmat = None
 
-        if dtype is not None:
-            self.dtype = np.dtype(dtype)
+        if dtypein is not None:
+            self.dtypein = np.dtype(dtypein)
         else:
-            self.dtype = None
+            self.dtypein = None
 
     def _matmat(self, X):
         """Default matrix-matrix multiplication handler.  Falls back on
@@ -207,8 +207,8 @@ class LinearOperator:
             # return a LinearOperator
             if self.shape[1] != x.shape[0]:
                 raise ValueError('LinearOperator shape mismatch')
-            if self.dtype != x.dtype:
-                raise ValueError('LinearOperator dtype mismatch')
+            if self.dtypein != x.dtype:
+                raise ValueError('LinearOperator dtypein mismatch')
             shape = (self.shape[0], x.shape[1])
             matvec = _mat_mul(self._matvec, x._matvec)
             if self.rmatvec is not None and x.rmatvec is not None:
@@ -225,7 +225,7 @@ class LinearOperator:
                 rmatmat = None
             return LinearOperator(shape, matvec, rmatvec=rmatvec,
                                   matmat=matmat, rmatmat=rmatmat,
-                                  dtype=self.dtype)
+                                  dtypein=self.dtypein)
         else:
             x = np.asarray(x)
             if x.ndim == 1 or x.ndim == 2 and x.shape[1] == 1:
@@ -239,8 +239,8 @@ class LinearOperator:
         if isinstance(A, LinearOperator):
             if self.shape != A.shape:
                 raise ValueError('expected LinearOperator of the same shape')
-            if self.dtype != A.dtype:
-                raise ValueError('LinearOperator dtype mismatch')
+            if self.dtypein != A.dtypein:
+                raise ValueError('LinearOperator dtypein mismatch')
             matvec = _mat_add(self._matvec, A._matvec)
             if self.rmatvec is not None and A.rmatvec is not None:
                 rmatvec = _mat_add(self.rmatvec, A.rmatvec)
@@ -256,9 +256,9 @@ class LinearOperator:
                 rmatmat = None
             return LinearOperator(self.shape, matvec, rmatvec=rmatvec,
                                   matmat=matmat, rmatmat=rmatmat,
-                                  dtype=self.dtype)
+                                  dtypein=self.dtypein)
         if np.isscalar(A):
-            return self.__add__(aslinearoperator(A * eye(self.shape, dtype=self.dtype)))
+            return self.__add__(aslinearoperator(A * eye(self.shape, dtypein=self.dtypein)))
         else:
             raise ValueError('expected LinearOperator')
 
@@ -315,10 +315,10 @@ class LinearOperator:
 
     def __repr__(self):
         M,N = self.shape
-        if hasattr(self,'dtype'):
-            dt = 'dtype=' + str(self.dtype)
+        if hasattr(self,'dtypein'):
+            dt = 'dtypein=' + str(self.dtypein)
         else:
-            dt = 'unspecified dtype'
+            dt = 'unspecified dtypein'
 
         return '<%dx%d LinearOperator with %s>' % (M,N,dt)
 
@@ -332,13 +332,13 @@ class LinearOperator:
             matmat, rmatmat = self._rmatmat, self._matmat
         else:
             matmat, rmatmat = None, None
-        dtype = getattr(self, 'dtype', None)
+        dtypein = getattr(self, 'dtypein', None)
         return LinearOperator(self.shape[::-1], matvec, rmatvec=rmatvec,
-                              matmat=matmat, rmatmat=rmatmat, dtype=dtype)
+                              matmat=matmat, rmatmat=rmatmat, dtypein=dtypein)
 
     def todense(self):
-        A = np.empty(self.shape, dtype=self.dtype)
-        x = np.zeros(self.shape[1], dtype=self.dtype)
+        A = np.empty(self.shape, dtype=self.dtypein)
+        x = np.zeros(self.shape[1], dtype=self.dtypein)
         for i in xrange(A.shape[1]):
             x[i] = 1
             A[:, i] = self * x
@@ -400,7 +400,7 @@ def aslinearoperator(A):
         def rmatmat(V):
             return np.dot(V, A)
         return LinearOperator(A.shape, matvec, rmatvec=rmatvec,
-                              matmat=matmat, rmatmat=rmatmat, dtype=A.dtype)
+                              matmat=matmat, rmatmat=rmatmat, dtypein=A.dtypein)
 
     elif isspmatrix(A):
         def matvec(v):
@@ -412,15 +412,15 @@ def aslinearoperator(A):
         def rmatmat(V):
             return V * A
         return LinearOperator(A.shape, matvec, rmatvec=rmatvec,
-                              matmat=matmat, rmatmat=rmatmat, dtype=A.dtype)
+                              matmat=matmat, rmatmat=rmatmat, dtypein=A.dtype)
 
     else:
         if hasattr(A, 'shape') and hasattr(A, 'matvec'):
             rmatvec = getattr(A, 'rmatvec', None)
             matmat = getattr(A, 'matmat', None)
             rmatmat = getattr(A, 'rmatmat', None)
-            dtype = getattr(A, 'dtype', None)
+            dtypein = getattr(A, 'dtype', None)
             return LinearOperator(A.shape, A.matvec, rmatvec=rmatvec,
-                                  matmat=matmat, rmatmat=rmatmat, dtype=dtype)
+                                  matmat=matmat, rmatmat=rmatmat, dtypein=dtypein)
         else:
             raise TypeError('type not understood')
