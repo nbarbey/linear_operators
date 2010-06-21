@@ -238,14 +238,14 @@ class LinearOperator:
                 rmatmat = None
             return LinearOperator(shape, matvec, rmatvec=rmatvec,
                                   matmat=matmat, rmatmat=rmatmat,
-                                  dtypein=self.dtypein,
-                                  dtypeout=x.dtypeout)
+                                  dtypein=x.dtypein,
+                                  dtypeout=self.dtypeout)
         else:
             x = np.asarray(x)
             if x.ndim == 1 or x.ndim == 2 and x.shape[1] == 1:
-                return self.matvec(x)
+                return self.matvec(x).astype(self.dtypeout)
             elif x.ndim == 2:
-                return self.matmat(x)
+                return self.matmat(x).astype(self.dtypeout)
             else:
                 raise ValueError('expected rank-1 or rank-2 array or matrix or LinearOperator')
 
