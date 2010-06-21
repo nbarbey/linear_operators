@@ -118,8 +118,8 @@ def convolve(shapein, kernel, mode='full'):
       scipy.signal.convolve
     """
     from scipy.signal import convolve
-    if len(shapein) != 2:
-        raise ValueError('Error expected 2 dimensional shape')
+    #if len(shapein) != 2:
+    #    raise ValueError('Error expected 2 dimensional shape')
     if mode == 'full':
         shapeout = [s + ks - 1 for s, ks in zip(shapein, kernel.shape)]
     if mode == 'valid':
@@ -133,6 +133,8 @@ def convolve(shapein, kernel, mode='full'):
             rmode = 'valid'
         elif mode == 'valid':
             rmode = 'full'
+        elif mode == 'same':
+            rmode = 'same'
         return convolve(x, kernel, mode=rmode)
     return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=kernel.dtype)
 
