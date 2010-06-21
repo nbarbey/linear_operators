@@ -3,7 +3,7 @@ import numpy as np
 from copy import copy
 from interface import LinearOperator
 
-def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64
+def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64,
                dtypein=None, dtypeout=None):
     "Transform n-dimensional linear operators into LinearOperators"
     sizein = np.prod(shapein)
@@ -92,7 +92,7 @@ def fftn(shapein, dtypein=np.float64, dtypeout=np.complex128, s=None, axes=None)
         return np.fft.fftn(x, s=s, axes=axes)
     def rmatvec(x):
         return np.fft.ifftn(x, s=s, axes=axes)
-    return ndoperator(shapein, shapeout, matvec, rmatvec, dtypin=dtypin, 
+    return ndoperator(shapein, shapeout, matvec, rmatvec, dtypein=dtypein,
                       dtypeout=dtypeout)
 
 def fft2(shapein, dtypein=np.float64, dtypeout=np.complex128, s=None, axes=(-2, -1)):

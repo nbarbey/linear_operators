@@ -101,7 +101,7 @@ class LinearOperator:
         if dtypein is not None and dtypeout is not None:
             self.dtype = np.dtype(dtypein)
             self.dtypein = np.dtype(dtypein)
-            self.dtypeout = np.dtype(dtypein)
+            self.dtypeout = np.dtype(dtypeout)
         elif dtypein is not None:
             self.dtype = np.dtype(dtypein)
             self.dtypein = np.dtype(dtypein)
@@ -220,7 +220,7 @@ class LinearOperator:
             # return a LinearOperator
             if self.shape[1] != x.shape[0]:
                 raise ValueError('LinearOperator shape mismatch')
-            if self.dtypein != x.dtype:
+            if self.dtypein != x.dtypeout:
                 raise ValueError('LinearOperator dtypein mismatch')
             shape = (self.shape[0], x.shape[1])
             matvec = _mat_mul(self._matvec, x._matvec)
@@ -359,8 +359,8 @@ class LinearOperator:
         dtypein = getattr(self, 'dtypein', None)
         dtypeout = getattr(self, 'dtypeout', None)
         return LinearOperator(self.shape[::-1], matvec, rmatvec=rmatvec,
-                              matmat=matmat, rmatmat=rmatmat, dtype=dtype
-                              dtypein=dtypein, dtypeout=dtypeout)
+                              matmat=matmat, rmatmat=rmatmat, dtype=dtype,
+                              dtypein=dtypeout, dtypeout=dtypein)
 
     def todense(self):
         A = np.empty(self.shape, dtype=self.dtype)
