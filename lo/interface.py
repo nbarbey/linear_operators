@@ -277,11 +277,8 @@ class LinearOperator:
                                   dtype=self.dtype, dtypein=self.dtypein,
                                   dtypeout=self.dtypeout)
         if np.isscalar(A):
-            return self.__add__(aslinearoperator(A * eye(self.shape, 
-                                                         dtype=self.dtype,
-                                                         dtypein=self.dtypein,
-                                                         dtypeout=self.dtypeout,
-                                                         )))
+            return self.__add__(aslinearoperator(A * np.eye(self.shape,
+                                                            dtype=self.dtype,)))
         else:
             raise ValueError('expected LinearOperator')
 
