@@ -19,7 +19,7 @@ def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64,
     return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, 
                           dtype=dtype, dtypein=dtypein, dtypeout=dtypeout)
 
-def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
+def masubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
                classout=None, dictin=None, dictout=None,
                matvec=None, rmatvec=None, dtype=np.float64, dtypein=None, dtypeout=None):
     "Wrap linear operation working on ndarray subclasses"
@@ -45,6 +45,41 @@ def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
     if rmatvec is not None:
         def ndrmatvec(x):
             xo = classout(x.reshape(shapeout))
+            xo.__dict__ = dictout
+            return rmatvec(xo).reshape(sizein)
+    else:
+        ndrmatvec = None
+    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype,
+                          dtypein=dtypein, dtypeout=dtypeout)
+
+def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
+               classout=None, dictin=None, dictout=None,
+               matvec=None, rmatvec=None, dtype=np.float64, dtypein=None, dtypeout=None):
+    "Wrap linear operation working on ndarray subclasses"
+    if xin is not None:
+        shapein = xin.shape
+        classin = xin.__class__
+        dictin = xin.__dict__
+        dtype = xin.dtype
+    if xout is not None:
+        shapeout = xout.shape
+        classout = xout.__class__
+        dictout = xout.__dict__
+    sizein = np.prod(shapein)
+    sizeout = np.prod(shapeout)
+    shape = (sizeout, sizein)
+    if matvec is not None:
+        def ndmatvec(x):
+            xi = classin(shapein)
+            xi[:] = x.reshape(shapein)
+            xi.__dict__ = dictin
+            return matvec(xi).reshape(sizeout)
+    else:
+        raise ValueError('Requires a matvec function')
+    if rmatvec is not None:
+        def ndrmatvec(x):
+            xo = classout(shapeout)
+            xo[:] = x.reshape(shapeout)
             xo.__dict__ = dictout
             return rmatvec(xo).reshape(sizein)
     else:
@@ -207,4 +242,13 @@ def axis_mul(shapein, vect, axis=-1, dtype=np.float64):
             y[s] = x[s] * vect
         return y
     return ndoperator(shapein, shapeout, matvec=matvec, rmatvec=matvec,
+                      dtype=dtype)
+
+def mul(shapein, num, dtype=np.float64):
+    if not np.isscalar(num):
+        raise ValueError('mul expect a scalar as input')
+    def matvec(x):
+        y = num * x
+        return y
+    return ndoperator(shapein, shapein, matvec=matvec, rmatvec=matvec,
                       dtype=dtype)
