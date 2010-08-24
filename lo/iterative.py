@@ -153,7 +153,11 @@ def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
         J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
         resid = (J0 - J) / Jnorm
         callback(x)
-    return x
+    if resid > tol:
+        info = resid
+    else:
+        info = 0
+    return x, info
 
 def acg(M, Ds, hypers, y, **kargs):
     "Approximate Conjugate gradient"
@@ -298,4 +302,3 @@ class CallbackFactory():
         if self.verbose:
             print('Iteration: ' + str(self.iter_[-1]) + '\t'
                   + 'Residual: ' + str( self.resid[-1]))
-
