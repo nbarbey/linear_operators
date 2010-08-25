@@ -22,7 +22,7 @@ def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64,
 def masubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
                classout=None, dictin=None, dictout=None,
                matvec=None, rmatvec=None, dtype=np.float64, dtypein=None, dtypeout=None):
-    "Wrap linear operation working on ndarray subclasses"
+    "Wrap linear operation working on ndarray subclasses in MaskedArray style"
     if xin is not None:
         shapein = xin.shape
         classin = xin.__class__
@@ -55,7 +55,7 @@ def masubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
 def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
                classout=None, dictin=None, dictout=None,
                matvec=None, rmatvec=None, dtype=np.float64, dtypein=None, dtypeout=None):
-    "Wrap linear operation working on ndarray subclasses"
+    "Wrap linear operation working on ndarray subclasses in InfoArray style"
     if xin is not None:
         shapein = xin.shape
         classin = xin.__class__
