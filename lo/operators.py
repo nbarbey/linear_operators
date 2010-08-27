@@ -71,23 +71,23 @@ def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
     if matvec is not None:
         def ndmatvec(x):
             xi = classin(shapein)
-            xi[:] = x.reshape(shapein)
             xi.__dict__ = dictin
+            xi[:] = x.reshape(shapein)
             return matvec(xi).reshape(sizeout)
     else:
         raise ValueError('Requires a matvec function')
     if rmatvec is not None:
         def ndrmatvec(x):
             xo = classout(shapeout)
-            xo[:] = x.reshape(shapeout)
             xo.__dict__ = dictout
+            xo[:] = x.reshape(shapeout)
             return rmatvec(xo).reshape(sizein)
     else:
         ndrmatvec = None
     return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype,
                           dtypein=dtypein, dtypeout=dtypeout)
 
-def diag(d, shape=None):
+def diag(d, shape=None, dtype=None):
     "Returns a diagonal Linear Operator"
     if shape is None:
         shape = 2 * (d.size,)
@@ -95,7 +95,9 @@ def diag(d, shape=None):
         raise ValueError('Diagonal operators must be square')
     def matvec(x):
         return d * x
-    return LinearOperator(shape, matvec=matvec, rmatvec=matvec, dtype=d.dtype)
+    if dtype is None:
+        dtype = d.dtype
+    return LinearOperator(shape, matvec=matvec, rmatvec=matvec, dtype=dtype)
 
 def identity(shape, dtype=np.float64):
     "Returns the identity linear Operator"
