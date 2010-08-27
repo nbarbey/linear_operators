@@ -64,10 +64,14 @@ class TestMASubclass(TestCase):
         shapein1 = (3, 4)
         shapeout1 = (3,)
         def ndmatvec1(x):
+            if not isinstance(x, np.ma.MaskedArray):
+                raise ValueError('Expected MaskedArray')
             return np.ma.asarray([ 1*x[0, 0] + 2*x[1, 0] + 3*x[2, 0],
                                    4*x[0, 1] + 5*x[0, 2] + 6*x[0, 3],
                                    7*x[1, 1] + 8*x[1, 2] + 9*x[2, 3]])
         def ndrmatvec1(x):
+            if not isinstance(x, np.ma.MaskedArray):
+                raise ValueError('Expected MaskedArray')
             y = np.ma.zeros((3, 4))
             y[0, 0] = 1 * x[0]
             y[1, 0] = 2 * x[0]
@@ -139,10 +143,19 @@ class TestNDSubclass(TestCase):
         shapein1 = (3, 4)
         shapeout1 = (3,)
         def ndmatvec1(x):
-            return asinfoarray([1*x[0, 0] + 2*x[1, 0] + 3*x[2, 0],
-                                4*x[0, 1] + 5*x[0, 2] + 6*x[0, 3],
-                                7*x[1, 1] + 8*x[1, 2] + 9*x[2, 3]])
+            if not isinstance(x, InfoArray):
+                raise ValueError('Expected InfoArray')
+            y = asinfoarray([1*x[0, 0] + 2*x[1, 0] + 3*x[2, 0],
+                             4*x[0, 1] + 5*x[0, 2] + 6*x[0, 3],
+                             7*x[1, 1] + 8*x[1, 2] + 9*x[2, 3]])
+            print x.header
+            if x.header is not None:
+                y *= x.header['prod']
+            return y
+                
         def ndrmatvec1(x):
+            if not isinstance(x, InfoArray):
+                raise ValueError('Expected InfoArray')
             y = asinfoarray(np.zeros((3, 4)))
             y[0, 0] = 1 * x[0]
             y[1, 0] = 2 * x[0]
@@ -153,6 +166,8 @@ class TestNDSubclass(TestCase):
             y[1, 1] = 7 * x[2]
             y[1, 2] = 8 * x[2]
             y[2, 3] = 9 * x[2]
+            if x.header is not None:
+                y *= x.header['prod']
             return y
 
         Ad1 = np.zeros((np.prod(shapeout1), np.prod(shapein1)))
@@ -172,8 +187,9 @@ class TestNDSubclass(TestCase):
         for var in self.vars:
             # initialization
             shapein, shapeout, ndmatvec, ndrmatvec, Ad = var
-            xin = InfoArray(shapein)
-            xout = InfoArray(shapeout)
+            header = None
+            xin = asinfoarray(np.ones(shapein), header)
+            xout = asinfoarray(np.ones(shapeout), header)
             A = ndsubclass(xin=xin, xout=xout, matvec=ndmatvec, rmatvec=ndrmatvec)
             # tests
             assert_equal(A.shape, (np.prod(shapeout), np.prod(shapein)))
@@ -182,6 +198,13 @@ class TestNDSubclass(TestCase):
             # dense
             assert_equal(A.todense(), Ad)
             assert_equal(A.T.todense(), Ad.T)
+            # header
+            header = {'prod':2}
+            xin = asinfoarray(np.ones(shapein), header)
+            xout = asinfoarray(np.ones(shapeout), header)
+            A = ndsubclass(xin=xin, xout=xout, matvec=ndmatvec, rmatvec=ndrmatvec)
+            assert_equal(A * np.ones(np.prod(shapein)), asinfoarray([12, 30, 48]))
+            assert_equal(A.T * np.zeros(np.prod(shapeout)), np.zeros(np.prod(shapein)))
 
 if __name__ == "__main__":
     nose.run(argv=['', __file__])
