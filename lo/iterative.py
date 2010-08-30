@@ -8,7 +8,7 @@ import lo
 import pywt
 from pywt import thresholding
 
-def rls(M, Ds, hypers, b, optimizer=spl.cgs, **kargs):
+def rls(M, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     """Regularized Least Square
     
     Inputs:
@@ -25,9 +25,10 @@ def rls(M, Ds, hypers, b, optimizer=spl.cgs, **kargs):
     conv : convergence status
 
     """
+    verbose = getattr(kargs, 'verbose', True)
     callback = getattr(kargs, 'callback', None)
     if callback is None:
-        kargs['callback'] = CallbackFactory(verbose=True)
+        kargs['callback'] = CallbackFactory(verbose=verbose)
     M = lo.aslinearoperator(M)
     X = M.T * M
     for h, D in zip(hypers, Ds):
@@ -52,7 +53,7 @@ def irls(A0, x0, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
             break
     return out
 
-def rirls(M, Ds, y, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
+def rirls(M, y, Ds=[], tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
     """ Regularized Iteratively Reweighted Least Square
         
     """
@@ -76,7 +77,7 @@ def rirls(M, Ds, y, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
         r = M * x - y
     return x
 
-def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
+def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter=None,
          callback=None):
     """Generalized approximate conjugate gradient
     
@@ -100,7 +101,6 @@ def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
     x : solution
 
     """
-    from copy import copy
     if callback is None:
         callback = CallbackFactory(verbose=True)
     # ensure linear operators are passed
@@ -151,7 +151,7 @@ def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
         J0 = copy(J)
         J = norms[0](r) 
         J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
-        resid = (J0 - J) / Jnorm
+        resid = J / Jnorm
         callback(x)
     if resid > tol:
         info = resid
@@ -159,23 +159,23 @@ def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
         info = 0
     return x, info
 
-def acg(M, Ds, hypers, y, **kargs):
+def acg(M, y, Ds=[], hypers=[], **kargs):
     "Approximate Conjugate gradient"
     norms = (norm2, ) * (len(Ds) + 1)
     dnorms = (dnorm2, ) * (len(Ds) + 1)
-    return gacg(M, Ds, hypers, norms, dnorms, y, **kargs)
+    return gacg(M, y, Ds, hypers, norms, dnorms, **kargs)
 
-def hacg(M, Ds, hypers, deltas, y, **kargs):
+def hacg(M, y, Ds=[], hypers=[], deltas=[], **kargs):
     "Huber Approximate Conjugate gradient"
     norms = [hnorm(delta) for delta in deltas]
     dnorms = [dhnorm(delta) for delta in deltas]
-    return gacg(M, Ds, hypers, norms, dnorms, y, **kargs)
+    return gacg(M, y, Ds, hypers, norms, dnorms, **kargs)
 
-def npacg(M, Ds, hypers, ps, y, **kargs):
+def npacg(M, y, Ds=[], hypers=[], ps=[], **kargs):
     "Norm p Approximate Conjugate gradient"
     norms = [normp(p) for p in ps]
     dnorms = [dnormp(p) for p in ps]
-    return gacg(M, Ds, hypers, norms, dnorms, y, **kargs)
+    return gacg(M, y, Ds, hypers, norms, dnorms, **kargs)
 
 # norms
 
