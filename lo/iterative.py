@@ -137,7 +137,6 @@ def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
         else:
             b = ng / ng0
             d = - g + b * d
-            print b
         g0 = copy(g)
         ng0 = copy(ng)
         # step
@@ -153,7 +152,11 @@ def gacg(M, Ds, hypers, norms, dnorms, y, tol=1e-6, x0=None, maxiter=None,
         J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
         resid = (J0 - J) / Jnorm
         callback(x)
-    return x
+        if resid > tol:
+            info = resid
+        else:
+            info = 0
+    return x, info
 
 def acg(M, Ds, hypers, y, **kargs):
     "Approximate Conjugate gradient"
@@ -161,8 +164,10 @@ def acg(M, Ds, hypers, y, **kargs):
     dnorms = (dnorm2, ) * (len(Ds) + 1)
     return gacg(M, Ds, hypers, norms, dnorms, y, **kargs)
 
-def hacg(M, Ds, hypers, deltas, y, **kargs):
+def hacg(M, Ds, hypers, y, deltas=None, **kargs):
     "Huber Approximate Conjugate gradient"
+    if deltas is None:
+        return acg(M, Ds, hypers, y, **kargs)
     norms = [hnorm(delta) for delta in deltas]
     dnorms = [dhnorm(delta) for delta in deltas]
     return gacg(M, Ds, hypers, norms, dnorms, y, **kargs)
@@ -191,15 +196,21 @@ def dnormp(p=2):
         return np.sign(t) * p * (np.abs(t) ** (p - 1))
     return norm
 
-def hnorm(d):
-    def norm(t):
-        return np.sum(huber(t, d))
-    return norm
+def hnorm(d=None):
+    if d is None:
+        return norm2
+    else:
+        def norm(t):
+            return np.sum(huber(t, d))
+        return norm
 
-def dhnorm(d):
-    def norm(t):
-        return dhuber(t, d)
-    return norm
+def dhnorm(d=None):
+    if d is None:
+        return dnorm2
+    else:
+        def norm(t):
+            return dhuber(t, d)
+        return norm
 
 def huber(t, delta=1):
     """Apply the huber function to the vector t, with transition delta"""
