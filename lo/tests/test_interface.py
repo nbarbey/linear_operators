@@ -1,12 +1,14 @@
 """Test functions for the sparse.linalg.interface module
 """
 
+import nose
+
 from numpy.testing import *
 
 import numpy as np
 import scipy.sparse as sparse
 
-from scipy.sparse.linalg.interface import *
+from lo.interface import *
 
 
 class TestLinearOperator(TestCase):
@@ -47,7 +49,7 @@ class TestLinearOperator(TestCase):
             assert_equal(A.matvec(np.matrix([[1],[2],[3]])), [[14],[32]])
             assert_equal(A * np.matrix([[1],[2],[3]]),       [[14],[32]])
 
-            assert_equal(A.dense, np.array([[1, 2, 3], [4, 5, 6]]))
+            assert_equal(A.todense(), np.array([[1, 2, 3], [4, 5, 6]]))
 
             assert_equal(A.T * np.array([1, 2]), [9, 12, 15])
             assert_equal((2 * A) * np.array([1, 2, 3]), [28, 64])
@@ -66,7 +68,7 @@ class TestLinearOperator(TestCase):
             assert( isinstance(2 * A, LinearOperator) )
             assert( isinstance(A + 1, LinearOperator) )
 
-            assert( isinstance(A.dense, np.ndarray))
+            assert( isinstance(A.todense(), np.ndarray))
 
             assert_raises(ValueError, A.matvec, np.array([1,2]))
             assert_raises(ValueError, A.matvec, np.array([1,2,3,4]))
@@ -126,3 +128,6 @@ class TestAsLinearOperator(TestCase):
 
             if hasattr(M,'dtype'):
                 assert_equal(A.dtype, M.dtype)
+
+if __name__ == "__main__":
+    nose.run(argv=['', __file__])
