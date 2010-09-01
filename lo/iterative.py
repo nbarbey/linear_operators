@@ -113,8 +113,8 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         x = copy(x0)
     # tolerance
     r = M * x - y
-    J = norms[0](r)
-    J += np.sum([h * norm(D * x) for norm, h, D in zip(norms[1:], hypers, Ds)])
+    rd = [D * x for D in Ds]
+    J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
     Jnorm = copy(J)
     resid = 2 * tol
     # maxiter
@@ -125,12 +125,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
     while iter_ < maxiter and resid > tol:
         iter_ += 1
         # gradient
-        g = M.T * dnorms[0](r)
-        ng = norm2(g)
-        rd = []
-        for h, D, dnorm in zip(hypers, Ds, dnorms[1:]):
-            rd.append(D * x)
-            g += h * D.T * dnorm(rd[-1])
+        g, ng = gradient(hypers=hypers, dnorms=dnorms, M=M, Ds=Ds, r=r, rd=rd)
         # descent direction
         if (iter_  % 10) == 1:
             d = - g
@@ -140,23 +135,49 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         g0 = copy(g)
         ng0 = copy(ng)
         # step
-        a = -.5 * np.dot(d.T, g)
-        a /= norm2(M * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
+        if norms[0] == norm2:
+            a = quadratic_optimal_step(d, g, M, hypers, Ds)
+        else:
+            a = backtracking_line_search(d, g, M, hypers, Ds,
+                                         x, norms)
         # update
         x += a * d
         # residual
         r = M * x - y
+        rd = [D * x for D in Ds]
         # criterion
         J0 = copy(J)
-        J = norms[0](r) 
-        J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
+        J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
         resid = J / Jnorm
         callback(x)
+    # define output
     if resid > tol:
         info = resid
     else:
         info = 0
     return x, info
+
+def criterion(x=None, y=None, M=None, norms=None, hypers=None, Ds=None,
+              r=None, rd=None):
+    if r is None:
+        r = M * x - y
+    if rd is None:
+        rd = [D * x for D in Ds]
+    J = norms[0](r)
+    J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
+    return J
+
+def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
+             r=None, rd=None):
+    if r is None:
+        r = M * x - y
+    g = M.T * dnorms[0](r)
+    ng = norm2(g)
+    if rd is None:
+        rd = [D * x for D in Ds]
+    g += np.sum([h * D.T * dnorm(el) for dnorm, h, D, el 
+                 in zip(dnorms[1:], hypers, Ds, rd)])
+    return g, ng
 
 def acg(M, y, Ds=[], hypers=[], **kargs):
     "Approximate Conjugate gradient"
@@ -294,6 +315,26 @@ def fista(A, W, y, mu=1., nu=None, threshold=thresholding.hard, x0=None,
         resid = lo.norm2(A * x - y) + 1 / (2 * nu) * lo.normp(p=1)(x)
         callback(x)
     return x
+
+# line search methods
+
+def quadratic_optimal_step(d, g, M, hypers, Ds):
+    a = -.5 * np.dot(d.T, g)
+    a /= norm2(M * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
+    return a
+
+def backtracking_line_search(d, g, M, hypers, Ds, 
+                             x0=None, norms=None, y=None, f0=None, maxiter=10, tau=.5):
+    a = quadratic_optimal_step(d, g, M, hypers, Ds)
+    i = 0
+    fi = 2 * f0
+    # XXX replace with armijo wolfe conditions
+    while (i < maxiter) and (fi > f0):
+        i += 1
+        a *= tau
+        xi = x + a * d
+        fi = criterion(x=xi, y=y, M=M, hypers=hypers, norms=norms, Ds=Ds)
+    return a
 
 # To create callback functions
 class CallbackFactory():
