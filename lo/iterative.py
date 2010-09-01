@@ -132,7 +132,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
             rd.append(D * x)
             g += h * D.T * dnorm(rd[-1])
         # descent direction
-        if iter_ == 1:
+        if (iter_  % 10) == 1:
             d = - g
         else:
             b = ng / ng0
