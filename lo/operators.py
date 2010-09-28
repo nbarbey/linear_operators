@@ -201,6 +201,16 @@ def convolve(shapein, kernel, mode='full'):
 def mask(mask, dtype=np.float64):
     "Masking as a LinearOperator"
     shapein = mask.shape
+    shapeout = mask.shape
+    def matvec(x):
+        y = copy(x)
+        y[mask==True] = 0
+        return y
+    return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
+
+def decimate(mask, dtype=np.float64):
+    "Masking as a LinearOperator"
+    shapein = mask.shape
     shapeout = np.sum(mask == False)
     def matvec(x):
         return x[mask==False]
