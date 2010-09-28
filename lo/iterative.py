@@ -8,7 +8,7 @@ import lo
 import pywt
 from pywt import thresholding
 
-def rls(M, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
+def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     """Regularized Least Square
     
     Inputs:
@@ -29,12 +29,12 @@ def rls(M, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     callback = getattr(kargs, 'callback', None)
     if callback is None:
         kargs['callback'] = CallbackFactory(verbose=verbose)
-    M = lo.aslinearoperator(M)
-    X = M.T * M
+    A = lo.aslinearoperator(A)
+    X = A.T * A
     for h, D in zip(hypers, Ds):
         D = lo.aslinearoperator(D)
         X += h * D.T * D
-    return optimizer(X, M.T * b, **kargs)
+    return optimizer(X, A.T * b, **kargs)
 
 def irls(A0, x0, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
     """ Iteratively Reweighted Least Square
