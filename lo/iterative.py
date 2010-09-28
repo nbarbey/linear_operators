@@ -36,6 +36,45 @@ def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
         X += h * D.T * D
     return optimizer(X, A.T * b, **kargs)
 
+class Model():
+    def __init__(self, M, b, Ds=[], hypers=[]):
+        M = lo.aslinearoperator(M)
+        Ds = [lo.aslinearoperator(D) for D in Ds]
+        self.M = M
+        self.b = b
+        self.Ds = Ds
+        self.hypers = hypers
+    def __call__(self, x):
+        out = norm2(self.b - self.M * x) 
+        out += np.sum([h * norm2(D * x) 
+                       for D, h in zip(self.Ds, self.hypers)])
+        return out
+    def gradient(self, x):
+        r = self.M * x - self.b
+        out = self.M.T * dnorm2(r)
+        out += np.sum([h * D.T * dnorm(D * x)
+                       for D, h in zip(self.Ds, self.hypers)])
+        return out
+
+def opt(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6, min_alpha_step=0.0001):
+    """
+    Use scikits.optimization to perform least-square inversion.
+    """
+    from scikits.optimization import step, line_search, criterion, optimizer
+
+    if maxiter is None:
+        maxiter = M.shape[0]
+    model = Model(M, b, Ds, hypers)
+    mystep = step.GradientStep()
+    mylinesearch = line_search.GoldenSectionSearch(min_alpha_step=min_alpha_step)
+    mycriterion = criterion.criterion(ftol=tol, iterations_max=maxiter)
+    myoptimizer = optimizer.StandardOptimizer(function=model, 
+                                              step=mystep,
+                                              line_search=mylinesearch,
+                                              criterion=mycriterion,
+                                              x0 = np.zeros(M.shape[1]))
+    return myoptimizer.optimize()
+
 def irls(A0, x0, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
     """ Iteratively Reweighted Least Square
         
