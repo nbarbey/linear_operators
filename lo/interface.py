@@ -449,3 +449,57 @@ def aslinearoperator(A):
                                   matmat=matmat, rmatmat=rmatmat, dtype=dtype)
         else:
             raise TypeError('type not understood')
+
+def concatenate(As, axis=0):
+    """
+    Concatenate LinearOperator in rows or in columns.
+
+    Parameters
+    ----------
+    As : list of LinearOperators
+         The list of LinearOperators to concatenate.
+
+    axis : 0 or 1
+           The axis along which to concatenate the LinearOperators.
+
+    Returns
+    -------
+    out: LinearOperator
+      Output a LinearOperator which is the concatenation of a list of 
+      LinearOpeartors.
+
+    """
+    # rows
+    if axis == 0:
+        # check input
+        for A in As:
+            # shape
+            if A.shape[1] != As[0].shape[1]:
+                raise ValueError("All LinearOperators must have the same number of row/columns.")
+            # dtype
+            if A.dtype != As[0].dtype:
+                raise ValueError("All LinearOperators must have the same data-type.")
+        # define output shape
+        sizes = [A.shape[0] for A in As]
+        shape = np.sum(sizes), As[0].shape[1]
+        # define data type
+        dtype = As[0].dtype
+        # define new matvec
+        def matvec(x):
+            return np.concatenate([A.matvec(x) for A in As])
+        # define how to slice vector
+        sizes1 = [None,] + sizes[:-1]
+        sizes2 = sizes[1:] + [None,]
+        slices = [slice(s1, s2, None) for s1, s2 in zip(sizes1, sizes2)]
+        def rmatvec(x):
+            out = np.zeros(shape[1])
+            for A, s in zip(As, slices):
+                out += A.rmatvec(x[s])
+            return out
+    # columns
+    elif axis == 1:
+        # you can transpose the concatenation of the list of transposes
+        return concatenate([A.T for A in As], axis=0).T
+    else:
+        raise ValueError("axis must be 0 or 1")
+    return LinearOperator(shape, matvec, rmatvec=rmatvec, dtype=dtype)
