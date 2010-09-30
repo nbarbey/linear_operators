@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from setuptools import Extension, setup
+#from setuptools import Extension, setup
+from distutils.core import setup
 setup(name='lo',
       version='0.1',
       description='LinearOperators and Iterative algorithms',
