@@ -1,6 +1,6 @@
 import numpy as np
-from scipy.sparse.sputils import isshape
-from scipy.sparse import isspmatrix
+#from scipy.sparse.sputils import isshape
+#from scipy.sparse import isspmatrix
 
 #__all__ = ['LinearOperator', 'aslinearoperator']
 
@@ -68,8 +68,8 @@ class LinearOperator:
 
         shape = tuple(shape)
 
-        if not isshape(shape):
-            raise ValueError('invalid shape')
+        #if not isshape(shape):
+        #    raise ValueError('invalid shape')
 
         self.shape  = shape
         self._matvec = matvec
@@ -427,17 +427,17 @@ def aslinearoperator(A):
         return LinearOperator(A.shape, matvec, rmatvec=rmatvec,
                               matmat=matmat, rmatmat=rmatmat, dtype=A.dtype)
 
-    elif isspmatrix(A):
-        def matvec(v):
-            return A * v
-        def rmatvec(v):
-            return A.conj().transpose() * v
-        def matmat(V):
-            return A * V
-        def rmatmat(V):
-            return V * A
-        return LinearOperator(A.shape, matvec, rmatvec=rmatvec,
-                              matmat=matmat, rmatmat=rmatmat, dtype=A.dtype)
+    #elif isspmatrix(A):
+    #    def matvec(v):
+    #        return A * v
+    #    def rmatvec(v):
+    #        return A.conj().transpose() * v
+    #    def matmat(V):
+    #        return A * V
+    #    def rmatmat(V):
+    #        return V * A
+    #    return LinearOperator(A.shape, matvec, rmatvec=rmatvec,
+    #                          matmat=matmat, rmatmat=rmatmat, dtype=A.dtype)
 
     else:
         if hasattr(A, 'shape') and hasattr(A, 'matvec'):
