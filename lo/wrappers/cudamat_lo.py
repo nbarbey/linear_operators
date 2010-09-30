@@ -2,11 +2,11 @@
 Use cudamat to perform faster matrix vector multiplications
 """
 import cudamat
+from cudamat import CUDAMatrix
 import numpy as np
 import lo
 
-def aslinearoperator(a):
-    from cudamat import CUDAMatrix
+def cudamat_aslinearoperator(a):
     if isinstance(a, np.ndarray):
         a_gpu = CUDAMatrix(a)
     elif isinstance(a, cudamat.CUDAMatrix):
@@ -15,9 +15,11 @@ def aslinearoperator(a):
         raise ValueError('Expected CUDAMatrix or ndarray')
     # define linear operator
     def matvec(x):
-        x_gpu = CUDAMatrix(x.reshape((x.size, 1)))
+        x.resize((x.size, 1))
+        x_gpu = CUDAMatrix(x)
         return cudamat.dot(a_gpu, x_gpu).asarray()
     def rmatvec(x):
-        x_gpu = CUDAMatrix(x.reshape((x.size, 1)))
+        x.resize((x.size, 1))
+        x_gpu = CUDAMatrix(x)
         return cudamat.dot(a_gpu.transpose(), x_gpu).asarray()
     return lo.LinearOperator(a.shape, matvec, rmatvec, dtype=a.dtype)

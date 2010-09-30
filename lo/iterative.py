@@ -5,8 +5,6 @@ import numpy as np
 import scipy.sparse.linalg as spl
 from copy import copy
 import lo
-import pywt
-from pywt import thresholding
 
 def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     """Regularized Least Square
@@ -35,45 +33,6 @@ def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
         D = lo.aslinearoperator(D)
         X += h * D.T * D
     return optimizer(X, A.T * b, **kargs)
-
-class Model():
-    def __init__(self, M, b, Ds=[], hypers=[]):
-        M = lo.aslinearoperator(M)
-        Ds = [lo.aslinearoperator(D) for D in Ds]
-        self.M = M
-        self.b = b
-        self.Ds = Ds
-        self.hypers = hypers
-    def __call__(self, x):
-        out = norm2(self.b - self.M * x) 
-        out += np.sum([h * norm2(D * x) 
-                       for D, h in zip(self.Ds, self.hypers)])
-        return out
-    def gradient(self, x):
-        r = self.M * x - self.b
-        out = self.M.T * dnorm2(r)
-        out += np.sum([h * D.T * dnorm(D * x)
-                       for D, h in zip(self.Ds, self.hypers)])
-        return out
-
-def opt(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6, min_alpha_step=0.0001):
-    """
-    Use scikits.optimization to perform least-square inversion.
-    """
-    from scikits.optimization import step, line_search, criterion, optimizer
-
-    if maxiter is None:
-        maxiter = M.shape[0]
-    model = Model(M, b, Ds, hypers)
-    mystep = step.GradientStep()
-    mylinesearch = line_search.GoldenSectionSearch(min_alpha_step=min_alpha_step)
-    mycriterion = criterion.criterion(ftol=tol, iterations_max=maxiter)
-    myoptimizer = optimizer.StandardOptimizer(function=model, 
-                                              step=mystep,
-                                              line_search=mylinesearch,
-                                              criterion=mycriterion,
-                                              x0 = np.zeros(M.shape[1]))
-    return myoptimizer.optimize()
 
 def irls(A0, x0, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
     """ Iteratively Reweighted Least Square
@@ -214,8 +173,9 @@ def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
     ng = norm2(g)
     if rd is None:
         rd = [D * x for D in Ds]
-    g += np.sum([h * D.T * dnorm(el) for dnorm, h, D, el 
-                 in zip(dnorms[1:], hypers, Ds, rd)])
+    drs = [h * D.T * dnorm(el) for dnorm, h, D, el in zip(dnorms[1:], hypers, Ds, rd)]
+    for dr in drs:
+        g += dr
     return g, ng
 
 def acg(M, y, Ds=[], hypers=[], **kargs):
@@ -291,69 +251,6 @@ def dhuber(t, delta=1):
     t_out[linear_index_positive] = 2 * delta
     t_out[linear_index_negative] = - 2 * delta
     return np.reshape(t_out, t.shape)
-
-# Iterative Thresholding methods
-
-def landweber(A, W, y, mu=1., nu=None, threshold=thresholding.hard, x0=None,
-              maxiter=100, callback=None):
-    """Landweber algorithm
-    
-    Input
-    -----
-    A : measurement matrix
-    W : wavelet transform
-    y : data
-    mu : step of the gradient update
-    nu : thresholding coefficient
-    threshold : thresholding function
-    maxiter : number of iterations
-    callback : callback function
-    
-    Output
-    ------
-    
-    x : solution
-    
-    """
-    if callback is None:
-        callback = lo.CallbackFactory(verbose=True)
-    if x0 is None:
-        x = A.T * y
-    else:
-        x = copy(x0)
-    for iter_ in xrange(maxiter):
-        r = A * x - y
-        x += .5 * mu * A.T * (r)
-        x = W.T * threshold(W * x, nu)
-        resid = lo.norm2(r) + 1 / (2 * nu) * lo.normp(p=1)(x)
-        callback(x)
-    return x
-
-def fista(A, W, y, mu=1., nu=None, threshold=thresholding.hard, x0=None,
-          maxiter=100, callback=None):
-    """ Fista algorithm
-    
-    """
-    if callback is None:
-        callback = lo.CallbackFactory(verbose=True)
-    if x0 is None:
-        x = A.T * y
-    else:
-        x = copy(x0)
-    x_old = np.zeros(x.shape)
-    t_old = 1.
-    for iter_ in xrange(maxiter):
-        t = (1 + np.sqrt(1 + 4 * t_old ** 2)) / 2
-        a = (t_old - 1) / t
-        t_old = copy(t)
-        z = x + a * (x - x_old)
-        g = A.T * (A * z - y)
-        x = z - .5 * mu * g
-        x = W.T * threshold(W * x, nu)
-        x_old = copy(x)
-        resid = lo.norm2(A * x - y) + 1 / (2 * nu) * lo.normp(p=1)(x)
-        callback(x)
-    return x
 
 # line search methods
 
