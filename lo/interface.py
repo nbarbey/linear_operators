@@ -503,3 +503,32 @@ def concatenate(As, axis=0):
     else:
         raise ValueError("axis must be 0 or 1")
     return LinearOperator(shape, matvec, rmatvec=rmatvec, dtype=dtype)
+
+def block_diagonal(As):
+    """
+    Defines a block diagonal LinearOperator from a list of LinearOperators.
+    """
+    # check data type
+    for A in As:
+        if A.dtype != As[0].dtype:
+            raise ValueError("All LinearOperators must have the same data-type.")
+    dtype = As[0].dtype
+    # define shape
+    shape = np.sum([A.shape[0] for A in As]), np.sum([A.shape[1] for A in As])
+    # define how to slice vector
+    sizes = [A.shape[1] for A in As]
+    sizes1 = [None,] + sizes[:-1]
+    sizes2 = sizes[1:] + [None,]
+    slices = [slice(s1, s2, None) for s1, s2 in zip(sizes1, sizes2)]
+    # define new matvec function
+    def matvec(x):
+        return np.concatenate([A.matvec(x[s]) for A, s in zip(As, slices)])
+    # define how to slice vector
+    rsizes = [A.shape[0] for A in As]
+    rsizes1 = [None,] + rsizes[:-1]
+    rsizes2 = rsizes[1:] + [None,]
+    rslices = [slice(s1, s2, None) for s1, s2 in zip(rsizes1, rsizes2)]
+    # define new rmatvec function
+    def rmatvec(x):
+        return np.concatenate([A.rmatvec(x[s]) for A, s in zip(As, rslices)])
+    return LinearOperator(shape, matvec, rmatvec=rmatvec, dtype=dtype)
