@@ -488,8 +488,9 @@ def concatenate(As, axis=0):
         def matvec(x):
             return np.concatenate([A.matvec(x) for A in As])
         # define how to slice vector
-        sizes1 = [None,] + sizes[:-1]
-        sizes2 = sizes[1:] + [None,]
+        sizesum = list(np.cumsum(sizes))[:-1]
+        sizes1 = [None,] + sizesum
+        sizes2 = sizesum + [None,]
         slices = [slice(s1, s2, None) for s1, s2 in zip(sizes1, sizes2)]
         def rmatvec(x):
             out = np.zeros(shape[1])
@@ -517,16 +518,18 @@ def block_diagonal(As):
     shape = np.sum([A.shape[0] for A in As]), np.sum([A.shape[1] for A in As])
     # define how to slice vector
     sizes = [A.shape[1] for A in As]
-    sizes1 = [None,] + sizes[:-1]
-    sizes2 = sizes[1:] + [None,]
+    sizes = list(np.cumsum(sizes))[:-1]
+    sizes1 = [None,] + sizes
+    sizes2 = sizes + [None,]
     slices = [slice(s1, s2, None) for s1, s2 in zip(sizes1, sizes2)]
     # define new matvec function
     def matvec(x):
         return np.concatenate([A.matvec(x[s]) for A, s in zip(As, slices)])
     # define how to slice vector
     rsizes = [A.shape[0] for A in As]
-    rsizes1 = [None,] + rsizes[:-1]
-    rsizes2 = rsizes[1:] + [None,]
+    rsizes = list(np.cumsum(rsizes))[:-1]
+    rsizes1 = [None,] + rsizes
+    rsizes2 = rsizes + [None,]
     rslices = [slice(s1, s2, None) for s1, s2 in zip(rsizes1, rsizes2)]
     # define new rmatvec function
     def rmatvec(x):
