@@ -7,5 +7,5 @@ setup(name='lo',
       author='Nicolas Barbey',
       author_email='nicolas.barbey@cea.fr',
       requires = ['numpy', 'scipy', ],
-      packages=['lo', 'lo.wrappers'],
+      packages=['lo', 'lo.wrappers', 'lo.iterative'],
       )
