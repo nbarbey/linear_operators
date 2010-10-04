@@ -22,17 +22,18 @@ class Model():
         self.Ds = Ds
         self.hypers = hypers
         self.norms = norms
+        self.dnorms = dnorms
     def __call__(self, x, b=None):
         if b is None:
             b = self.b
-        out = norms[0](self.M * x - b)
+        out = self.norms[0](self.M * x - b)
         out += np.sum([h * norm(D * x)
                        for D, h, norm
                        in zip(self.Ds, self.hypers, self.norms[1:])])
         return out
     def gradient(self, x):
         r = self.M * x - self.b
-        out = self.M.T * dnorms[0](r)
+        out = self.M.T * self.dnorms[0](r)
         drs = [h * D.T * dnorm(D * x) for D, h, dnorm in
                zip(self.Ds, self.hypers, self.dnorms[1:])]
         for dr in drs:
