@@ -2,80 +2,8 @@
 Implement algorithms using the LinearOperator class
 """
 import numpy as np
-import scipy.sparse.linalg as spl
 from copy import copy
 import lo
-import pywt
-from pywt import thresholding
-
-def rls(M, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
-    """Regularized Least Square
-    
-    Inputs:
-    -------
-    M : model matrix, (needs matvec and rmatvec methods)
-    Dx : priors, (need matvec and rmatvec methods)
-    b : input vector
-    hypers: hyperparameters (scalars)
-    **kargs : parameters of of the least square optimizer
-
-    Outputs:
-    --------
-    x : solution
-    conv : convergence status
-
-    """
-    verbose = getattr(kargs, 'verbose', True)
-    callback = getattr(kargs, 'callback', None)
-    if callback is None:
-        kargs['callback'] = CallbackFactory(verbose=verbose)
-    M = lo.aslinearoperator(M)
-    X = M.T * M
-    for h, D in zip(hypers, Ds):
-        D = lo.aslinearoperator(D)
-        X += h * D.T * D
-    return optimizer(X, M.T * b, **kargs)
-
-def irls(A0, x0, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
-    """ Iteratively Reweighted Least Square
-        
-    """
-    A0 = lo.aslinearoperator(A0)
-    out = A0.T * x0
-    tol1 /= np.sum(np.abs(x0 - A0 * out) ** p)
-    for i in xrange(maxiter1):
-        print("\n outer loop " + str(i + 1) + "\n")
-        w = np.abs(x0 - A0 * out) ** (p - 2)
-        A = A0.T * lo.diag(w) * A0
-        x = A0.T * (w * x0)
-        out, t = optimizer(A, x, **kargs)
-        if np.sum(np.abs(x0 - A0 * out) ** p) < tol1:
-            break
-    return out
-
-def rirls(M, y, Ds=[], tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
-    """ Regularized Iteratively Reweighted Least Square
-        
-    """
-    M = lo.aslinearoperator(M)
-    Ds = [lo.aslinearoperator(D) for D in Ds]
-    x0 = M.T * y
-    x = copy(x0)
-    r = M * x - y
-    tol1 /= np.sum(np.abs(r) ** p)
-    for i in xrange(maxiter1):
-        print("\n outer loop " + str(i + 1) + "\n")
-        A = M.T * M
-        for D in Ds:
-            rd = D * x
-            w = np.abs(rd) ** (p - 2)
-            w[np.where(1 - np.isfinite(w))] = 0 # inf
-            A += D.T * lo.diag(w) * D
-        x, t = optimizer(A, x0, **kargs)
-        if np.sum(np.abs(y - M * x) ** p) < tol1:
-            break
-        r = M * x - y
-    return x
 
 def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter=None,
          callback=None):
@@ -175,8 +103,9 @@ def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
     ng = norm2(g)
     if rd is None:
         rd = [D * x for D in Ds]
-    g += np.sum([h * D.T * dnorm(el) for dnorm, h, D, el 
-                 in zip(dnorms[1:], hypers, Ds, rd)])
+    drs = [h * D.T * dnorm(el) for dnorm, h, D, el in zip(dnorms[1:], hypers, Ds, rd)]
+    for dr in drs:
+        g += dr
     return g, ng
 
 def acg(M, y, Ds=[], hypers=[], **kargs):
@@ -253,69 +182,6 @@ def dhuber(t, delta=1):
     t_out[linear_index_negative] = - 2 * delta
     return np.reshape(t_out, t.shape)
 
-# Iterative Thresholding methods
-
-def landweber(A, W, y, mu=1., nu=None, threshold=thresholding.hard, x0=None,
-              maxiter=100, callback=None):
-    """Landweber algorithm
-    
-    Input
-    -----
-    A : measurement matrix
-    W : wavelet transform
-    y : data
-    mu : step of the gradient update
-    nu : thresholding coefficient
-    threshold : thresholding function
-    maxiter : number of iterations
-    callback : callback function
-    
-    Output
-    ------
-    
-    x : solution
-    
-    """
-    if callback is None:
-        callback = lo.CallbackFactory(verbose=True)
-    if x0 is None:
-        x = A.T * y
-    else:
-        x = copy(x0)
-    for iter_ in xrange(maxiter):
-        r = A * x - y
-        x += .5 * mu * A.T * (r)
-        x = W.T * threshold(W * x, nu)
-        resid = lo.norm2(r) + 1 / (2 * nu) * lo.normp(p=1)(x)
-        callback(x)
-    return x
-
-def fista(A, W, y, mu=1., nu=None, threshold=thresholding.hard, x0=None,
-          maxiter=100, callback=None):
-    """ Fista algorithm
-    
-    """
-    if callback is None:
-        callback = lo.CallbackFactory(verbose=True)
-    if x0 is None:
-        x = A.T * y
-    else:
-        x = copy(x0)
-    x_old = np.zeros(x.shape)
-    t_old = 1.
-    for iter_ in xrange(maxiter):
-        t = (1 + np.sqrt(1 + 4 * t_old ** 2)) / 2
-        a = (t_old - 1) / t
-        t_old = copy(t)
-        z = x + a * (x - x_old)
-        g = A.T * (A * z - y)
-        x = z - .5 * mu * g
-        x = W.T * threshold(W * x, nu)
-        x_old = copy(x)
-        resid = lo.norm2(A * x - y) + 1 / (2 * nu) * lo.normp(p=1)(x)
-        callback(x)
-    return x
-
 # line search methods
 
 def quadratic_optimal_step(d, g, M, hypers, Ds):
@@ -350,3 +216,32 @@ class CallbackFactory():
         if self.verbose:
             print('Iteration: ' + str(self.iter_[-1]) + '\t'
                   + 'Residual: ' + str( self.resid[-1]))
+
+# functions with optional dependencies
+
+try:
+    import scipy.sparse.linalg as spl
+except ImportError:
+    pass
+
+if 'spl' in locals():
+    from sparse import *
+    del spl
+
+try:
+    import scikits.optimization
+except ImportError:
+    pass
+
+if 'scikits' in locals():
+    if 'optimization' in scikits.__dict__:
+        from optimization import *
+
+try:
+    import pywt
+except ImportError:
+    pass
+
+if 'pywt' in locals():
+    from iterative_thresholding import *
+

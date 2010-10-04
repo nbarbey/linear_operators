@@ -15,3 +15,13 @@ except ImportError:
 
 if 'fht' in locals():
     from fht_lo import fht
+
+
+try:
+    import cudamat
+except ImportError:
+    pass
+
+if 'cudamat' in locals():
+    from cudamat_lo import *
+    del cudamat

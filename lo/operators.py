@@ -3,6 +3,29 @@ import numpy as np
 from copy import copy
 from interface import LinearOperator
 
+def eigen_operator(shape, e, v, **kargs):
+    """
+    Returns a LinearOperator using eigenvalues and eigenvectors
+    as given by sparse.linalg.eigen.
+    This LinearOperator can be seen as an approximation of the
+    operator on which the eigen function has been run.
+
+    Inputs
+    -------
+    shape : shape of the matrix
+    e : eigenvalues
+    v : eigenvectors
+    dtype : data type (e.g np.float64)
+
+    Outputs
+    -------
+    A : LinearOperator
+    """
+    def matvec(x):
+        k = [np.dot(x.T, vi) for vi in v]
+        return np.sum([ki * ei * vi for ki, ei, vi in zip(k, e, v)], axis=0)
+    return LinearOperator(shape, matvec=matvec, rmatvec=matvec, **kargs)
+
 def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64,
                dtypein=None, dtypeout=None):
     "Transform n-dimensional linear operators into LinearOperators"
@@ -176,6 +199,16 @@ def convolve(shapein, kernel, mode='full'):
     return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=kernel.dtype)
 
 def mask(mask, dtype=np.float64):
+    "Masking as a LinearOperator"
+    shapein = mask.shape
+    shapeout = mask.shape
+    def matvec(x):
+        y = copy(x)
+        y[mask==True] = 0
+        return y
+    return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
+
+def decimate(mask, dtype=np.float64):
     "Masking as a LinearOperator"
     shapein = mask.shape
     shapeout = np.sum(mask == False)
