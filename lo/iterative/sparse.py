@@ -5,6 +5,7 @@ import numpy as np
 import scipy.sparse.linalg as spl
 from copy import copy
 import lo
+from lo.iterative import *
 
 def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     """Regularized Least Square
@@ -32,7 +33,8 @@ def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     for h, D in zip(hypers, Ds):
         D = lo.aslinearoperator(D)
         X += h * D.T * D
-    return optimizer(X, A.T * b, **kargs)
+    out, info = optimizer(X, A.T * b, **kargs)
+    return out
 
 def irls(A0, x0, tol1=1e-5, maxiter1=10, p=1, optimizer=spl.cgs, **kargs):
     """ Iteratively Reweighted Least Square

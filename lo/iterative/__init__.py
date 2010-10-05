@@ -74,7 +74,6 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         r = M * x - y
         rd = [D * x for D in Ds]
         # criterion
-        J0 = copy(J)
         J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
         resid = J / Jnorm
         callback(x)
@@ -83,7 +82,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         info = resid
     else:
         info = 0
-    return x, info
+    return x#, info
 
 def criterion(x=None, y=None, M=None, norms=None, hypers=None, Ds=None,
               r=None, rd=None):

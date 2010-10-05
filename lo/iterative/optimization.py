@@ -28,17 +28,14 @@ class Model():
         if b is None:
             b = self.b
         out = self.norms[0](self.M * x - b)
-        out += np.sum([h * norm(D * x)
-                       for D, h, norm
-                       in zip(self.Ds, self.hypers, self.norms[1:])])
+        for D, h, norm in zip(self.Ds, self.hypers, self.norms[1:]):
+            out += h * norm(D * x)
         return out
     def gradient(self, x):
         r = self.M * x - self.b
         out = self.M.T * self.dnorms[0](r)
-        drs = [h * D.T * dnorm(D * x) for D, h, dnorm in
-               zip(self.Ds, self.hypers, self.dnorms[1:])]
-        for dr in drs:
-            out += dr
+        for D, h, dnorm in zip(self.Ds, self.hypers, self.dnorms[1:]):
+            out += h * D.T * dnorm(D * x)
         return out
 
 class QuadraticModel(Model):
@@ -106,6 +103,8 @@ def quadratic_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
     model = QuadraticModel(M, b, Ds, hypers)
     mystep = step.PRPConjugateGradientStep()
     mylinesearch = QuadraticOptimalStep(M, b, Ds, hypers)
+    #mylinesearch = line_search.QuadraticInterpolationSearch(
+    #    min_alpha_step=min_alpha_step,alpha_step = 1e-4)
     mycriterion = criterion.criterion(ftol=tol, iterations_max=maxiter)
     myoptimizer = VerboseStandardOptimizer(function=model,
                                               step=mystep,
