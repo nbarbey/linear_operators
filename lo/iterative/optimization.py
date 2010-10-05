@@ -12,6 +12,7 @@ class VerboseStandardOptimizer(StandardOptimizer):
         print "iteration : " + str(kwargs['iteration'])
         print "current value: " + str(kwargs['new_value'])
         print "step: " + str(kwargs.get('alpha_step'))
+    recordHistory=record_history
 
 class Model():
     def __init__(self, M, b, Ds=[], hypers=[], norms=[], dnorms=[], **kargs):
@@ -78,8 +79,8 @@ class QuadraticOptimalStep():
         d = state['direction']
         g = state['gradient']
         a = -.5 * np.dot(d.T, g)
-        a /= norm2(self.M * d) + np.sum([h * norm2(D * d)
-                                         for h, D in zip(self.hypers, self.Ds)])
+        a /= (norm2(self.M * d) + sum([h * norm2(D * d)
+                                       for h, D in zip(self.hypers, self.Ds)]))
         state['alpha_step'] = a
         return origin + a * d
 
