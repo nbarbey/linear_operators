@@ -6,7 +6,7 @@ from copy import copy
 import lo
 
 def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter=None,
-         callback=None):
+         callback=None, **kwargs):
     """Generalized approximate conjugate gradient
     
     Approximate conjugate gradient is a gradient method with a polak
@@ -67,7 +67,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
             a = quadratic_optimal_step(d, g, M, hypers, Ds)
         else:
             a = backtracking_line_search(d, g, M, hypers, Ds,
-                                         x, norms)
+                                         x, norms, f0=J)
         # update
         x += a * d
         # residual
@@ -107,25 +107,25 @@ def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
         g += dr
     return g, ng
 
-def acg(M, y, Ds=[], hypers=[], **kargs):
+def acg(M, y, Ds=[], hypers=[], **kwargs):
     "Approximate Conjugate gradient"
     norms = (norm2, ) * (len(Ds) + 1)
     dnorms = (dnorm2, ) * (len(Ds) + 1)
-    return gacg(M, y, Ds, hypers, norms, dnorms, **kargs)
+    return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
 
-def hacg(M, y, Ds=[], hypers=[], deltas=None, **kargs):
+def hacg(M, y, Ds=[], hypers=[], deltas=None, **kwargs):
     "Huber Approximate Conjugate gradient"
     if deltas is None:
-        return acg(M, Ds, hypers, y, **kargs)
+        return acg(M, Ds, hypers, y, **kwargs)
     norms = [hnorm(delta) for delta in deltas]
     dnorms = [dhnorm(delta) for delta in deltas]
-    return gacg(M, y, Ds, hypers, norms, dnorms, **kargs)
+    return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
 
-def npacg(M, y, Ds=[], hypers=[], ps=[], **kargs):
+def npacg(M, y, Ds=[], hypers=[], ps=[], **kwargs):
     "Norm p Approximate Conjugate gradient"
     norms = [normp(p) for p in ps]
     dnorms = [dnormp(p) for p in ps]
-    return gacg(M, y, Ds, hypers, norms, dnorms, **kargs)
+    return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
 
 # norms
 
@@ -188,8 +188,8 @@ def quadratic_optimal_step(d, g, M, hypers, Ds):
     a /= norm2(M * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
     return a
 
-def backtracking_line_search(d, g, M, hypers, Ds, 
-                             x0=None, norms=None, y=None, f0=None, maxiter=10, tau=.5):
+def backtracking_line_search(d, g, M, hypers, Ds, x,
+                             norms=None, y=None, f0=None, maxiter=10, tau=.5):
     a = quadratic_optimal_step(d, g, M, hypers, Ds)
     i = 0
     fi = 2 * f0

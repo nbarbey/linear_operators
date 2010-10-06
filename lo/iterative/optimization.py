@@ -84,20 +84,22 @@ class QuadraticOptimalStep():
 class BacktrackingFromOptimal():
     def __init__(self, M, b, Ds=[], hypers=[], rho=0.1, alpha_step=1.,
                  alpha_factor=0.5, **kwargs):
+        from scikits.optimization import line_search
+
         self.optimal = QuadraticOptimalStep(M, b, Ds=Ds, hypers=hypers)
-        self.backtracking = BacktrackingSearch(rho, alpha_step, alpha_factor)
+        self.backtracking = line_search.BacktrackingSearch(rho, alpha_step, alpha_factor)
     def __call__(self, origin, function, state, **kwargs):
         self.optimal(origin, function, state, **kwargs)
         state['initial_alpha_step'] = state['alpha_step']
-        self.backtracking(origin, function, state, **kwargs)
+        return self.backtracking(origin, function, state, **kwargs)
 
 def quadratic_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
-                           min_alpha_step=1e-10):
+                           min_alpha_step=1e-10, **kwargs):
     """
     Use scikits.optimization to perform least-square inversion.
     """
     from scikits.optimization import step, line_search, criterion, optimizer
-
+    
     if maxiter is None:
         maxiter = M.shape[0]
     model = QuadraticModel(M, b, Ds, hypers)
@@ -105,7 +107,7 @@ def quadratic_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
     mylinesearch = QuadraticOptimalStep(M, b, Ds, hypers)
     #mylinesearch = line_search.QuadraticInterpolationSearch(
     #    min_alpha_step=min_alpha_step,alpha_step = 1e-4)
-    mycriterion = criterion.criterion(ftol=tol, iterations_max=maxiter)
+    mycriterion = criterion.criterion(gtol=tol, iterations_max=maxiter)
     myoptimizer = VerboseStandardOptimizer(function=model,
                                               step=mystep,
                                               line_search=mylinesearch,
@@ -114,7 +116,7 @@ def quadratic_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
     return myoptimizer.optimize()
 
 def huber_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
-                           min_alpha_step=1e-10):
+                           min_alpha_step=1e-10, **kwargs):
     """
     Use scikits.optimization to perform least-square inversion.
     """
@@ -122,11 +124,11 @@ def huber_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
 
     if maxiter is None:
         maxiter = M.shape[0]
-    model = QuadraticModel(M, b, Ds, hypers)
+    model = HuberModel(M, b, Ds, hypers, **kwargs)
     mystep = step.PRPConjugateGradientStep()
-    mylinesearch = QuadraticOptimalStep(M, b, Ds, hypers)
+    mylinesearch = BacktrackingFromOptimal(M, b, Ds, hypers)
     mycriterion = criterion.criterion(ftol=tol, iterations_max=maxiter)
-    myoptimizer = VerboseStandardOptimizer(function=model, 
+    myoptimizer = VerboseStandardOptimizer(function=model,
                                               step=mystep,
                                               line_search=mylinesearch,
                                               criterion=mycriterion,
