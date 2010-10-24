@@ -74,8 +74,10 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         r = M * x - y
         rd = [D * x for D in Ds]
         # criterion
+        J_old = copy(J)
         J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
-        resid = J / Jnorm
+        #resid = J / Jnorm
+        resid = (J_old - J) / Jnorm
         callback(x)
     # define output
     if resid > tol:
@@ -130,7 +132,7 @@ def npacg(M, y, Ds=[], hypers=[], ps=[], **kwargs):
 # norms
 
 def norm2(x):
-    return np.dot(x.T, x)
+    return np.dot(x.ravel().T, x.ravel())
 
 def dnorm2(x):
     return 2 * x
