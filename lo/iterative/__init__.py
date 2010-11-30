@@ -208,15 +208,19 @@ class CallbackFactory():
     def __init__(self, verbose=False):
         self.iter_ = []
         self.resid = []
+        self.criterion = []
         self.verbose = verbose
     def __call__(self, x):
         import inspect
         parent_locals = inspect.stack()[1][0].f_locals
         self.iter_.append(parent_locals['iter_'])
         self.resid.append(parent_locals['resid'])
+        self.criterion.append(parent_locals['J'])
         if self.verbose:
             print('Iteration: ' + str(self.iter_[-1]) + '\t'
-                  + 'Residual: ' + str( self.resid[-1]))
+                  + 'Residual: ' + str( self.resid[-1]) + '\t'
+                  + 'Criterion: ' + str( self.criterion[-1])
+                  )
 
 # functions with optional dependencies
 

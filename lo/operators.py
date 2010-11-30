@@ -202,9 +202,11 @@ def mask(mask, dtype=np.float64):
     "Masking as a LinearOperator"
     shapein = mask.shape
     shapeout = mask.shape
+    # make a copy to be sure mask does not change
+    op_mask = copy(mask)
     def matvec(x):
         y = copy(x)
-        y[mask==True] = 0
+        y[op_mask==True] = 0
         return y
     return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
 
