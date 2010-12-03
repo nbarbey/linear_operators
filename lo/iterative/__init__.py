@@ -39,6 +39,8 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         x = M.T * y
     else:
         x = copy(x0)
+    # normalize hyperparameters
+    hypers = normalize_hyper(hypers, y, x)
     # tolerance
     r = M * x - y
     rd = [D * x for D in Ds]
@@ -232,6 +234,14 @@ class CallbackFactory():
             if self.criterion is not False:
                 report += '\t %e' % (self.criterion[-1])
             print(report)
+
+def normalisze_hyper(hyper, y, x):
+    """
+    Normalize hyperparamaters so that they are independent of pb size
+    """
+    nx = float(x.size)
+    ny = float(y.size)
+    return np.asarray(hyper) * ny / nx
 
 # functions with optional dependencies
 

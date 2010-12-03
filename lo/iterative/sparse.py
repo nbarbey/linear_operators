@@ -26,6 +26,8 @@ def rls(A, b, Ds=[], hypers=[], optimizer=spl.cgs, **kargs):
     """
     verbose = getattr(kargs, 'verbose', True)
     callback = getattr(kargs, 'callback', None)
+    # normalize hyperparameters
+    hypers = normalize_hyper(hypers, y, x)
     if callback is None:
         kargs['callback'] = CallbackFactory(verbose=verbose)
     A = lo.aslinearoperator(A)
