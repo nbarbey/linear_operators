@@ -30,7 +30,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
 
     """
     if callback is None:
-        callback = CallbackFactory(verbose=True)
+        callback = CallbackFactory(verbose=True, criterion=True)
     # ensure linear operators are passed
     M = lo.aslinearoperator(M)
     Ds = [lo.aslinearoperator(D) for D in Ds]
@@ -205,22 +205,33 @@ def backtracking_line_search(d, g, M, hypers, Ds, x,
 
 # To create callback functions
 class CallbackFactory():
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, criterion=False):
         self.iter_ = []
         self.resid = []
-        self.criterion = []
+        if criterion:
+            self.criterion = []
+        else:
+            self.criterion = False
         self.verbose = verbose
     def __call__(self, x):
         import inspect
         parent_locals = inspect.stack()[1][0].f_locals
         self.iter_.append(parent_locals['iter_'])
         self.resid.append(parent_locals['resid'])
-        self.criterion.append(parent_locals['J'])
+        if self.criterion is not False:
+            self.criterion.append(parent_locals['J'])
         if self.verbose:
-            print('Iteration: ' + str(self.iter_[-1]) + '\t'
-                  + 'Residual: ' + str( self.resid[-1]) + '\t'
-                  + 'Criterion: ' + str( self.criterion[-1])
-                  )
+            # print header at first iteartion
+            if len(self.iter_) == 1:
+                header = 'Iteration \t Residual'
+                if self.criterion is not False:
+                    header += '\t Criterion'
+                    print(header)
+            # print status
+            report = "\t%i \t %e" % (self.iter_[-1], self.resid[-1])
+            if self.criterion is not False:
+                report += '\t %e' % (self.criterion[-1])
+            print(report)
 
 # functions with optional dependencies
 
