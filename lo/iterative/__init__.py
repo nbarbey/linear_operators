@@ -235,7 +235,7 @@ class CallbackFactory():
                 report += '\t %e' % (self.criterion[-1])
             print(report)
 
-def normalisze_hyper(hyper, y, x):
+def normalize_hyper(hyper, y, x):
     """
     Normalize hyperparamaters so that they are independent of pb size
     """
