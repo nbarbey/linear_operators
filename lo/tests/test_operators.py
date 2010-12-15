@@ -116,10 +116,13 @@ class InfoArray(np.ndarray):
 
     There is no requirement on the nature of the object
     """
-    def __new__(subtype, shape, dtype=float, buffer=None, offset=0,
+    def __new__(subtype, shape=None, data=None, dtype=float, buffer=None, offset=0,
                 strides=None, order=None, header=None):
-        obj = np.ndarray.__new__(subtype, shape, dtype, buffer, offset,
-                                 strides, order)
+        if shape is not None:
+            obj = np.ndarray.__new__(subtype, shape, dtype, buffer, offset,
+                                     strides, order)
+        elif data is not None:
+            obj = np.array(data).view(subtype)
         obj.header = header
         return obj
     def __array_finalize__(self, obj):
@@ -129,25 +132,22 @@ class InfoArray(np.ndarray):
         return asinfoarray(copy.copy(self), header=copy.copy(self.header))
 
 def asinfoarray(array, header=None):
-    """Return a copy of an array casted as a FitsArray
+    """Return a view of an array as a FitsArray
     """
-    import copy
-    header = copy.copy(getattr(array, 'header', header))
-    out = InfoArray(np.asarray(array).shape, header=header)
-    out[:] = copy.copy(array)
-    return out
+    return InfoArray(data=array, header=header)
 
 class TestNDSubclass(TestCase):
     def setUp(self):
         self.vars = []
         shapein1 = (3, 4)
         shapeout1 = (3,)
+
         def ndmatvec1(x):
             if not isinstance(x, InfoArray):
                 raise ValueError('Expected InfoArray')
-            y = asinfoarray([1*x[0, 0] + 2*x[1, 0] + 3*x[2, 0],
-                             4*x[0, 1] + 5*x[0, 2] + 6*x[0, 3],
-                             7*x[1, 1] + 8*x[1, 2] + 9*x[2, 3]])
+            y = asinfoarray([1 * x[0, 0] + 2 * x[1, 0] + 3 * x[2, 0],
+                             4 * x[0, 1] + 5 * x[0, 2] + 6 * x[0, 3],
+                             7 * x[1, 1] + 8 * x[1, 2] + 9 * x[2, 3]])
             print x.header
             if x.header is not None:
                 y *= x.header['prod']

@@ -3,44 +3,84 @@ import numpy as np
 from copy import copy
 from interface import LinearOperator
 
-def eigen_operator(shape, e, v, **kargs):
-    """
-    Returns a LinearOperator using eigenvalues and eigenvectors
-    as given by sparse.linalg.eigen.
-    This LinearOperator can be seen as an approximation of the
-    operator on which the eigen function has been run.
+class NDOperator(LinearOperator):
+    """Subclass of LinearOperator that handle multidimensional inputs and outputs"""
+    def __init__(self, shapein, shapeout, matvec, rmatvec=None, matmat=None, rmatmat=None,
+                 dtypein=None, dtypeout=None, dtype=None):
 
-    Inputs
-    -------
-    shape : shape of the matrix
-    e : eigenvalues
-    v : eigenvectors
-    dtype : data type (e.g np.float64)
+        self.ndmatvec = matvec
+        self.ndrmatvec = rmatvec
+        self.shapein = shapein
+        self.shapeout = shapeout
+        
+        sizein = np.prod(shapein)
+        sizeout = np.prod(shapeout)
+        shape = (sizeout, sizein)
 
-    Outputs
-    -------
-    A : LinearOperator
-    """
-    def matvec(x):
-        k = [np.dot(x.T, vi) for vi in v]
-        return np.sum([ki * ei * vi for ki, ei, vi in zip(k, e, v)], axis=0)
-    return LinearOperator(shape, matvec=matvec, rmatvec=matvec, **kargs)
+        ndmatvec = lambda x: matvec(x.reshape(shapein)).ravel()
 
+        if rmatvec is not None:
+            ndrmatvec = lambda x: rmatvec(x.reshape(shapeout)).ravel()
+        else:
+            ndrmatvec = None
+
+        LinearOperator.__init__(self, shape, ndmatvec, ndrmatvec, dtype=dtype,
+                                dtypein=dtypein, dtypeout=dtypeout)
+
+class NDSOperator(NDOperator):
+    def __init__(self, shapein=None, shapeout=None, classin=None,
+                 classout=None, dictin=None, dictout=None, xin=None, xout=None,
+                 matvec=None, rmatvec=None, dtype=np.float64, dtypein=None,
+                 dtypeout=None):
+        "Wrap linear operation working on ndarray subclasses in InfoArray style"
+        if xin is not None:
+            shapein = xin.shape
+            classin = xin.__class__
+            dictin = xin.__dict__
+            dtype = xin.dtype
+
+        if xout is not None:
+            shapeout = xout.shape
+            classout = xout.__class__
+            dictout = xout.__dict__
+
+            sizein = np.prod(shapein)
+            sizeout = np.prod(shapeout)
+            shape = (sizeout, sizein)
+
+        self.ndsmatvec = matvec
+        self.ndsrmatvec = rmatvec
+        self.classin = classin
+        self.classout = classout
+        self.dictin = dictin
+        self.dictout = dictout
+        self.shapein = shapein
+        self.shapeout = shapeout
+
+        if matvec is not None:
+            def smatvec(x):
+                xi = classin(data=x)
+                xi.__dict__ = dictin
+                return matvec(xi)
+        else:
+            raise ValueError('Requires a matvec function')
+
+        if rmatvec is not None:
+            def srmatvec(x):
+                xo = classout(data=x)
+                xo.__dict__ = dictout
+                return rmatvec(xo)
+        else:
+            rmatvec = None
+
+        NDOperator.__init__(self, shapein, shapeout, smatvec, rmatvec=srmatvec,
+                            dtypein=dtypein, dtypeout=dtypeout, dtype=dtype)
+        
 def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64,
                dtypein=None, dtypeout=None):
     "Transform n-dimensional linear operators into LinearOperators"
-    sizein = np.prod(shapein)
-    sizeout = np.prod(shapeout)
-    shape = (sizeout, sizein)
-    def ndmatvec(x):
-        return matvec(x.reshape(shapein)).reshape(sizeout)
-    if rmatvec is not None:
-        def ndrmatvec(x):
-            return rmatvec(x.reshape(shapeout)).reshape(sizein)
-    else:
-        ndrmatvec = None
-    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, 
-                          dtype=dtype, dtypein=dtypein, dtypeout=dtypeout)
+    return NDOperator(shapein, shapeout, matvec=matvec, rmatvec=rmatvec,
+                      dtype=dtype, dtypein=dtypein, dtypeout=dtypeout)
 
 def masubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
                classout=None, dictin=None, dictout=None,
@@ -75,40 +115,9 @@ def masubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
     return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype,
                           dtypein=dtypein, dtypeout=dtypeout)
 
-def ndsubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
-               classout=None, dictin=None, dictout=None,
-               matvec=None, rmatvec=None, dtype=np.float64, dtypein=None, dtypeout=None):
+def ndsubclass(**kwargs):
     "Wrap linear operation working on ndarray subclasses in InfoArray style"
-    if xin is not None:
-        shapein = xin.shape
-        classin = xin.__class__
-        dictin = xin.__dict__
-        dtype = xin.dtype
-    if xout is not None:
-        shapeout = xout.shape
-        classout = xout.__class__
-        dictout = xout.__dict__
-    sizein = np.prod(shapein)
-    sizeout = np.prod(shapeout)
-    shape = (sizeout, sizein)
-    if matvec is not None:
-        def ndmatvec(x):
-            xi = classin(shapein)
-            xi.__dict__ = dictin
-            xi[:] = x.reshape(shapein)
-            return matvec(xi).reshape(sizeout)
-    else:
-        raise ValueError('Requires a matvec function')
-    if rmatvec is not None:
-        def ndrmatvec(x):
-            xo = classout(shapeout)
-            xo.__dict__ = dictout
-            xo[:] = x.reshape(shapeout)
-            return rmatvec(xo).reshape(sizein)
-    else:
-        ndrmatvec = None
-    return LinearOperator(shape, matvec=ndmatvec, rmatvec=ndrmatvec, dtype=dtype,
-                          dtypein=dtypein, dtypeout=dtypeout)
+    return NDSOperator(**kwargs)
 
 def diag(d, shape=None, dtype=None):
     "Returns a diagonal Linear Operator"
