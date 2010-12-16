@@ -8,11 +8,6 @@ class NDOperator(LinearOperator):
     def __init__(self, shapein, shapeout, matvec, rmatvec=None, matmat=None, rmatmat=None,
                  dtypein=None, dtypeout=None, dtype=None):
 
-        self.ndmatvec = matvec
-        self.ndrmatvec = rmatvec
-        self.shapein = shapein
-        self.shapeout = shapeout
-        
         sizein = np.prod(shapein)
         sizeout = np.prod(shapeout)
         shape = (sizeout, sizein)
@@ -26,6 +21,12 @@ class NDOperator(LinearOperator):
 
         LinearOperator.__init__(self, shape, ndmatvec, ndrmatvec, dtype=dtype,
                                 dtypein=dtypein, dtypeout=dtypeout)
+
+        self.ndmatvec = matvec
+        self.ndrmatvec = rmatvec
+        self.shapein = shapein
+        self.shapeout = shapeout
+
 
 class NDSOperator(NDOperator):
     def __init__(self, shapein=None, shapeout=None, classin=None,
@@ -76,11 +77,9 @@ class NDSOperator(NDOperator):
         NDOperator.__init__(self, shapein, shapeout, smatvec, rmatvec=srmatvec,
                             dtypein=dtypein, dtypeout=dtypeout, dtype=dtype)
         
-def ndoperator(shapein, shapeout, matvec, rmatvec=None, dtype=np.float64,
-               dtypein=None, dtypeout=None):
+def ndoperator(*kargs, **kwargs):
     "Transform n-dimensional linear operators into LinearOperators"
-    return NDOperator(shapein, shapeout, matvec=matvec, rmatvec=rmatvec,
-                      dtype=dtype, dtypein=dtypein, dtypeout=dtypeout)
+    return NDOperator(*kargs, **kwargs)
 
 def masubclass(xin=None, xout=None, shapein=None, shapeout=None, classin=None,
                classout=None, dictin=None, dictout=None,
