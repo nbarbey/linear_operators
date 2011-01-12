@@ -206,14 +206,17 @@ def convolve(shapein, kernel, mode='full'):
         return convolve(x, kernel, mode=rmode)
     return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=kernel.dtype)
 
-def mask(mask, dtype=np.float64):
+def mask(mask, dtype=np.float64, copy=False):
     "Masking as a LinearOperator"
     shapein = mask.shape
     shapeout = mask.shape
     # make a copy to be sure mask does not change
     op_mask = copy(mask)
     def matvec(x):
-        y = copy(x)
+        if copy:
+            y = copy(x)
+        else:
+            y = x
         y[op_mask==True] = 0
         return y
     return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
