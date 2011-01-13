@@ -239,14 +239,16 @@ def decimate(mask, dtype=np.float64):
 def diff(shapein, axis=-1, dtype=np.float64):
     shapeout = np.asarray(shapein)
     shapeout[axis] -= 1
+    shapetmp = list(shapeout)
+    shapetmp[axis] += 2
+    tmp = np.zeros(shapetmp)
+    s = [slice(None),] * len(shapein)
+    s[axis] = slice(1, -1)
     def matvec(x):
         return np.diff(x, axis=axis)
     def rmatvec(x):
-        shape = list(x.shape)
-        shape[axis] = 1
-        border = np.zeros(shape)
-        out = np.concatenate((border, x, border), axis=axis)
-        return - np.diff(out, axis=axis)
+        tmp[s] = x
+        return - np.diff(tmp, axis=axis)
     return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
 
 def binning(shapein, factor, axis=-1, dtype=np.float64):
