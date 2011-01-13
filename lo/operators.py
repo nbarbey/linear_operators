@@ -191,9 +191,12 @@ def convolve(shapein, kernel, mode='full'):
     if mode == 'full':
         shapeout = [s + ks - 1 for s, ks in zip(shapein, kernel.shape)]
     if mode == 'valid':
-        shapeout = [s - ks - 1 for s, ks in zip(shapein, kernel.shape)]
+        shapeout = [s - ks + 1 for s, ks in zip(shapein, kernel.shape)]
     if mode == 'same':
         shapeout = shapein
+    # reverse kernel
+    s = (slice(None, None, -1), ) * kernel.ndim
+    rkernel = kernel[s]
     def matvec(x):
         return convolve(x, kernel, mode=mode)
     def rmatvec(x):
@@ -203,7 +206,7 @@ def convolve(shapein, kernel, mode='full'):
             rmode = 'full'
         elif mode == 'same':
             rmode = 'same'
-        return convolve(x, kernel, mode=rmode)
+        return convolve(x, rkernel, mode=rmode)
     return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=kernel.dtype)
 
 def mask(mask, dtype=np.float64, copy_array=False):
