@@ -9,9 +9,9 @@ def cond(A, k=1, symmetric=True, M=None, maxiter=None, tol=0):
     function.
     """
     if symmetric:
-        from scipy.sparse.linalg import eigen_symmetric as eigen
+        from scipy.sparse.linalg.arpack import eigen_symmetric as eigen
     else:
-        from scipy.sparse.linalg import eigen
+        from scipy.sparse.linalg.arpack import eigen
 
     smax = np.max(eigen(A, which='LM', k=k, M=M, maxiter=maxiter, tol=tol, return_eigenvectors=False))
     smin = np.min(eigen(A, which='SA', k=k, M=M, maxiter=maxiter, tol=tol, return_eigenvectors=False))
