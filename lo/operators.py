@@ -214,14 +214,15 @@ def mask(mask, dtype=np.float64, copy_array=False):
     shapein = mask.shape
     shapeout = mask.shape
     # make a copy to be sure mask does not change
-    op_mask = copy(mask)
+    op_mask = copy(1 - mask)
     def matvec(x):
         if copy_array:
             y = copy(x)
         else:
             y = x
-        y[op_mask==True] = 0
+        x *= mask
         return y
+
     return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
 
 def decimate(mask, dtype=np.float64):
