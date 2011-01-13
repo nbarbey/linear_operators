@@ -367,7 +367,7 @@ class LinearOperator:
         for i in xrange(A.shape[1]):
             x[i] = 1
             A[:, i] = self * x
-            x[i] = 0
+            x[:] = 0
         return A
 
 def _mat_mul(matvec1, matvec2):
