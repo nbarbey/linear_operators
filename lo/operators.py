@@ -220,7 +220,7 @@ def mask(mask, dtype=np.float64, copy_array=False):
             y = copy(x)
         else:
             y = x
-        x *= mask
+        x *= op_mask
         return y
 
     return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
