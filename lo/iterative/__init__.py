@@ -103,12 +103,12 @@ def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
     if r is None:
         r = M * x - y
     g = M.T * dnorms[0](r)
-    ng = norm2(g)
     if rd is None:
         rd = [D * x for D in Ds]
     drs = [h * D.T * dnorm(el) for dnorm, h, D, el in zip(dnorms[1:], hypers, Ds, rd)]
     for dr in drs:
         g += dr
+    ng = norm2(g)
     return g, ng
 
 def acg(M, y, Ds=[], hypers=[], **kwargs):

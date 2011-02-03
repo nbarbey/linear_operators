@@ -22,54 +22,36 @@ def wavedec(shapein, wavelet, mode='sym', level=None, dtype=np.float64):
     return lo.LinearOperator((shapeout, shapein), matvec=matvec, rmatvec=rmatvec,
                              dtype=dtype)
 
-#def wavedec2(shapein, wavelet, mode='sym', level=None, dtype=np.float64):
-#    a = np.zeros(shapein)
-#    b = pywt.wavedec2(a, wavelet, mode=mode, level=level)
-#    def matvec(x):
-#        y = x.reshape(shapein)
-#        input_list = pywt.wavedec2(y, wavelet, mode=mode, level=level)
-#        output_array = input_list[0]
-#        for element in input_list[1:]:
-#            output_array = np.hstack((output_array, element[0]))
-#            tmp = np.hstack((element[1], element[2]))
-#            output_array = np.vstack((output_array, tmp))
-#        return output_array
-#    def rmatvec(x):
-#        input_array = x.reshape(shapein)
-#        output_list = list()
-#        for i in xrange(len(b) - 1):
-#            tmp1, tmp2 = np.vsplit(input_array, 2)
-#            input_array, tmp3 = np.hsplit(tmp1, 2)
-#            tmp4, tmp5 = np.hsplit(tmp2, 2)
-#            output_list.append(tuple((tmp3, tmp4, tmp5)))
-#        output_list.append(input_array)
-#        output_list.reverse()
-#        return pywt.waverec2(output_list, wavelet, mode=mode)
-#    shapeout = matvec(a).size
-#"    return lo.ndoperator(shapeout, shapein, matvec=matvec, rmatvec=rmatvec,
-#                         dtype=dtype)
-
 def wavelet2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
+    """
+    2d wavelet decomposition / reconstruction as a NDOperator
+    """
     a = np.zeros(shapein)
     b = pywt.wavedec2(a, wavelet, mode=mode, level=level)
+    shapeout = coefs2array(b).shape
     def matvec(x):
-        xnd = x.reshape(shapein)
-        yl = pywt.wavedec2(xnd, wavelet, mode=mode, level=level)
-        y = yl[0].flatten()
-        for el in yl[1:]:
-            y = np.concatenate((y, np.concatenate(el).flatten()))
-        return y
+        coefs = pywt.wavedec2(x, wavelet, mode=mode, level=level)
+        return coefs2array(coefs)
     def rmatvec(x):
-        iinf = 0
-        isup = b[0].size
-        yl = [x[iinf:isup].reshape(b[0].shape), ]
-        for i in xrange(1, len(b)):
-            tmp = list()
-            for j in xrange(3):
-                iinf = copy(isup)
-                isup = iinf + b[i][j].size
-                tmp.append(x[iinf:isup].reshape(b[i][j].shape))
-            yl.append(tmp)
-        return pywt.waverec2(yl, wavelet, mode=mode)[:a.shape[0], :a.shape[1]].flatten()
-    shape = (matvec(a).size, np.prod(shapein))
-    return lo.LinearOperator(shape, matvec=matvec, rmatvec=rmatvec)
+        coefs = array2coefs(x, b)
+        return pywt.waverec2(coefs, wavelet, mode=mode)
+    return lo.NDOperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
+
+def coefs2array(coefs):
+    out = coefs[0]
+    for scale in coefs[1:]:
+        out = np.vstack((np.hstack((out, scale[0])), np.hstack((scale[1], scale[2]))))
+    return out
+
+def array2coefs(a, l):
+    ilim = [0, l[0].shape[0]]
+    jlim = [0, l[0].shape[1]]
+    coefs = [a[ilim[0]:ilim[1], jlim[0]:jlim[1]], ]
+    for i in xrange(1, len(l)):
+        ilim.append(ilim[-1] + l[i][0].shape[0])
+        jlim.append(jlim[-1] + l[i][0].shape[1])
+        scale = (a[0:ilim[-2], jlim[-2]:jlim[-1]],
+                 a[ilim[-2]:ilim[-1], 0:jlim[-2]],
+                 a[ilim[-2]:ilim[-1], jlim[-2]:jlim[-1]])
+        coefs.append(scale)
+    return coefs
