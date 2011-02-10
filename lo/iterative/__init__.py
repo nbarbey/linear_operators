@@ -5,7 +5,7 @@ import numpy as np
 from copy import copy
 import lo
 
-def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter=None,
+def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None, maxiter=None,
          callback=None, **kwargs):
     """Generalized approximate conjugate gradient
     
@@ -20,9 +20,9 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
     Ds : priors, (need matvec and rmatvec methods)
     norms : norms of the likelihood and the priors
     dnorms : derivation of the norm
-    b : input vector
+    y : input vector
     hypers: hyperparameters (scalars)
-
+    C : inverse of the covariance matrix
 
     Outputs:
     --------
@@ -36,7 +36,10 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
     Ds = [lo.aslinearoperator(D) for D in Ds]
     # first guess
     if x0 is None:
-        x = M.T * y
+        if C is None:
+            x = M.T * y
+        else:
+            x = M.T * C * y
     else:
         x = copy(x0)
     # normalize hyperparameters
@@ -44,7 +47,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
     # tolerance
     r = M * x - y
     rd = [D * x for D in Ds]
-    J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
+    J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd, C=C)
     Jnorm = copy(J)
     resid = 2 * tol
     # maxiter
@@ -55,7 +58,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
     while iter_ < maxiter and resid > tol:
         iter_ += 1
         # gradient
-        g, ng = gradient(hypers=hypers, dnorms=dnorms, M=M, Ds=Ds, r=r, rd=rd)
+        g, ng = gradient(hypers=hypers, dnorms=dnorms, M=M, Ds=Ds, r=r, rd=rd, C=C)
         # descent direction
         if (iter_  % 10) == 1:
             d = - g
@@ -66,7 +69,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
         ng0 = copy(ng)
         # step
         if norms[0] == norm2:
-            a = quadratic_optimal_step(d, g, M, hypers, Ds)
+            a = quadratic_optimal_step(d, g, M, hypers, Ds, C=C)
         else:
             a = backtracking_line_search(d, g, M, hypers, Ds,
                                          x, norms, f0=J)
@@ -89,20 +92,32 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], tol=1e-6, x0=None, maxiter
     return x#, info
 
 def criterion(x=None, y=None, M=None, norms=None, hypers=None, Ds=None,
-              r=None, rd=None):
+              r=None, rd=None, C=None):
     if r is None:
         r = M * x - y
+    if C is not None:
+        if norms[0] != norm2:
+            raise NotImplemented
+        else:
+            J = np.dot(r.T, C * r)
+    else:
+        J = norms[0](r)
     if rd is None:
         rd = [D * x for D in Ds]
-    J = norms[0](r)
     J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
     return J
 
 def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
-             r=None, rd=None):
+             r=None, rd=None, C=None):
     if r is None:
         r = M * x - y
-    g = M.T * dnorms[0](r)
+    if C is not None:
+        if (dnorms[0] is not dnorm2):
+            raise NotImplemented
+        else:
+            g = M.T * C * dnorms[0](r)
+    else:
+        g = M.T * dnorms[0](r)
     if rd is None:
         rd = [D * x for D in Ds]
     drs = [h * D.T * dnorm(el) for dnorm, h, D, el in zip(dnorms[1:], hypers, Ds, rd)]
@@ -187,9 +202,13 @@ def dhuber(t, delta=1):
 
 # line search methods
 
-def quadratic_optimal_step(d, g, M, hypers, Ds):
+def quadratic_optimal_step(d, g, M, hypers, Ds, C=None):
     a = -.5 * np.dot(d.T, g)
-    a /= norm2(M * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
+    if C is None:
+        a /= norm2(M * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
+    else:
+        Md = M * d
+        a /= np.dot(Md, C * Md) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
     return a
 
 def backtracking_line_search(d, g, M, hypers, Ds, x,
