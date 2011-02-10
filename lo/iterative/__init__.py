@@ -72,7 +72,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None,
             a = quadratic_optimal_step(d, g, M, hypers, Ds, C=C)
         else:
             a = backtracking_line_search(d, g, M, hypers, Ds,
-                                         x, norms, f0=J)
+                                         x, norms=norms, y=y, f0=J)
         # update
         x += a * d
         # residual

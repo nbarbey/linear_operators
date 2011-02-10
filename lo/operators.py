@@ -209,7 +209,7 @@ def convolve(shapein, kernel, mode='full'):
         return convolve(x, rkernel, mode=rmode)
     return ndoperator(shapein, shapeout, matvec, rmatvec, dtype=kernel.dtype)
 
-def mask(mask, dtype=np.float64, copy_array=False):
+def mask(mask, dtype=np.float64, copy_array=False, remove_nan=False):
     "Masking as a LinearOperator"
     shapein = mask.shape
     shapeout = mask.shape
@@ -221,6 +221,8 @@ def mask(mask, dtype=np.float64, copy_array=False):
         else:
             y = x
         x *= op_mask
+        if remove_nan:
+            x[np.isnan(x)] = 0.
         return y
 
     return ndoperator(shapein, shapeout, matvec, matvec, dtype=dtype)
