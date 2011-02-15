@@ -22,11 +22,11 @@ class NDOperator(LinearOperator):
         LinearOperator.__init__(self, shape, ndmatvec, ndrmatvec, dtype=dtype,
                                 dtypein=dtypein, dtypeout=dtypeout)
 
+        # rename to keep same interface as LinearOperator
         self.ndmatvec = matvec
         self.ndrmatvec = rmatvec
         self.shapein = shapein
         self.shapeout = shapeout
-
 
 class NDSOperator(NDOperator):
     def __init__(self, shapein=None, shapeout=None, classin=None,
@@ -137,6 +137,12 @@ def identity(shape, dtype=np.float64):
     def matvec(x):
         return x
     return LinearOperator(shape, matvec=matvec, rmatvec=matvec, dtype=dtype)
+
+def ndidentity(shapein, dtype=np.float64):
+    "Returns the identity ndimensional linear Operator"
+    def matvec(x):
+        return x
+    return NDOperator(shapein, shapein, matvec=matvec, rmatvec=matvec, dtype=dtype)
 
 def eye(shape, dtype=np.float64):
     "Returns the identity linear Operator"
