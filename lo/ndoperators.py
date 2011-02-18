@@ -219,8 +219,8 @@ class Fft2(NDOperator):
             shapeout = shapein
         else:
             shapeout = s
-        matvec = lambda x: np.fft.fft2(x, s=s, axes=axes)
-        rmatvec = lambda x: np.fft.ifft2(x, s=s, axes=axes)
+        matvec = lambda x: np.fft.fft2(x, s=s, axes=axes) / np.sqrt(np.prod(shapein))
+        rmatvec = lambda x: np.fft.ifft2(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Fftn(NDOperator):
@@ -231,8 +231,8 @@ class Fftn(NDOperator):
             shapeout = shapein
         else:
             shapeout = s
-        matvec = lambda x: np.fft.fftn(x, s=s, axes=axes)
-        rmatvec = lambda x: np.fft.ifftn(x, s=s, axes=axes)
+        matvec = lambda x: np.fft.fftn(x, s=s, axes=axes) / np.sqrt(np.prod(shapein))
+        rmatvec = lambda x: np.fft.ifftn(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Convolve(NDOperator):
@@ -334,10 +334,10 @@ def decimate(mask, **kwargs):
     return Decimate(mask, **kwargs)
 
 def fft2(shapein, s=None, axes=(-2, -1), **kwargs):
-    return Fff2(shapein, s=s, axes=axes)
+    return Fft2(shapein, s=s, axes=axes, **kwargs)
 
 def fftn(shapein, s=None, axes=None, **kwargs):
-    return Fftn(shapein, s=s, axes=axes)
+    return Fftn(shapein, s=s, axes=axes, **kwargs)
 
 def convolve(shapein, kernel, mode="full", **kwargs):
     return Convolve(shapein, kernel, mode=mode)
