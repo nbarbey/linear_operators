@@ -4,7 +4,7 @@ import numpy as np
 
 #__all__ = ['LinearOperator', 'aslinearoperator']
 
-class LinearOperator:
+class LinearOperator(object):
     """Common interface for performing matrix vector products
 
     Many iterative methods (e.g. cg, gmres) do not need to know the
@@ -64,7 +64,7 @@ class LinearOperator:
 
     """
     def __init__(self, shape, matvec, rmatvec=None, matmat=None, rmatmat=None,
-                 dtypein=None, dtypeout=None, dtype=None):
+                 dtypein=None, dtypeout=None, dtype=np.float64):
 
         shape = tuple(shape)
 
@@ -341,8 +341,8 @@ class LinearOperator:
             dt = 'dtype=' + str(self.dtypein)
         else:
             dt = 'unspecified dtype'
-
-        return '<%dx%d LinearOperator with %s>' % (M,N,dt)
+        class_name = self.__class__.__name__
+        return '<%dx%d %s with %s>' % (M, N, class_name, dt)
 
     @property
     def T(self):
