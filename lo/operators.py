@@ -34,7 +34,7 @@ class DiagonalOperator(SymmetricOperator):
         SymmetricOperator.__init__(self, shape, matvec, **kwargs)
     def __repr__(self):
         s = LinearOperator.__repr__(self)
-        return s[:-1] + "\n and diagonal=" + self.d.__repr__() + ">"
+        return s[:-1] + ",\n diagonal=" + self.d.__repr__() + ">"
 
 class MaskOperator(DiagonalOperator):
     def __init__(self, mask, **kwargs):
@@ -78,7 +78,7 @@ class PermutationOperator(LinearOperator):
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
     def __repr__(self):
         s = LinearOperator.__repr__(self)
-        return s[:-1] + " and permutation=%d >" % self.p
+        return s[:-1] + ",\n permutation=" + self.p.__repr__() + ">"
 
 class FftOperator(LinearOperator):
     def __init__(self, shape, **kwargs):
