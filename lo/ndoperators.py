@@ -28,6 +28,24 @@ class NDOperator(LinearOperator):
         self.shapein = shapein
         self.shapeout = shapeout
 
+    @property
+    def T(self):
+        kwargs = {}
+        if self.rmatvec is not None:
+            matvec, kwargs['rmatvec'] = self.ndrmatvec, self.ndmatvec
+        else:
+            raise NotImplementedError('rmatvec is not defined')
+        if self._matmat is not None and self._rmatmat is not None:
+            kwargs['matmat'], kwargs['rmatmat'] = self._rmatmat, self._matmat
+        else:
+            matmat, rmatmat = None, None
+        kwargs['dtype'] = getattr(self, 'dtype', None)
+        kwargs['dtypein'] = getattr(self, 'dtypein', None)
+        kwargs['dtypeout'] = getattr(self, 'dtypeout', None)
+        shapein = self.shapeout
+        shapeout = self.shapein
+        return NDOperator(shapein, shapeout, matvec, **kwargs)
+
 class NDSOperator(NDOperator):
     def __init__(self, shapein=None, shapeout=None, classin=None,
                  classout=None, dictin=None, dictout=None, xin=None, xout=None,
@@ -131,10 +149,26 @@ class NDSymmetric(NDSquare):
         kwargs['rmatmat'] = kwargs.get("matmat")
         NDSquare.__init__(self, shapein, matvec, **kwargs)
 
+    @property
+    def T(self):
+        return self
+
 class NDIdentity(NDSymmetric):
     def __init__(self, shapein, **kwargs):
         identity = lambda x: x
         NDSymmetric.__init__(self, shapein, identity, **kwargs)
+
+    def __mul__(self, x):
+        if isinstance(x, LinearOperator):
+            return x
+        else:
+            super(NDIdentity, self).__mul__(x)
+
+    def __rmul__(self, x):
+        if isinstance(x, LinearOperator):
+            return x
+        else:
+            super(NDIdentity, self).__mul__(x)
 
 class NDHomothetic(NDSymmetric):
     def __init__(self, shapein, coef, **kwargs):
@@ -175,8 +209,8 @@ class Decimate(NDOperator):
             return self._in
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
-class FFt2(NDOperator):
-    def __init__(self, shapein, s=None, axes=(-2, -1)):
+class Fft2(NDOperator):
+    def __init__(self, shapein, s=None, axes=(-2, -1), **kwargs):
         self.s = s
         self.axes = axes
         if len(shapein) != 2:
@@ -190,7 +224,7 @@ class FFt2(NDOperator):
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Fftn(NDOperator):
-    def __init__(self, shapein, s=None, axes=None):
+    def __init__(self, shapein, s=None, axes=None, **kwargs):
         self.s = s
         self.axes = axes
         if s is None:
@@ -299,10 +333,10 @@ def ndmask(mask, **kwargs):
 def decimate(mask, **kwargs):
     return Decimate(mask, **kwargs)
 
-def fft2(shapein, s=None, axes=(-2, -1)):
+def fft2(shapein, s=None, axes=(-2, -1), **kwargs):
     return Fff2(shapein, s=s, axes=axes)
 
-def fftn(shapein, s=None, axes=None):
+def fftn(shapein, s=None, axes=None, **kwargs):
     return Fftn(shapein, s=s, axes=axes)
 
 def convolve(shapein, kernel, mode="full", **kwargs):
