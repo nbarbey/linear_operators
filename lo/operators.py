@@ -105,6 +105,9 @@ def homothetic(shape, coef, **kwargs):
 def diagonal(d, **kwargs):
     return DiagonalOperator(d, **kwargs)
 
+# for backward compatibility
+diag = diagonal
+
 def mask(mask, **kwargs):
     return MaskOperator(mask, **kwargs)
 
