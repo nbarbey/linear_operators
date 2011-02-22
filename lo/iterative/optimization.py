@@ -27,19 +27,34 @@ class Model():
         self.hypers = hypers
         self.norms = norms
         self.dnorms = dnorms
+        # to store intermediate computations
+        self.residual = None
+        self.priors = None
+        self.last_x = None
     def __call__(self, x, b=None):
         if b is None:
             b = self.b
-        out = self.norms[0](self.M * x - b)
-        for D, h, norm in zip(self.Ds, self.hypers, self.norms[1:]):
-            out += h * norm(D * x)
+        self.compute_residual(x)
+        self.compute_priors(x)
+        out = self.norms[0](self.residual)
+        for Dx, h, norm in zip(self.priors, self.hypers, self.norms[1:]):
+            out += h * norm(Dx)
         return out
     def gradient(self, x):
-        r = self.M * x - self.b
-        out = self.M.T * self.dnorms[0](r)
-        for D, h, dnorm in zip(self.Ds, self.hypers, self.dnorms[1:]):
-            out += h * D.T * dnorm(D * x)
+        self.compute_residual(x)
+        self.compute_priors(x)
+        out = self.M.T * self.dnorms[0](self.residual)
+        for D, Dx, h, dnorm in zip(self.Ds, self.priors, self.hypers, self.dnorms[1:]):
+            out += h * D.T * dnorm(Dx)
         return out
+    def compute_residual(self, x):
+        if self.residual is None or not np.all(x == self.last_x):
+            self.residual = self.M * x - self.b
+        self.last_x = x
+    def compute_priors(self, x):
+        if self.priors is None or not np.all(x == self.last_x):
+            self.priors = [D * x for D in self.Ds]
+        self.last_x = x
 
 class QuadraticModel(Model):
     def __init__(self, M, b, Ds=[], hypers=[], **kargs):
@@ -102,7 +117,7 @@ def quadratic_optimization(M, b, Ds=[], hypers=[], maxiter=None, tol=1e-6,
     Use scikits.optimization to perform least-square inversion.
     """
     from scikits.optimization import step, line_search, criterion, optimizer
-    
+
     if maxiter is None:
         maxiter = M.shape[0]
     model = QuadraticModel(M, b, Ds, hypers)
