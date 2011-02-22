@@ -9,9 +9,12 @@ from lo.iterative import *
 
 class VerboseStandardOptimizer(StandardOptimizer):
     def record_history(self, **kwargs):
-        print("iteration : " + str(kwargs['iteration']))
-        print("current value: " + str(kwargs['new_value']))
-        print("step: " + str(kwargs.get('alpha_step')))
+        iter_ = kwargs['iteration']
+        if iter_ == 0:
+            print("iteration \t criterion \t step \n")
+
+        print("%d \t %f \t %f \n" % (iter_, kwargs['new_value'], kwargs['alpha_step']))
+
     recordHistory=record_history
 
 class Model():
