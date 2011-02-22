@@ -29,7 +29,7 @@ def cond(A, k=2, kl=None, ks=None, symmetric=True, M=None, maxiter=None,
     if verbose:
         print("Found %d zero-valued eigenvalues" % nb_null)
         if nb_null == len(vmin):
-            print "All small eigenvalues were zeros."
+            print("All small eigenvalues were zeros.")
     if prune_zeros:
         vmin = vmin[vmin !=0]
     if vmin.size == 0:
