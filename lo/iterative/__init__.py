@@ -147,9 +147,17 @@ def npacg(M, y, Ds=[], hypers=[], ps=[], **kwargs):
     return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
 
 # norms
+try:
+    from scipy.linalg.fblas import dnrm2
+except ImportError:
+    pass
 
-def norm2(x):
-    return np.dot(x.ravel().T, x.ravel())
+if 'dnrm2' in locals():
+    def norm2(x):
+        return dnrm2(x) ** 2
+else:
+    def norm2(x):
+        return np.dot(x.ravel().T, x.ravel())
 
 def dnorm2(x):
     return 2 * x
