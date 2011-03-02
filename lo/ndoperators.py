@@ -40,8 +40,8 @@ class NDOperator(LinearOperator):
         else:
             matmat, rmatmat = None, None
         kwargs['dtype'] = getattr(self, 'dtype', None)
-        kwargs['dtypein'] = getattr(self, 'dtypein', None)
-        kwargs['dtypeout'] = getattr(self, 'dtypeout', None)
+        kwargs['dtypein'] = getattr(self, 'dtypeout', None)
+        kwargs['dtypeout'] = getattr(self, 'dtypein', None)
         shapein = self.shapeout
         shapeout = self.shapein
         return NDOperator(shapein, shapeout, matvec, **kwargs)
