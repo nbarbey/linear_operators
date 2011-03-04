@@ -198,14 +198,15 @@ class Decimate(NDOperator):
     def __init__(self, mask, **kwargs):
         self.mask = mask.astype(np.bool)
         self.mask_inv = self.mask == False
+        shapein = mask.shape
+        shapeout = np.sum(self.mask_inv)
         self._in = np.zeros(shapein)
         self._out = np.zeros(shapeout)
-        shapeout = np.sum(self.mask_inv)
         def matvec(x):
             self._out[:] = x[self.mask_inv]
             return self._out
         def rmatvec(x):
-            self._in[mask_inv] = x
+            self._in[self.mask_inv] = x
             return self._in
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
