@@ -34,12 +34,16 @@ def wavelet2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
         return coefs2array(coefs)
     def rmatvec(x):
         coefs = array2coefs(x, b)
-        return pywt.waverec2(coefs, wavelet, mode=mode)
+        return pywt.waverec2(coefs, wavelet, mode=mode)[:shapein[0], :shapein[1]]
     return lo.NDOperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
 
 def coefs2array(coefs):
     out = coefs[0]
     for scale in coefs[1:]:
+        if out.shape[0] == scale[0].shape[0] + 1:
+            out = out[:-1]
+        if out.shape[1] == scale[0].shape[1] + 1:
+            out = out[:, :-1]
         out = np.vstack((np.hstack((out, scale[0])), np.hstack((scale[1], scale[2]))))
     return out
 
