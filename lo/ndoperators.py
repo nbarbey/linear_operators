@@ -282,7 +282,7 @@ class Diff(NDOperator):
             return - np.diff(tmp, axis=axis)
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
-def Binning(NDOperator):
+class Binning(NDOperator):
     def __init__(self, shapein, factor, axis=-1, **kwargs):
         self.factor = factor
         self.axis = axis
