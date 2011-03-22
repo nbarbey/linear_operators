@@ -291,7 +291,7 @@ class Binning(NDOperator):
         shapeout[axis] /= factor
 
         matvec = lambda x: self.bin(x, factor, axis=axis)
-        rmatvec = lambda x: self.replicatebin(x, factor, axis=axis)
+        rmatvec = lambda x: self.replicate(x, factor, axis=axis)
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
     def bin(self, arr, factor, axis=-1):
