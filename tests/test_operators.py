@@ -32,8 +32,9 @@ m16 = op.mask(mask)
 s16 = op.shift(shape16, s)
 p16 = op.permutation(p)
 f16 = op.fft(shape16, dtype=np.complex128)
+r16 = op.replication(shape16, 1)
 
-lo_list = [id16, d16, h16, m16, s16, p16, f16]
+lo_list = [id16, d16, h16, m16, s16, p16, f16, r16]
 
 # collection of vectors
 ones16 = np.ones(16)

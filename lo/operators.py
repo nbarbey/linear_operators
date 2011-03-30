@@ -1,7 +1,7 @@
 """Definition of useful linear operators"""
 import numpy as np
 from copy import copy
-from interface import LinearOperator
+from interface import LinearOperator, concatenate
 
 # subclasses operators
 
@@ -86,6 +86,25 @@ class FftOperator(LinearOperator):
         rmatvec = lambda x: np.fft.ifft(x, n=shape[1]) * np.sqrt(shape[0])
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
 
+class ReplicationOperator(LinearOperator):
+    """
+    Output n times the input
+    """
+    def __init__(self, shape, n, **kwargs):
+        self.n = n
+        # ensure coherent input
+        if not shape[0] == shape[1] * n:
+            raise ValueError("Output vector should be n times the size of input vector.")
+        def matvec(x):
+            return np.tile(x, n)
+        def rmatvec(x):
+            N = shape[1]
+            return sum([x[i * N:(i + 1) * N] for i in xrange(n)])
+        LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
+    def __repr__(self):
+        s = LinearOperator.__repr__(self)
+        return s[:-1] + ",\n Replicate %i times" % self.n + ">"
+
 # functions
 def identity(shape, **kwargs):
     """
@@ -119,3 +138,6 @@ def permutation(p, **kwargs):
 
 def fft(shape, **kwargs):
     return FftOperator(shape, **kwargs)
+
+def replication(shape, n, **kwargs):
+    return ReplicationOperator(shape, n, **kwargs)
