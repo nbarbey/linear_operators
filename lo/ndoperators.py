@@ -28,6 +28,13 @@ class NDOperator(LinearOperator):
         self.shapein = shapein
         self.shapeout = shapeout
 
+    def __call__(self, x):
+        """
+        Calling an NDOperator is a short-cut for calling ndmatvec operation,
+        i.e. applying the linear operation on a ndarray or subclass.
+        """
+        return self.ndmatvec(x)
+
     @property
     def T(self):
         kwargs = {}
