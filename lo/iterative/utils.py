@@ -1,5 +1,5 @@
 """
-Usefull functions for LinearOperators
+Useful functions for LinearOperators
 """
 import numpy as np
 try:
@@ -25,28 +25,82 @@ class EigendecompositionOperator(operators.SymmetricOperator):
     Define a SymmetricOperator from the eigendecomposition of another
     SymmetricOperator. This can be used as an approximation for the
     operator.
+
+    Inputs
+    -------
+
+    A: LinearOperator (default: None)
+      The LinearOperator to approximate.
+    v: 2d ndarray (default: None)
+      The eigenvectors as given by arpack.eigen_symmetric
+    w: 1d ndarray (default: None)
+      The eigenvalues as given by arpack.eigen_symmetric
+    **kwargs: keyword arguments
+      Passed to the arpack.eigen_symmetric function.
+
+    You need to specify either A or v and w.
+
+    Returns
+    -------
+
+    An EigendecompositionOperator instance, which is a subclass of the
+    SymmetricOperator.
     """
-    def __init__(self, A, **kwargs):
+    def __init__(self, A=None, v=None, w=None, **kwargs):
         from ..interface import aslinearoperator
         from ..operators import diagonal
         kwargs['return_eigenvectors'] = True
-        w, v = arpack.eigen_symmetric(A, **kwargs)
+        if v is None or w is None:
+            w, v = arpack.eigen_symmetric(A, **kwargs)
+            shape = A.shape
+            dtype = A.dtype
+            dtypein = A.dtypein
+            dtypeout = A.dtypeout
+        else:
+            shape = 2 * (v.shape[0],)
+            dtype = v.dtype
+            dtypein = dtypeout = dtype
         W = diagonal(w)
         V = aslinearoperator(v)
         M = V * W * V.T
         # store some information
         self.eigenvalues = w
         self.eigenvectors = v
-        self.k = kwargs['k']
-        operators.SymmetricOperator.__init__(self, A.shape, M.matvec,
-                                             dtypein=A.dtypein,
-                                             dtypeout=A.dtypeout,
-                                             dtype=A.dtype)
+        self.kwargs = kwargs
+        operators.SymmetricOperator.__init__(self, shape, M.matvec,
+                                             dtypein=dtypein,
+                                             dtypeout=dtypeout,
+                                             dtype=dtype)
     def det(self):
         """
         Output an approximation of the determinant from the
         eigenvalues.
         """
+        return np.prod(self.eigenvalues)
+
+    def logdet(self):
+        """
+        Output the log of the determinant. Useful as the determinant
+        of large matrices can exceed floating point capabilities.
+        """
+        return np.sum(np.log(self.eigenvalues))
+
+    def __pow__(self, n):
+        """
+        Raising an eigendecomposition to an integer power requires
+        only raising the eigenvalues to this power.
+        """
+        return EigendecompositionOperator(v=self.eigenvectors,
+                                          w=self.eigenvalues ** n,
+                                          kwargs=self.kwargs)
+
+    def inv(self):
+        """
+        Returns the pseudo-inverse of the operator.
+        """
+        return self ** -1
+
+    def trace(self):
         return np.sum(self.eigenvalues)
 
     def cond(self):
