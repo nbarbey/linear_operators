@@ -7,6 +7,62 @@ try:
 except(ImportError):
     import arpack
 
+from .. import operators
+
+def eigen_symmetric(A, **kwargs):
+    """
+    A wrapper to arpack eigen_symmetric which output an approximation
+    of the A input matrix, as a LinearOperator storing eigenvalues and
+    eigenvectors.
+
+    It passes its arguments arguments as arpack.eigen_symmetric but
+    forces return_eigenvectors to True.
+    """
+    return EigendecompositionOperator(A, **kwargs)
+
+class EigendecompositionOperator(operators.SymmetricOperator):
+    """
+    Define a SymmetricOperator from the eigendecomposition of another
+    SymmetricOperator. This can be used as an approximation for the
+    operator.
+    """
+    def __init__(self, A, **kwargs):
+        from ..interface import aslinearoperator
+        from ..operators import diagonal
+        kwargs['return_eigenvectors'] = True
+        w, v = arpack.eigen_symmetric(A, **kwargs)
+        W = diagonal(w)
+        V = aslinearoperator(v)
+        M = V * W * V.T
+        # store some information
+        self.eigenvalues = w
+        self.eigenvectors = v
+        self.k = kwargs['k']
+        operators.SymmetricOperator.__init__(self, A.shape, M.matvec,
+                                             dtypein=A.dtypein,
+                                             dtypeout=A.dtypeout,
+                                             dtype=A.dtype)
+    def det(self):
+        """
+        Output an approximation of the determinant from the
+        eigenvalues.
+        """
+        return np.sum(self.eigenvalues)
+
+    def cond(self):
+        """
+        Output an approximation of the condition number by taking the
+        ratio of the maximum over the minimum eigenvalues, removing
+        the zeros.
+
+        For better approximation of the condition number, one should
+        consider generating the eigendecomposition with the keyword
+        which='BE', in order to have a correct estimate of the small
+        eigenvalues.
+        """
+        nze = self.eigenvalues[self.eigenvalues != 0]
+        return nze.max() / nze.min()
+
 def cond(A, k=2, kl=None, ks=None, symmetric=True, M=None, maxiter=None,
          tol=1e-6, verbose=False, prune_zeros=False, loweig=None):
     """
