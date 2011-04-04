@@ -8,24 +8,37 @@ import nose
 from numpy.testing import *
 import numpy as np
 import lo
-from lo.iterative.utils import cond
+from lo.iterative import utils
 
+n = 128
+k = n - 1
+nk = 3
 # collection of linear operators to test
-D = lo.diag(1. + np.arange(16))
-I = lo.identity((16, 16))
-C = lo.convolve((8,), 1. + np.arange(8))
-lo_list = [D, I, C.T * C]
+I = lo.identity((n, n))
+D = lo.diag(1. + np.arange(n))
+C = lo.convolve((n,), kernel=1. + np.arange(nk))
+lo_list = [I, D, C.T * C]
 
 # collection of vectors
-ones16 = np.ones(16)
+ones16 = np.ones(n)
 
 
 def check_cond(A):
-    assert_almost_equal(cond(lo.aslinearoperator(A)), np.linalg.cond(A.todense()))
+    Adec = utils.eigendecomposition(A, k=k, which='BE')
+    assert_almost_equal(Adec.cond(), np.linalg.cond(A.todense()))
 
 def test_cond():
     for A in lo_list:
         yield check_cond, A
+
+def check_logdet(A):
+    Adec = utils.eigendecomposition(A, k=k)
+    # very low constraint (decimal = -1)
+    assert_almost_equal(Adec.logdet(), np.log(np.linalg.det(A.todense())), decimal=-1)
+
+def test_logdet():
+    for A in lo_list:
+        yield check_logdet, A
 
 if __name__ == "__main__":
     nose.run(argv=['', __file__])
