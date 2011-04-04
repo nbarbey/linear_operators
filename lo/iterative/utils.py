@@ -9,7 +9,7 @@ except(ImportError):
 
 from .. import operators
 
-def eigen_symmetric(A, **kwargs):
+def eigendecomposition(A, **kwargs):
     """
     A wrapper to arpack eigen_symmetric which output an approximation
     of the A input matrix, as a LinearOperator storing eigenvalues and
