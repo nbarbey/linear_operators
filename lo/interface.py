@@ -326,9 +326,9 @@ class LinearOperator(object):
     def __pow__(self, k):
         from copy import copy
         if not isinstance(k, int):
-            raise ValueError('Only power to an int is implemented')
+            raise NotImplemented('Only power to an int is implemented')
         if k < 0:
-            raise ValueError('Negative power is not implemented')
+            raise NotImplemented('Negative power is not implemented')
         else:
             A = copy(self)
             for i in xrange(k):
