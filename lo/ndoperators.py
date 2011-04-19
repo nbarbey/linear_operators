@@ -345,16 +345,14 @@ class Binning(NDOperator):
         self.axis = axis
 
         shapeout = np.asarray(copy(shapein))
-        shapeout[axis] /= factor
+        shapeout[axis] = np.ceil(shapeout[axis] / float(factor))
 
         matvec = lambda x: self.bin(x, factor, axis=axis)
         rmatvec = lambda x: self.replicate(x, factor, axis=axis)
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
     def bin(self, arr, factor, axis=-1):
-        shapeout = np.asarray(arr.shape)
-        shapeout[axis] /= factor
-        outarr = np.zeros(shapeout)
+        outarr = np.zeros(self.shapeout)
         s0 = [slice(None),] * arr.ndim
         s1 = [slice(None),] * arr.ndim
         for i in xrange(arr.shape[axis]):
@@ -364,12 +362,10 @@ class Binning(NDOperator):
         return outarr
 
     def replicate(self, arr, factor, axis=-1):
-        shapeout = np.asarray(arr.shape)
-        shapeout[axis] *= factor
-        outarr = np.zeros(shapeout)
+        outarr = np.zeros(self.shapein)
         s0 = [slice(None),] * arr.ndim
         s1 = [slice(None),] * arr.ndim
-        for i in xrange(shapeout[axis]):
+        for i in xrange(self.shapein[axis]):
             s0[axis] = i
             s1[axis] = np.floor(i / factor)
             outarr[s0] = arr[s1]
