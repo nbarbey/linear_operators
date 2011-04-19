@@ -217,6 +217,30 @@ class Decimate(NDOperator):
             return self._in
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
+class Fft(NDOperator):
+    def __init__(self, shapein, n=None, axis=-1, **kwargs):
+        self.n = n
+        self.axis = axis
+        if n is None:
+            shapeout = shapein
+        else:
+            shapeout = np.asarray(copy(shapein))
+            shapeout[axis] = n
+            shapeout = tuple(shapeout)
+        matvec = lambda x: np.fft.fft(x, n=n, axis=axis) / np.sqrt(np.prod(shapein))
+        if n is not None:
+            def rmatvec(x):
+                out = np.zeros(shapein, x.dtype)
+                t = np.fft.ifft(x, axis=axis)
+                t *= np.sqrt(np.prod(shapein)) / n
+                s = [slice(None) ,] * out.ndim
+                s[axis] = slice(n)
+                out[s] = t
+                return out
+        else:
+            rmatvec = lambda x: np.fft.ifft(x, n=n, axis=axis) * np.sqrt(np.prod(shapein))
+        NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
+
 class Fft2(NDOperator):
     def __init__(self, shapein, s=None, axes=(-2, -1), **kwargs):
         self.s = s
@@ -226,9 +250,22 @@ class Fft2(NDOperator):
         if s is None:
             shapeout = shapein
         else:
-            shapeout = s
+            shapeout = list(shapein)
+            for a, si in zip(axes, s):
+                shapeout[a] = si
         matvec = lambda x: np.fft.fft2(x, s=s, axes=axes) / np.sqrt(np.prod(shapein))
-        rmatvec = lambda x: np.fft.ifft2(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
+        if s is not None:
+            def rmatvec(x):
+                out = np.zeros(shapein, x.dtype)
+                t = np.fft.ifft2(x, axes=axes)
+                t /= np.sqrt(np.prod(shapeout)) / np.sqrt(np.prod(s))
+                sl = [slice(None), ] * out.ndim
+                for si, a in zip(s, axes):
+                    sl[a] = slice(si)
+                    out[sl] = t
+                return out
+        else:
+            rmatvec = lambda x: np.fft.ifft2(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Fftn(NDOperator):
@@ -238,9 +275,22 @@ class Fftn(NDOperator):
         if s is None:
             shapeout = shapein
         else:
-            shapeout = s
+            shapeout = list(shapein)
+            for a, si in zip(axes, s):
+                shapeout[a] = si
         matvec = lambda x: np.fft.fftn(x, s=s, axes=axes) / np.sqrt(np.prod(shapein))
-        rmatvec = lambda x: np.fft.ifftn(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
+        if s is not None:
+            def rmatvec(x):
+                out = np.zeros(shapein, x.dtype)
+                t = np.fft.ifftn(x, axes=axes)
+                t /= np.sqrt(np.prod(shapeout)) / np.sqrt(np.prod(s))
+                sl = [slice(None), ] * out.ndim
+                for si, a in zip(s, axes):
+                    sl[a] = slice(si)
+                    out[sl] = t
+                return out
+        else:
+            rmatvec = lambda x: np.fft.ifftn(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Convolve(NDOperator):
@@ -340,6 +390,9 @@ def ndmask(mask, **kwargs):
 
 def decimate(mask, **kwargs):
     return Decimate(mask, **kwargs)
+
+def fft(shapein, n=None, axis=-1, **kwargs):
+    return Fft(shapein, n=n, axis=axis, **kwargs)
 
 def fft2(shapein, s=None, axes=(-2, -1), **kwargs):
     return Fft2(shapein, s=s, axes=axes, **kwargs)
