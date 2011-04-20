@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 #from scipy.sparse.sputils import isshape
 #from scipy.sparse import isspmatrix
 
@@ -243,9 +244,13 @@ class LinearOperator(object):
         else:
             x = np.asarray(x)
             if x.ndim == 1 or x.ndim == 2 and x.shape[1] == 1:
+                warnings.filterwarnings("ignore", category=np.ComplexWarning)
                 return self.matvec(x).astype(self.dtypeout)
+                warnings.resetwarnings()
             elif x.ndim == 2:
+                warnings.filterwarnings("ignore", category=np.ComplexWarning)
                 return self.matmat(x).astype(self.dtypeout)
+                warnings.resetwarnings()
             else:
                 raise ValueError('expected rank-1 or rank-2 array or matrix or LinearOperator')
 
