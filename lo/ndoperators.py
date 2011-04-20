@@ -1,6 +1,7 @@
 """Definition of useful ndimensional linear operators"""
 import numpy as np
 from copy import copy
+import warnings
 from interface import LinearOperator
 
 class NDOperator(LinearOperator):
@@ -219,6 +220,8 @@ class Decimate(NDOperator):
 
 class Fft(NDOperator):
     def __init__(self, shapein, n=None, axis=-1, **kwargs):
+        if n > shapein[axis]:
+            raise NotImplemented("The case n larger than shapein is not implemented.")
         self.n = n
         self.axis = axis
         if n is None:
@@ -227,70 +230,109 @@ class Fft(NDOperator):
             shapeout = np.asarray(copy(shapein))
             shapeout[axis] = n
             shapeout = tuple(shapeout)
-        matvec = lambda x: np.fft.fft(x, n=n, axis=axis) / np.sqrt(np.prod(shapein))
+        # normalization
+        if n is None:
+            self.norm = np.sqrt(shapein[axis])
+        else:
+            self.norm = np.sqrt(n)
+        # direct
+        matvec = lambda x: np.fft.fft(x, n=n, axis=axis) / self.norm
+        # transpose
+        # note: ifft is normalized by 1 / n by default
+        # so you need to multiply by norm instead of dividing !
         if n is not None:
             def rmatvec(x):
                 out = np.zeros(shapein, x.dtype)
-                t = np.fft.ifft(x, axis=axis)
-                t *= np.sqrt(np.prod(shapein)) / n
+                t = np.fft.ifft(x, axis=axis) * self.norm
                 s = [slice(None) ,] * out.ndim
                 s[axis] = slice(n)
+                warnings.filterwarnings("ignore", category=np.ComplexWarning)
                 out[s] = t
+                warnings.resetwarnings()
                 return out
         else:
-            rmatvec = lambda x: np.fft.ifft(x, n=n, axis=axis) * np.sqrt(np.prod(shapein))
+            rmatvec = lambda x: np.fft.ifft(x, n=n, axis=axis) * self.norm
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Fft2(NDOperator):
     def __init__(self, shapein, s=None, axes=(-2, -1), **kwargs):
+        for a in axes:
+            if s is not None:
+                if s[a] > shapein[a]:
+                    raise NotImplemented("The case s larger than shapein is not implemented.")
         self.s = s
         self.axes = axes
         if len(shapein) != 2:
             raise ValueError('Error expected 2 dimensional shape')
+        # shapeout
         if s is None:
             shapeout = shapein
         else:
             shapeout = list(shapein)
             for a, si in zip(axes, s):
                 shapeout[a] = si
-        matvec = lambda x: np.fft.fft2(x, s=s, axes=axes) / np.sqrt(np.prod(shapein))
+        # normalization
+        if s is None:
+            self.norm = np.sqrt(np.prod([shapein[a] for a in axes]))
+        else:
+            self.norm = np.sqrt(np.prod(s))
+        # matvec
+        matvec = lambda x: np.fft.fft2(x, s=s, axes=axes) / self.norm
+        # rmatvec
         if s is not None:
             def rmatvec(x):
                 out = np.zeros(shapein, x.dtype)
-                t = np.fft.ifft2(x, axes=axes)
-                t /= np.sqrt(np.prod(shapeout)) / np.sqrt(np.prod(s))
+                t = np.fft.ifft2(x, axes=axes) * self.norm
                 sl = [slice(None), ] * out.ndim
                 for si, a in zip(s, axes):
                     sl[a] = slice(si)
-                    out[sl] = t
+                warnings.filterwarnings("ignore", category=np.ComplexWarning)
+                out[sl] = t
+                warnings.resetwarnings()
                 return out
         else:
-            rmatvec = lambda x: np.fft.ifft2(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
+            rmatvec = lambda x: np.fft.ifft2(x, s=s, axes=axes) * self.norm
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Fftn(NDOperator):
     def __init__(self, shapein, s=None, axes=None, **kwargs):
         self.s = s
-        self.axes = axes
+        if axes is None:
+            self.axes = range(- len(shapein), 0)
+        else:
+            self.axes = axes
+        for a in self.axes:
+            if s is not None:
+                if s[a] > shapein[a]:
+                    raise NotImplemented("The case s larger than shapein is not implemented.")
+        # shapeout
         if s is None:
             shapeout = shapein
         else:
             shapeout = list(shapein)
-            for a, si in zip(axes, s):
+            for a, si in zip(self.axes, s):
                 shapeout[a] = si
-        matvec = lambda x: np.fft.fftn(x, s=s, axes=axes) / np.sqrt(np.prod(shapein))
+        # normalization
+        if s is None:
+            self.norm = np.sqrt(np.prod([shapein[a] for a in self.axes]))
+        else:
+            self.norm = np.sqrt(np.prod(s))
+        # matvec
+        matvec = lambda x: np.fft.fftn(x, s=s, axes=self.axes) / self.norm
+        # rmatvec
         if s is not None:
             def rmatvec(x):
                 out = np.zeros(shapein, x.dtype)
-                t = np.fft.ifftn(x, axes=axes)
-                t /= np.sqrt(np.prod(shapeout)) / np.sqrt(np.prod(s))
+                t = np.fft.ifftn(x, axes=self.axes) * self.norm
                 sl = [slice(None), ] * out.ndim
-                for si, a in zip(s, axes):
+                for si, a in zip(s, self.axes):
                     sl[a] = slice(si)
-                    out[sl] = t
+                warnings.filterwarnings("ignore", category=np.ComplexWarning)
+                out[sl] = t
+                warnings.resetwarnings()
                 return out
         else:
-            rmatvec = lambda x: np.fft.ifftn(x, s=s, axes=axes) * np.sqrt(np.prod(shapein))
+            rmatvec = lambda x: np.fft.ifftn(x, s=s, axes=self.axes) * self.norm
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Convolve(NDOperator):
