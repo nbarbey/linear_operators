@@ -6,7 +6,7 @@ from copy import copy
 import lo
 
 def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None, maxiter=None,
-         callback=None, **kwargs):
+         callback=None, save=True, **kwargs):
     """Generalized approximate conjugate gradient
     
     Approximate conjugate gradient is a gradient method with a polak
@@ -30,7 +30,8 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None,
 
     """
     if callback is None:
-        callback = CallbackFactory(verbose=True, criterion=True)
+        callback = CallbackFactory(verbose=True, criterion=True,
+                                   solution=True, save=save)
     # ensure linear operators are passed
     M = lo.aslinearoperator(M)
     Ds = [lo.aslinearoperator(D) for D in Ds]
@@ -82,7 +83,9 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None,
         J_old = copy(J)
         J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
         #resid = J / Jnorm
-        resid = (J_old - J) / Jnorm
+        #resid = (J_old - J) / Jnorm
+        resid = np.abs(J_old - J) / Jnorm
+        #resid = np.max(np.abs(d)) / np.max(np.abs(g0))
         callback(x)
     # define output
     if resid > tol:
@@ -234,14 +237,22 @@ def backtracking_line_search(d, g, M, hypers, Ds, x,
 
 # To create callback functions
 class CallbackFactory():
-    def __init__(self, verbose=False, criterion=False):
+    """
+    Callback function to display algorithm status and store values.
+    """
+    def __init__(self, verbose=False, criterion=False, solution=False, save=True):
         self.iter_ = []
         self.resid = []
         if criterion:
             self.criterion = []
         else:
             self.criterion = False
+        if solution:
+            self.solution = []
+        else:
+            self.solution = False
         self.verbose = verbose
+        self.save = save
     def __call__(self, x):
         import inspect
         parent_locals = inspect.stack()[1][0].f_locals
@@ -249,18 +260,32 @@ class CallbackFactory():
         self.resid.append(parent_locals['resid'])
         if self.criterion is not False:
             self.criterion.append(parent_locals['J'])
+        if self.solution is not False:
+            self.solution.append(parent_locals['x'])
         if self.verbose:
-            # print header at first iteartion
-            if len(self.iter_) == 1:
-                header = 'Iteration \t Residual'
-                if self.criterion is not False:
-                    header += '\t Criterion'
-                    print(header)
-            # print status
-            report = "\t%i \t %e" % (self.iter_[-1], self.resid[-1])
+            self.print_status()
+        if self.save:
+            self.tofile()
+    def print_status(self):
+        # print header at first iteartion
+        if len(self.iter_) == 1:
+            header = 'Iteration \t Residual'
             if self.criterion is not False:
-                report += '\t %e' % (self.criterion[-1])
-            print(report)
+                header += '\t Criterion'
+                print(header)
+        # print status
+        report = "\t%i \t %e" % (self.iter_[-1], self.resid[-1])
+        if self.criterion is not False:
+            report += '\t %e' % (self.criterion[-1])
+        print(report)
+    def tofile(self):
+        var_dict = {"iter":self.iter_[-1],
+                    "resid":self.resid[-1]}
+        if self.criterion:
+            var_dict["criterion"] = self.criterion[-1]
+        if self.solution:
+            var_dict["solution"] = self.solution[-1]
+        np.savez("/tmp/lo_gacg_save.npz", **var_dict)
 
 def normalize_hyper(hyper, y, x):
     """
