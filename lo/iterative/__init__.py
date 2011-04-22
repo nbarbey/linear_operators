@@ -6,7 +6,7 @@ from copy import copy
 import lo
 
 def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None, maxiter=None,
-         callback=None, save=True, **kwargs):
+         callback=None, save=True, line_search=False, **kwargs):
     """Generalized approximate conjugate gradient
     
     Approximate conjugate gradient is a gradient method with a polak
@@ -69,7 +69,7 @@ def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None,
         g0 = copy(g)
         ng0 = copy(ng)
         # step
-        if norms[0] == norm2:
+        if not line_search:
             a = quadratic_optimal_step(d, g, M, hypers, Ds, C=C)
         else:
             a = backtracking_line_search(d, g, M, hypers, Ds,
@@ -141,6 +141,8 @@ def hacg(M, y, Ds=[], hypers=[], deltas=None, **kwargs):
         return acg(M, Ds, hypers, y, **kwargs)
     norms = [hnorm(delta) for delta in deltas]
     dnorms = [dhnorm(delta) for delta in deltas]
+    # enforce line search
+    kwargs["line_search"] = True
     return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
 
 def npacg(M, y, Ds=[], hypers=[], ps=[], **kwargs):
