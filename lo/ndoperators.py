@@ -364,6 +364,38 @@ class Convolve(NDOperator):
         rmatvec = lambda x: convolve(x, self.rkernel, mode=self.rmode)
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
+class ConvolveNDImage(NDOperator):
+    def __init__(self, shapein, kernel, mode='reflect', cval=0.0,
+                 origin=0, **kwargs):
+        """
+        Generate a convolution operator wrapping
+        scipy.ndimage.convolve function.
+        The kernel is reversed for the transposition.
+        Note that kernel with even shapes are not handled.
+        """
+        from scipy.ndimage import convolve
+
+        self.kernel = kernel
+        self.mode = mode
+        self.cval = cval
+        self.origin = origin
+
+        # check kernel shape parity
+        if np.any(np.asarray(self.kernel.shape) % 2 != 1):
+            ValueError("kernel should have even shape.")
+
+        # reverse kernel
+        s = (slice(None, None, -1), ) * kernel.ndim
+        self.rkernel = kernel[s]
+
+        shapeout = shapein
+
+        matvec = lambda x: convolve(x, self.kernel, mode=mode, cval=cval,
+                                    origin=origin)
+        rmatvec = lambda x: convolve(x, self.rkernel, mode=mode, cval=cval,
+                                     origin=origin)
+        NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
+
 class Diff(NDOperator):
     def __init__(self, shapein, axis=-1, **kwargs):
         self.axis = axis
@@ -439,7 +471,12 @@ def fftn(shapein, s=None, axes=None, **kwargs):
     return Fftn(shapein, s=s, axes=axes, **kwargs)
 
 def convolve(shapein, kernel, mode="full", **kwargs):
-    return Convolve(shapein, kernel, mode=mode)
+    return Convolve(shapein, kernel, mode=mode, **kwargs)
+
+def convolve_ndimage(shapein, kernel, mode="reflect", cval=0.0, origin=0,
+                     **kwargs):
+    return ConvolveNDImage(shapein, kernel, mode=mode, cval=cval,
+                           origin=origin, **kwargs)
 
 def diff(shapein, axis=-1, **kwargs):
     return Diff(shapein, axis=axis, **kwargs)
