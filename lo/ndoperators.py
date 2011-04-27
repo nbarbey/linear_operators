@@ -336,8 +336,14 @@ class Fftn(NDOperator):
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class Convolve(NDOperator):
-    def __init__(self, shapein, kernel, mode="full", **kwargs):
-        from scipy.signal import convolve
+    def __init__(self, shapein, kernel, mode="full", fft=False, **kwargs):
+        if fft:
+            from scipy.signal import fftconvolve as convolve
+            # check kernel shape parity
+            if np.any(np.asarray(kernel.shape) % 2 != 1):
+                raise ValueError("Kernels with non-even shapes are not handled for now.")
+        else:
+            from scipy.signal import convolve
 
         self.kernel = kernel
         self.mode = mode
@@ -373,7 +379,10 @@ class ConvolveNDImage(NDOperator):
         The kernel is reversed for the transposition.
         Note that kernel with even shapes are not handled.
         """
-        from scipy.ndimage import convolve
+        if kernel.ndim == 1:
+            from scipy.ndimage import convolve1d as convolve
+        else:
+            from scipy.ndimage import convolve
 
         self.kernel = kernel
         self.mode = mode
@@ -395,6 +404,124 @@ class ConvolveNDImage(NDOperator):
         rmatvec = lambda x: convolve(x, self.rkernel, mode=mode, cval=cval,
                                      origin=origin)
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
+
+class Fftw3(NDOperator):
+    def __init__(self, shapein, **kwargs):
+        import fftw3
+        from multiprocessing import cpu_count
+        self.n_threads = cpu_count()
+        shapeout = shapein
+        dtype = kwargs.get('dtype', np.float64)
+        dtypein = kwargs.get('dtypein', np.float64)
+        dtypeout = kwargs.get('dtypeout', np.float64)
+
+        # normalize if required
+        self.norm = 1.
+        if dtypein == np.float64 and dtypeout == np.complex128:
+            self.norm = np.sqrt(np.prod(shapein))
+
+        self.inarray = np.zeros(shapein, dtype=dtypein)
+        self.outarray = np.zeros(shapeout, dtype=dtypeout)
+        self.rinarray = np.zeros(shapein, dtype=dtypeout)
+        self.routarray = np.zeros(shapeout, dtype=dtypein)
+        if dtype == np.complex128 or dtypein == np.complex128 or dtypeout == np.complex128:
+            self.plan = fftw3.Plan(inarray=self.inarray,
+                                   outarray=self.outarray,
+                                   direction='forward',
+                                   nthreads=self.n_threads)
+            self.rplan = fftw3.Plan(inarray=self.rinarray,
+                                    outarray=self.routarray,
+                                    direction='backward',
+                                    nthreads=self.n_threads)
+        else:
+            realtypes = ('halfcomplex r2c','halfcomplex r2c')
+            rrealtypes = ('halfcomplex c2r','halfcomplex c2r')
+            self.plan = fftw3.Plan(inarray=self.inarray,
+                                   outarray=self.outarray,
+                                   direction='forward',
+                                   realtypes=realtypes,
+                                   nthreads=self.n_threads)
+            self.rplan = fftw3.Plan(inarray=self.rinarray,
+                                    outarray=self.routarray,
+                                    realtypes=rrealtypes,
+                                    direction='backward',
+                                    nthreads=self.n_threads)
+        def matvec(x):
+            self.inarray[:] = x[:]
+            self.plan()
+            return self.outarray / self.norm
+        def rmatvec(x):
+            self.rinarray[:] = x[:]
+            self.rplan()
+            return self.routarray / self.norm
+        NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
+
+class Fftw3Convolve(NDOperator):
+    def __init__(self, shapein, kernel, **kwargs):
+        import fftw3
+        from multiprocessing import cpu_count
+        self.n_threads = cpu_count()
+        self.kernel = kernel
+        # reverse kernel
+        s = (slice(None, None, -1), ) * kernel.ndim
+        self.rkernel = kernel[s]
+        # shapes
+        shapeout = shapein
+        fullshape = np.array(shapein) + np.array(kernel.shape) - 1
+        # plans
+        self.inarray = np.zeros(fullshape, dtype=kernel.dtype)
+        self.outarray = np.zeros(fullshape, dtype=np.complex128)
+        self.rinarray = np.zeros(fullshape, dtype=np.complex128)
+        self.routarray = np.zeros(fullshape, dtype=kernel.dtype)
+        self.plan = fftw3.Plan(inarray=self.inarray,
+                               outarray=self.outarray,
+                               direction='forward',
+                               nthreads=self.n_threads)
+        self.rplan = fftw3.Plan(inarray=self.rinarray,
+                                outarray=self.routarray,
+                                direction='backward',
+                                nthreads=self.n_threads)
+        # for slicing
+        sk = [slice(None, shapei, None) for shapei in kernel.shape]
+        self.si = [slice(None, shapei, None) for shapei in shapein]
+        self.so = [slice(None, shapei, None) for shapei in shapeout]
+        # fft transform of kernel
+        self.padded_kernel = np.zeros(shapein, dtype=kernel.dtype)
+        self.padded_kernel[sk] = kernel
+        self.fft_kernel = copy(self.fft(self.padded_kernel))
+        # fft transform of rkernel
+        self.rpadded_kernel = np.zeros(shapein, dtype=self.rkernel.dtype)
+        self.rpadded_kernel[sk] = self.rkernel
+        self.rfft_kernel = copy(self.fft(self.padded_kernel))
+        # matvec
+        def matvec(x):
+            return self._centered(self.convolve(x, self.fft_kernel), shapeout)
+        # rmatvec
+        def rmatvec(x):
+            return self._centered(self.convolve(x, self.rfft_kernel), shapeout)
+        NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
+
+    def fft(self, arr):
+        self.inarray[self.si] = arr
+        self.plan()
+        return self.outarray
+
+    def ifft(self, arr):
+        self.rinarray[self.si] = arr[self.si]
+        self.rplan()
+        return self.routarray
+
+    def convolve(self, arr, fft_kernel):
+        return self.ifft(self.fft(arr) * fft_kernel)
+
+    def _centered(self, arr, newsize):
+        # Return the center newsize portion of the array.
+        newsize = np.asarray(newsize)
+        currsize = np.array(arr.shape)
+        startind = (currsize - newsize) / 2
+        endind = startind + newsize
+        myslice = [slice(startind[k], endind[k]) for k in range(len(endind))]
+        return arr[tuple(myslice)]
 
 class Diff(NDOperator):
     def __init__(self, shapein, axis=-1, **kwargs):
