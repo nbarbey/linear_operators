@@ -468,6 +468,8 @@ class Fftw3Convolve(NDOperator):
         # shapes
         shapeout = shapein
         fullshape = np.array(shapein) + np.array(kernel.shape) - 1
+        # normalize
+        self.norm = np.prod(fullshape)
         # plans
         self.inarray = np.zeros(fullshape, dtype=kernel.dtype)
         self.outarray = np.zeros(fullshape, dtype=np.complex128)
@@ -495,10 +497,10 @@ class Fftw3Convolve(NDOperator):
         self.rfft_kernel = copy(self.fft(self.padded_kernel))
         # matvec
         def matvec(x):
-            return self._centered(self.convolve(x, self.fft_kernel), shapeout)
+            return self._centered(self.convolve(x, self.fft_kernel), shapeout) / self.norm
         # rmatvec
         def rmatvec(x):
-            return self._centered(self.convolve(x, self.rfft_kernel), shapeout)
+            return self._centered(self.convolve(x, self.rfft_kernel), shapeout) / self.norm
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
     def fft(self, arr):
