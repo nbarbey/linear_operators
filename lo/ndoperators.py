@@ -456,7 +456,7 @@ class Fftw3(NDOperator):
             return self.routarray / self.norm
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
-class Fftw3Convolve(NDOperator):
+class ConvolveFftw3(NDOperator):
     def __init__(self, shapein, kernel, **kwargs):
         import fftw3
         from multiprocessing import cpu_count
@@ -606,6 +606,8 @@ def convolve_ndimage(shapein, kernel, mode="reflect", cval=0.0, origin=0,
                      **kwargs):
     return ConvolveNDImage(shapein, kernel, mode=mode, cval=cval,
                            origin=origin, **kwargs)
+def convolve_fftw3(shapein, kernel, **kwargs):
+    return ConvolveFftw3(shapein, kernel, **kwargs)
 
 def diff(shapein, axis=-1, **kwargs):
     return Diff(shapein, axis=axis, **kwargs)
