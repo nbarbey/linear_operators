@@ -351,19 +351,33 @@ class ConjugateGradient(object):
             self.iterate()
         return self.current_solution
 
+class QuadraticConjugateGradient(ConjugateGradient):
+    def __init__(self, model, data, priors=[], hypers=[], **kwargs):
+        store = kwargs.pop("store", True)
+        criterion = QuadraticCriterion(model, data, hypers=hypers,
+                                       priors=priors, store=store)
+        ConjugateGradient.__init__(self, criterion, **kwargs)
+
+class HuberConjugateGradient(ConjugateGradient):
+    def __init__(self, model, data, priors=[], hypers=[], deltas=None, **kwargs):
+        store = kwargs.pop("store", True)
+        criterion = HuberCriterion(model, data, hypers=hypers, priors=priors,
+                                   deltas=deltas, store=store)
+        ConjugateGradient.__init__(self, criterion, **kwargs)
+ 
+# for backward compatibility
+
 def acg(model, data, priors=[], hypers=[], **kwargs):
-    store = kwargs.pop("store", True)
-    criterion = QuadraticCriterion(model, data, hypers=hypers,
-                                   priors=priors, store=store)
-    algorithm = ConjugateGradient(criterion, **kwargs)
-    return algorithm
+    algorithm = QuadraticConjugateGradient(model, data, priors=priors,
+                                           hypers=hypers, **kwargs)
+    sol = algorithm()
+    return sol
 
 def hacg(model, data, priors=[], hypers=[], deltas=None, **kwargs):
-    store = kwargs.pop("store", True)
-    criterion = HuberCriterion(model, data, hypers=hypers, priors=priors,
-                               deltas=deltas, store=store)
-    algorithm = ConjugateGradient(criterion, **kwargs)
-    return algorithm
+    algorithm = HuberConjugateGradient(model, data, priors=priors,
+                                       hypers=hypers, deltas=deltas, **kwargs)
+    sol = algorithm()
+    return sol
 
 # other
 
