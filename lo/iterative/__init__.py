@@ -5,152 +5,6 @@ import numpy as np
 from copy import copy
 import lo
 
-def gacg(M, y, Ds=[], hypers=[], norms=[], dnorms=[], C=None, tol=1e-6, x0=None, maxiter=None,
-         callback=None, save=True, line_search=False, **kwargs):
-    """Generalized approximate conjugate gradient
-    
-    Approximate conjugate gradient is a gradient method with a polak
-    ribiere update.
-
-    It is generalized since it does not assume quadratic norm.
-
-    Inputs:
-    -------
-    M : model matrix, (needs matvec and rmatvec methods)
-    Ds : priors, (need matvec and rmatvec methods)
-    norms : norms of the likelihood and the priors
-    dnorms : derivation of the norm
-    y : input vector
-    hypers: hyperparameters (scalars)
-    C : inverse of the covariance matrix
-
-    Outputs:
-    --------
-    x : solution
-
-    """
-    if callback is None:
-        callback = CallbackFactory(verbose=True, criterion=True,
-                                   solution=True, save=save)
-    # ensure linear operators are passed
-    M = lo.aslinearoperator(M)
-    Ds = [lo.aslinearoperator(D) for D in Ds]
-    # first guess
-    if x0 is None:
-        if C is None:
-            x = M.T * y
-        else:
-            x = M.T * C * y
-    else:
-        x = copy(x0)
-    # normalize hyperparameters
-    hypers = normalize_hyper(hypers, y, x)
-    # tolerance
-    r = M * x - y
-    rd = [D * x for D in Ds]
-    J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd, C=C)
-    Jnorm = copy(J)
-    resid = 2 * tol
-    # maxiter
-    if maxiter is None:
-        maxiter = x.size
-    iter_ = 0
-    # main loop
-    while iter_ < maxiter and resid > tol:
-        iter_ += 1
-        # gradient
-        g, ng = gradient(hypers=hypers, dnorms=dnorms, M=M, Ds=Ds, r=r, rd=rd, C=C)
-        # descent direction
-        if (iter_  % 10) == 1:
-            d = - g
-        else:
-            b = ng / ng0
-            d = - g + b * d
-        g0 = copy(g)
-        ng0 = copy(ng)
-        # step
-        if not line_search:
-            a = quadratic_optimal_step(d, g, M, hypers, Ds, C=C)
-        else:
-            a = backtracking_line_search(d, g, M, hypers, Ds,
-                                         x, norms=norms, y=y, f0=J)
-        # update
-        x += a * d
-        # residual
-        r = M * x - y
-        rd = [D * x for D in Ds]
-        # criterion
-        J_old = copy(J)
-        J = criterion(hypers=hypers, norms=norms, Ds=Ds, r=r, rd=rd)
-        #resid = J / Jnorm
-        #resid = (J_old - J) / Jnorm
-        resid = np.abs(J_old - J) / Jnorm
-        #resid = np.max(np.abs(d)) / np.max(np.abs(g0))
-        callback(x)
-    # define output
-    if resid > tol:
-        info = resid
-    else:
-        info = 0
-    return x#, info
-
-def criterion(x=None, y=None, M=None, norms=None, hypers=None, Ds=None,
-              r=None, rd=None, C=None):
-    if r is None:
-        r = M * x - y
-    if C is not None:
-        if norms[0] != norm2:
-            raise NotImplemented
-        else:
-            J = np.dot(r.T, C * r)
-    else:
-        J = norms[0](r)
-    if rd is None:
-        rd = [D * x for D in Ds]
-    J += np.sum([h * norm(el) for norm, h, el in zip(norms[1:], hypers, rd)])
-    return J
-
-def gradient(x=None, y=None, M=None, dnorms=None, hypers=None, Ds=None,
-             r=None, rd=None, C=None):
-    if r is None:
-        r = M * x - y
-    if C is not None:
-        if (dnorms[0] is not dnorm2):
-            raise NotImplemented
-        else:
-            g = M.T * C * dnorms[0](r)
-    else:
-        g = M.T * dnorms[0](r)
-    if rd is None:
-        rd = [D * x for D in Ds]
-    drs = [h * D.T * dnorm(el) for dnorm, h, D, el in zip(dnorms[1:], hypers, Ds, rd)]
-    for dr in drs:
-        g += dr
-    ng = norm2(g)
-    return g, ng
-
-def acg(M, y, Ds=[], hypers=[], **kwargs):
-    "Approximate Conjugate gradient"
-    norms = (norm2, ) * (len(Ds) + 1)
-    dnorms = (dnorm2, ) * (len(Ds) + 1)
-    return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
-
-def hacg(M, y, Ds=[], hypers=[], deltas=None, **kwargs):
-    "Huber Approximate Conjugate gradient"
-    if deltas is None:
-        return acg(M, Ds, hypers, y, **kwargs)
-    norms = [hnorm(delta) for delta in deltas]
-    dnorms = [dhnorm(delta) for delta in deltas]
-    # enforce line search
-    kwargs["line_search"] = True
-    return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
-
-def npacg(M, y, Ds=[], hypers=[], ps=[], **kwargs):
-    "Norm p Approximate Conjugate gradient"
-    norms = [normp(p) for p in ps]
-    dnorms = [dnormp(p) for p in ps]
-    return gacg(M, y, Ds, hypers, norms, dnorms, **kwargs)
-
 # norms
 try:
     from scipy.linalg.fblas import dnrm2
@@ -213,81 +67,305 @@ def dhuber(t, delta=1):
     t_out[linear_index_negative] = - 2 * delta
     return np.reshape(t_out, t.shape)
 
-# line search methods
-
-def quadratic_optimal_step(d, g, M, hypers, Ds, C=None):
-    a = -.5 * np.dot(d.T, g)
-    if C is None:
-        a /= norm2(M * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
-    else:
-        Md = M * d
-        a /= np.dot(Md, C * Md) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
-    return a
-
-def backtracking_line_search(d, g, M, hypers, Ds, x,
-                             norms=None, y=None, f0=None, maxiter=10, tau=.5):
-    a = quadratic_optimal_step(d, g, M, hypers, Ds)
-    i = 0
-    fi = 2 * f0
-    # XXX replace with armijo wolfe conditions
-    while (i < maxiter) and (fi > f0):
-        i += 1
-        a *= tau
-        xi = x + a * d
-        fi = criterion(x=xi, y=y, M=M, hypers=hypers, norms=norms, Ds=Ds)
-    return a
-
-# To create callback functions
-class CallbackFactory():
-    """
-    Callback function to display algorithm status and store values.
-    """
-    def __init__(self, verbose=False, criterion=False, solution=False, save=True):
-        self.iter_ = []
-        self.resid = []
-        if criterion:
-            self.criterion = []
-        else:
-            self.criterion = False
-        if solution:
-            self.solution = []
-        else:
-            self.solution = False
-        self.verbose = verbose
-        self.save = save
+class Norm(object):
     def __call__(self, x):
-        import inspect
-        parent_locals = inspect.stack()[1][0].f_locals
-        self.iter_.append(parent_locals['iter_'])
-        self.resid.append(parent_locals['resid'])
-        if self.criterion is not False:
-            self.criterion.append(parent_locals['J'])
-        if self.solution is not False:
-            self.solution.append(parent_locals['x'])
-        if self.verbose:
-            self.print_status()
-        if self.save:
-            self.tofile()
+        return self._call(x)
+    def diff(self, x):
+        return self._diff(x)
+
+class Norm2(Norm):
+    def __init__(self, C=None):
+        if C is None:
+            def call(x):
+                return norm2(x)
+            def diff(x):
+                return 2 * x
+        else:
+            def call(x):
+                return np.dot(r.T, C * r)
+            def diff(x):
+                return 2 * C * r
+        self.C = C
+        self._call = call
+        self._diff = diff
+
+class Huber(Norm):
+    def __init__(self, delta):
+        self.delta = delta
+        self._call = hnorm(d=delta)
+        self._diff = dhnorm(d=delta)
+
+class Normp(Norm):
+    def __init__(self, p):
+        self.p = p
+        self._call = normp(p=p)
+        self._diff = dnormp(p=p)
+
+# criterions
+
+class Criterion(object):
+    """
+    A class representing criterions such as :
+    ..math: || y - H x ||^2 + sum_i \hypers_i || D_i x ||^2
+
+    Parameters
+    ----------
+    H : LinearOperator
+        Model.
+    y : ndarray
+        Data array.
+    hypers: tuple or array
+        Hypeparameter of each prior.
+    Ds : tuple of LinearOperators
+        Prior models.
+    norms : tuple
+        Can be norm2, huber, normp
+    store : boolean (default: True)
+        Store last criterion computation.
+    """
+    def __init__(self, model, data, hypers=[], priors=[], norms=[], store=True):
+        self.model = model
+        self.data = data
+        self.priors = priors
+        # normalize hyperparameters
+        self.hypers = np.asarray(hypers) * model.shape[0] / float(model.shape[1])
+        # default to Norm2
+        self.norms = norms
+        if len(self.norms) == 0:
+            self.norms = (Norm2(), ) * (len(self.priors) + 1)
+        # get diff of norms
+        self.dnorms = [n.diff for n in self.norms]
+        # to store intermediate values
+        self.store = store
+        self.last_x = None
+        self.projection = None
+        self.last_residual = None
+        self.last_prior_residuals = None
+        # if all norms are l2 define optimal step
+        self._optimal_step = np.all([n == Norm2 for n in self.norms])
+        # set number of unknowns
+        self.n_variables = self.model.shape[1]
+    def islast(self, x):
+        return np.all(x == self.last_x)
+    def load_last(self):
+        return self.projection, self.last_residual, self.last_prior_residuals
+    def get_residuals(self, x):
+        if self.islast(x):
+            Hx, r, rd = self.load_last()
+        else:
+            Hx = self.model * x
+            r = Hx - self.data
+            rd = [D * x for D in self.priors]
+        return Hx, r, rd
+    def save(self, x, Hx, r, rd):
+        if self.store and not self.islast(x):
+            self.last_x = copy(x)
+            self.Hx = copy(Hx)
+            self.last_residual = copy(r)
+            self.last_prior_residuals = copy(rd)
+    def __call__(self, x):
+        # residuals
+        Hx, r, rd = self.get_residuals(x)
+        # norms
+        J = self.norms[0](r)
+        priors = [norm(rd_i) for norm, rd_i in zip(self.norms[1:], rd)]
+        J += np.sum([h * prior for h, prior in zip(self.hypers, priors)])
+        self.save(x, Hx, r, rd)
+        return J
+    def gradient(self, x):
+        """
+        First order derivative of the criterion as a function of x.
+        """
+        Hx, r, rd = self.get_residuals(x)
+        g = self.model.T * self.dnorms[0](r)
+        p_dnorms = [dnorm(el) for dnorm, el in zip(self.dnorms[1:], rd)]
+        p_diff = [D.T * dn for D, dn in zip(self.priors, p_dnorms)]
+        drs = [h * pd for h, pd in zip(self.hypers, p_diff)]
+        for dr in drs:
+            g += dr
+        self.save(x, Hx, r, rd)
+        return g
+
+class QuadraticCriterion(Criterion):
+    def __init__(self, model, data, hypers=[], priors=[], store=True):
+        norms = (Norm2(), ) * (len(priors) + 1)
+        Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
+
+class HuberCriterion(Criterion):
+    def __init__(self, model, data, hypers=[], deltas=[], priors=[], store=True):
+        norms = [Huber(d) for d in deltas]
+        Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
+
+# update types
+
+def fletcher_reeves(algo):
+    return algo.current_gradient_norm / algo.last_gradient_norm
+
+def polak_ribiere(algo):
+    b =  np.dot(algo.current_gradient.T,
+                (algo.current_gradient - algo.last_gradient))
+    b /= np.norm(algo.last_gradient)
+    return b
+
+# line searches
+
+def optimal_step(algo):
+    # get variables from criterion
+    d = algo.current_descent
+    g = algo.current_gradient
+    H = algo.criterion.model
+    Ds = algo.criterion.priors
+    hypers = algo.criterion.hypers
+    norms = algo.criterion.norms
+    # replace norms by Norm2 if not a Norm2 instance
+    # to handle properly Norm2 with C covariance matrices ...
+    norms = [n if isinstance(n, Norm2) else Norm2() for n in norms]
+    # compute quadratic optimal step
+    a = -.5 * np.dot(d.T, g)
+    a /= norm2(H * d) + np.sum([h * norm2(D * d) for h, D in zip(hypers, Ds)])
+    return a
+
+class Backtracking(object):
+    def __init__(self, maxiter=10, tau=.5):
+        self.maxiter = maxiter
+        self.tau = tau
+    def __call__(self, algo):
+        x = algo.current_solution
+        d = algo.current_descent
+        a = optimal_step(algo)
+        i = 0
+        f0 = algo.current_criterion
+        fi = 2 * f0
+        while (i < self.maxiter) and (fi > f0):
+            i += 1
+            a *= tau
+            xi = x + a * d
+            fi = algo.criterion(xi)
+        return a
+
+default_backtracking = Backtracking()
+
+# algorithms
+
+class ConjugateGradient(object):
+    """
+    Apply the conjugate gradient algorithm to a Criterion instance
+    """
+    def __init__(self, criterion, x0=None, tol=1e-6, maxiter=None,
+                 verbose=False, savefile=None, update_type=fletcher_reeves,
+                 line_search=optimal_step, **kwargs):
+        self.criterion = criterion
+        self.gradient = criterion.gradient
+        self.n_variables = self.criterion.n_variables
+        self.tol = tol
+        if maxiter is None:
+            self.maxiter = self.n_variables
+        else:
+            self.maxiter = maxiter
+        self.savefile = savefile
+        self.verbose = verbose
+        self.update_type = update_type
+        self.line_search = line_search
+        self.kwargs = kwargs
+        # to store values
+        self.current_criterion = None
+        self.current_solution = None
+        self.current_gradient = None
+        self.current_gradient_norm = None
+        self.current_descent = None
+        self.last_criterion = None
+        self.last_solution = None
+        self.last_gradient = None
+        self.last_gradient_norm = None
+        self.last_descent = None
+        self.optimal_step = None
+    def initialize(self):
+        self.first_guess()
+        self.first_criterion = self.criterion(self.current_solution)
+        self.current_criterion = self.first_criterion
+        self.resid = 2 * self.tol
+        self.iter_ = 0
+    def first_guess(self, x0=None):
+        if x0 is None:
+            self.current_solution = np.zeros(self.n_variables)
+        else:
+            self.current_solution = copy(x0)
+    def stop_condition(self):
+        return self.iter_ < self.maxiter and self.resid > self.tol
+    def update_gradient(self):
+        self.last_gradient = copy(self.current_gradient)
+        self.current_gradient = self.gradient(self.current_solution)
+    def update_gradient_norm(self):
+        self.last_gradient_norm = copy(self.current_gradient_norm)
+        self.current_gradient_norm = norm2(self.current_gradient)
+    def update_descent(self):
+        if self.iter_ == 1:
+            self.current_descent = - self.current_gradient
+        else:
+            self.last_descent = copy(self.current_descent)
+            b = self.update_type(self)
+            self.current_descent = - self.current_gradient + b * self.last_descent
+    def update_solution(self):
+        self.last_solution = copy(self.current_solution)
+        a = self.line_search(self)
+        self.current_solution += a * self.current_descent
+    def update_criterion(self):
+        self.last_criterion = copy(self.current_criterion)
+        self.current_criterion = self.criterion(self.current_solution)
+    def update_resid(self):
+        self.resid = np.abs(self.last_criterion - self.current_criterion)
+        self.resid /= self.first_criterion
+    def update(self):
+        self.update_gradient()
+        self.update_gradient_norm()
+        self.update_descent()
+        self.update_solution()
+        self.update_criterion()
+        self.update_resid()
     def print_status(self):
-        # print header at first iteartion
-        if len(self.iter_) == 1:
-            header = 'Iteration \t Residual'
-            if self.criterion is not False:
-                header += '\t Criterion'
-                print(header)
-        # print status
-        report = "\t%i \t %e" % (self.iter_[-1], self.resid[-1])
-        if self.criterion is not False:
-            report += '\t %e' % (self.criterion[-1])
-        print(report)
-    def tofile(self):
-        var_dict = {"iter":self.iter_[-1],
-                    "resid":self.resid[-1]}
-        if self.criterion:
-            var_dict["criterion"] = self.criterion[-1]
-        if self.solution:
-            var_dict["solution"] = self.solution[-1]
-        np.savez("/tmp/lo_gacg_save.npz", **var_dict)
+        if self.verbose:
+            if self.iter_ == 1:
+                print('Iteration \t Residual \t Criterion')
+            print("\t%i \t %e \t %e" %
+                  (self.iter_, self.resid, self.current_criterion))
+    def save(self):
+        if self.savefile is not None:
+            var_dict = {
+                "iter":self.iter_,
+                "resid":self.resid,
+                "criterion":self.current_criterion,
+                "solution":self.current_solution,
+                "gradient":self.current_gradient
+                }
+            np.savez(self.savefile, **var_dict)
+    def iterate(self):
+        self.iter_ += 1
+        self.update()
+        self.print_status()
+        self.save()
+        # return value not used in loop but usefull in "interactive mode"
+        return self.current_solution
+    def __call__(self):
+        self.initialize()
+        while self.stop_condition():
+            self.iterate()
+        return self.current_solution
+
+def acg(model, data, priors=[], hypers=[], **kwargs):
+    store = kwargs.pop("store", True)
+    criterion = QuadraticCriterion(model, data, hypers=hypers,
+                                   priors=priors, store=store)
+    algorithm = ConjugateGradient(criterion, **kwargs)
+    return algorithm
+
+def hacg(model, data, priors=[], hypers=[], deltas=None, **kwargs):
+    store = kwargs.pop("store", True)
+    criterion = HuberCriterion(model, data, hypers=hypers, priors=priors,
+                               deltas=deltas, store=store)
+    algorithm = ConjugateGradient(criterion, **kwargs)
+    return algorithm
+
+# other
 
 def normalize_hyper(hyper, y, x):
     """
