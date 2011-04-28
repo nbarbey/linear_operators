@@ -97,5 +97,10 @@ def test_fft3_s_complex():
         A = op.fftn(shapein3_4, s=s, dtype=np.complex128)
         yield check_almost_dense_transpose, A
 
+def test_fft_axis():
+    for a in (0, 1):
+        A = op.fft(shapein16, axis=a)
+        yield check_almost_dense_transpose, A
+
 if __name__ == "__main__":
     nose.run(argv=['', __file__])
