@@ -25,7 +25,7 @@ rand16 = np.random.rand(16)
 v_list = [ones16, zeros16, rand16 ]
 
 # collection of methods
-methods = [iterative.acg, iterative.rls]
+methods = [iterative.acg, ]
 
 # tests
 def check_inv(method, A, x):
@@ -39,16 +39,16 @@ def test_inv():
             for m in methods:
                 yield check_inv, m, A, x
 
-def check_rls_vs_acg(A, x):
-    y = A * x
-    x_rls = iterative.rls(A, y, maxiter=100, tol=1e-6)
-    x_acg = iterative.acg(A, y, maxiter=100, tol=1e-6)
-    assert_almost_equal, x_rls, x_acg
+#def check_rls_vs_acg(A, x):
+#    y = A * x
+#    x_rls = iterative.rls(A, y, maxiter=100, tol=1e-6)
+#    x_acg = iterative.acg(A, y, maxiter=100, tol=1e-6)
+#    assert_almost_equal, x_rls, x_acg
 
-def test_rls_vs_acg():
-    for A in lo_list:
-        for x in v_list:
-            yield check_rls_vs_acg, A, x
+#def test_rls_vs_acg():
+#    for A in lo_list:
+#        for x in v_list:
+#            yield check_rls_vs_acg, A, x
 
 if __name__ == "__main__":
     nose.run(argv=['', __file__])
