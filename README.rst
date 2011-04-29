@@ -20,7 +20,7 @@ the subpackages :
   operations instead.
 
 - operators : A set of LinearOperator subclasses implementing various
-   linear operation on vectors and their transpose.
+  linear operation on vectors and their transpose.
 
 - ndoperators : A set of LinarOperator subclasses implementing
   operations on multidimensional arrays.
