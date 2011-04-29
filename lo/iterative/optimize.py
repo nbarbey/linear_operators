@@ -101,7 +101,11 @@ class FminNCG(FminWrapper):
                                              fprime=self.gradient,
                                              args=self.args,
                                              **self.kwargs)
-        self.current_solution = self.optimizer_output[0]
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
 
 class FminLBFGSB(FminWrapper):
