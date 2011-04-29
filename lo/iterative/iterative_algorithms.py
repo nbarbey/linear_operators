@@ -98,18 +98,28 @@ class ConjugateGradient(object):
         self.last_descent = None
         self.optimal_step = None
     def initialize(self):
+        """
+        Initialize required values.
+        """
         self.first_guess()
         self.first_criterion = self.criterion(self.current_solution)
         self.current_criterion = self.first_criterion
         self.resid = 2 * self.tol
         self.iter_ = 0
     def first_guess(self, x0=None):
+        """
+        Sets current_solution attribute to initial value.
+        """
         if x0 is None:
             self.current_solution = np.zeros(self.n_variables)
         else:
             self.current_solution = copy(x0)
     def stop_condition(self):
+        """
+        Returns False when algorithm should stop.
+        """
         return self.iter_ < self.maxiter and self.resid > self.tol
+    # update_* functions encode the actual algorithm
     def update_gradient(self):
         self.last_gradient = copy(self.current_gradient)
         self.current_gradient = self.gradient(self.current_solution)
@@ -134,6 +144,9 @@ class ConjugateGradient(object):
         self.resid = np.abs(self.last_criterion - self.current_criterion)
         self.resid /= self.first_criterion
     def update(self):
+        """
+        Update all values.
+        """
         self.update_gradient()
         self.update_gradient_norm()
         self.update_descent()
@@ -157,6 +170,9 @@ class ConjugateGradient(object):
                 }
             np.savez(self.savefile, **var_dict)
     def iterate(self):
+        """
+        Perform one iteration and returns current solution.
+        """
         self.iter_ += 1
         self.update()
         self.print_status()
@@ -164,6 +180,9 @@ class ConjugateGradient(object):
         # return value not used in loop but usefull in "interactive mode"
         return self.current_solution
     def __call__(self):
+        """
+        Perform the optimization.
+        """
         self.initialize()
         while self.stop_condition():
             self.iterate()
