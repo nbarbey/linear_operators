@@ -16,6 +16,7 @@ class Criterion(object):
 
     Parameters
     ----------
+
     H : LinearOperator
         Model.
     y : ndarray
@@ -28,6 +29,11 @@ class Criterion(object):
         Can be norm2, huber, normp
     store : boolean (default: True)
         Store last criterion computation.
+
+    Returns
+    -------
+
+    Returns an Criterion instance with __call__ and gradient methods.
     """
     def __init__(self, model, data, hypers=[], priors=[], norms=[], store=True):
         self.model = model
@@ -93,11 +99,17 @@ class Criterion(object):
         return g
 
 class QuadraticCriterion(Criterion):
+    """
+    Subclass of Criterion with all norms forced to be Norm2 instances.
+    """
     def __init__(self, model, data, hypers=[], priors=[], store=True):
         norms = (Norm2(), ) * (len(priors) + 1)
         Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
 
 class HuberCriterion(Criterion):
+    """
+    Subclass of Criterion with all norms forced to be Huber instances.
+    """
     def __init__(self, model, data, hypers=[], deltas=[], priors=[], store=True):
         norms = [Huber(d) for d in deltas]
         Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
