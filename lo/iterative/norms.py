@@ -67,12 +67,30 @@ def dhuber(t, delta=1):
     return np.reshape(t_out, t.shape)
 
 class Norm(object):
+    """
+    An abstract class to define norm classes.
+    """
     def __call__(self, x):
         return self._call(x)
     def diff(self, x):
         return self._diff(x)
 
 class Norm2(Norm):
+    """
+    A norm-2 class. Optionally accepts a covariance matrix C.
+    If C is given, the norm would be : np.dot(x.T, C * x).
+    Otherwise, it would be norm2(x).
+
+    Parameters
+    ----------
+
+    C : LinearOperator (None)
+        The covariance matrix of the norm.
+
+    Returns
+    -------
+    Returns a Norm2 instance with a __call__ and a diff method.
+    """
     def __init__(self, C=None):
         if C is None:
             def call(x):
@@ -81,20 +99,49 @@ class Norm2(Norm):
                 return 2 * x
         else:
             def call(x):
-                return np.dot(r.T, C * r)
+                return np.dot(x.T, C * x)
             def diff(x):
-                return 2 * C * r
+                return 2 * C * x
         self.C = C
         self._call = call
         self._diff = diff
 
 class Huber(Norm):
+    """
+    An Huber norm class.
+
+    Parameters
+    ----------
+
+    delta: float
+       The Huber parameter of the norm.
+       if abs(x_i) is below delta, returns x_i ** 2
+       else returns 2 * delta * x_i - delta ** 2
+
+    Returns
+    -------
+    Returns an Huber instance with a __call__ and a diff method.
+     """
     def __init__(self, delta):
         self.delta = delta
         self._call = hnorm(d=delta)
         self._diff = dhnorm(d=delta)
 
 class Normp(Norm):
+    """
+    An Norm-p class.
+
+    Parameters
+    ----------
+
+    p: float
+       The power of the norm.
+       The norm will be np.sum(np.abs(x) ** p)
+
+    Returns
+    -------
+    Returns a Normp instance with a __call__ and a diff method.
+     """
     def __init__(self, p):
         self.p = p
         self._call = normp(p=p)
