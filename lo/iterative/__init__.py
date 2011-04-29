@@ -37,3 +37,11 @@ except ImportError:
 
 if 'pywt' in locals():
     from iterative_thresholding import *
+
+try:
+    from scipy import optimize as scipy_optimize
+except ImportError:
+    pass
+
+if "scipy_optimize" in locals():
+    from optimize import *
