@@ -11,9 +11,15 @@ from criterions import *
 # update types
 
 def fletcher_reeves(algo):
+    """
+    Fletcher-Reeves descent direction update method.
+    """
     return algo.current_gradient_norm / algo.last_gradient_norm
 
 def polak_ribiere(algo):
+    """
+    Polak-Ribiere descent direction update method.
+    """
     b =  np.dot(algo.current_gradient.T,
                 (algo.current_gradient - algo.last_gradient))
     b /= np.norm(algo.last_gradient)
@@ -23,7 +29,45 @@ def polak_ribiere(algo):
 
 class ConjugateGradient(object):
     """
-    Apply the conjugate gradient algorithm to a Criterion instance
+    Apply the conjugate gradient algorithm to a Criterion instance.
+
+    Parameters
+    ----------
+
+    criterion : Criterion
+        A Criterion instance. It should have following methods and attributes:
+            __call__ : returns criterion values at given point
+            gradient : returns gradient (1st derivative) of criterion at given point
+            n_variable: the size of the input vector of criterion
+
+    x0 : ndarray (None)
+        The first guess of the algorithm.
+
+    tol : float (1e-6)
+        The tolerance. The algorithm will stop if the residual is below the tolerance.
+
+    maxiter : int (None)
+        Maximal number of iterations.
+
+    verbose : boolean (False)
+        Print information at each iteration.
+
+    savefile : string (None)
+        Save current result to a file (npy / npz format)
+
+    update_type : function (fletcher_reeves)
+        Type of descent direction update : e.g. fletcher_reeves, polak_ribiere
+
+    line_search : function (optimal step)
+        Line search method to find the minimum along each direction at each
+        iteration.
+
+    Returns
+    -------
+
+    Returns an algorithm instance. Optimization is performed by
+    calling the this instance.
+
     """
     def __init__(self, criterion, x0=None, tol=1e-6, maxiter=None,
                  verbose=False, savefile=None, update_type=fletcher_reeves,
@@ -126,6 +170,9 @@ class ConjugateGradient(object):
         return self.current_solution
 
 class QuadraticConjugateGradient(ConjugateGradient):
+    """
+    A subclass of ConjugateGradient using a QuadraticCriterion.
+    """
     def __init__(self, model, data, priors=[], hypers=[], **kwargs):
         store = kwargs.pop("store", True)
         criterion = QuadraticCriterion(model, data, hypers=hypers,
@@ -133,6 +180,9 @@ class QuadraticConjugateGradient(ConjugateGradient):
         ConjugateGradient.__init__(self, criterion, **kwargs)
 
 class HuberConjugateGradient(ConjugateGradient):
+    """
+    A subclass of ConjugateGradient using an HuberCriterion.
+    """
     def __init__(self, model, data, priors=[], hypers=[], deltas=None, **kwargs):
         store = kwargs.pop("store", True)
         criterion = HuberCriterion(model, data, hypers=hypers, priors=priors,
