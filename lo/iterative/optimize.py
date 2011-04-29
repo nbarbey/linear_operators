@@ -33,6 +33,7 @@ class FminWrapper(object):
         self.first_guess(x0)
         # to store solution
         self.current_solution = None
+        self.optimizer_output = None
     def first_guess(self, x0=None):
         """
         Sets current_solution attribute to initial value.
@@ -60,75 +61,81 @@ class FminPowell(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_powell.__doc__
     def __call__(self):
         self.first_guess()
-        self.current_solution = opt.fmin_powell(self.criterion,
+        self.optimizer_output = opt.fmin_powell(self.criterion,
                                                 self.current_solution,
                                                 args=self.args,
                                                 **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
 
 class FminCG(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_cg.__doc__
     def __call__(self):
         self.first_guess()
-        self.current_solution = opt.fmin_cg(self.criterion,
+        self.optimizer_output = opt.fmin_cg(self.criterion,
                                             self.current_solution,
                                             fprime=self.gradient,
                                             args=self.args,
                                             **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
 
 class FminTNC(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_tnc.__doc__
     def __call__(self):
         self.first_guess()
-        self.current_solution = opt.fmin_tnc(self.criterion,
+        self.optimizer_output = opt.fmin_tnc(self.criterion,
                                              self.current_solution,
                                              fprime=self.gradient,
                                              args=self.args,
                                              **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
 
 class FminNCG(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_ncg.__doc__
     def __call__(self):
         self.first_guess()
-        out = opt.fmin_ncg(self.criterion,
-                           self.current_solution,
-                           fprime=self.gradient,
-                           args=self.args,
-                           **self.kwargs)
-        self.current_solution = out
+        self.optimizer_output = opt.fmin_ncg(self.criterion,
+                                             self.current_solution,
+                                             fprime=self.gradient,
+                                             args=self.args,
+                                             **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
 
 class FminLBFGSB(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_l_bfgs_b.__doc__
     def __call__(self):
         self.first_guess()
-        self.current_solution = opt.fmin_l_bfgs_b(self.criterion,
+        self.optimizer_output = opt.fmin_l_bfgs_b(self.criterion,
                                                   self.current_solution,
                                                   fprime=self.gradient,
                                                   args=self.args,
                                                   **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
 
 class FminSLSQP(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_slsqp.__doc__
     def __call__(self):
         self.first_guess()
-        self.current_solution = opt.fmin_slsqp(self.criterion,
+        self.optimizer_output = opt.fmin_slsqp(self.criterion,
                                                self.current_solution,
                                                fprime=self.gradient,
                                                args=self.args,
                                                **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
 
 class FminBFGS(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_bfgs.__doc__
     def __call__(self):
         self.first_guess()
-        self.current_solution = opt.fmin_bfgs(self.criterion,
+        self.optimizer_output = opt.fmin_bfgs(self.criterion,
                                               self.current_solution,
                                               fprime=self.gradient,
                                               args=self.args,
                                               **self.kwargs)
+        self.current_solution = self.optimizer_output[0]
         return self.current_solution
