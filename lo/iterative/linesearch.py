@@ -112,7 +112,7 @@ if 'linesearch' in locals():
             self.get_values(algo)
             # perform line search
             self._line_search()
-            # if not output given, fallback to optimal step ...
+            # if no output given, fallback to optimal step ...
             if self.step is None:
                 self.step = optimal_step(algo)
             return self.step
