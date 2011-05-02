@@ -8,7 +8,7 @@ import lo
 from norms import *
 from linesearch import *
 from criterions import *
-from iterative_algorithms import *
+from algorithms import *
 
 # functions with optional dependencies
 
