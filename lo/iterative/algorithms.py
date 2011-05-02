@@ -40,6 +40,14 @@ class StopCondition(object):
         self.resid = None
     def __call__(self, algo):
         return self.cond([test(self, algo) for test in self.tests])
+    def str(self, algo):
+        """
+        Returns a string with current condition values.
+        """
+        if self.resid is not None and self.tol is not None:
+            return "\t %1.2e / %1.2e" % (self.resid, self.tol)
+        else:
+            return "\t Residual"
 
 default_stop = StopCondition(maxiter=MAXITER, tol=TOL, gtol=GTOL)
 
@@ -72,8 +80,9 @@ class Callback(object):
         if self.verbose:
             if algo.iter_ == 1:
                 print('Iteration \t Criterion')
-            print("\t%i \t %e" %
-                  (algo.iter_, algo.current_criterion))
+            print_str = "\t%i \t %e" % (algo.iter_, algo.current_criterion)
+            print_str += algo.stop_condition.str(algo)
+            print(print_str)
     def save(self, algo):
         if self.savefile is not None:
             var_dict = {
@@ -212,12 +221,12 @@ class ConjugateGradient(Algorithm):
         self.line_search = line_search
         self.kwargs = kwargs
         # to store values
-        self.current_criterion = None
+        self.current_criterion = np.inf
         self.current_solution = None
         self.current_gradient = None
         self.current_gradient_norm = None
         self.current_descent = None
-        self.last_criterion = None
+        self.last_criterion = np.inf
         self.last_solution = None
         self.last_gradient = None
         self.last_gradient_norm = None
