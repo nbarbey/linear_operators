@@ -8,6 +8,41 @@ import lo
 from linesearch import *
 from criterions import *
 
+# defaults
+TOL = 1e-6
+GTOL = 1e-6
+MAXITER = 100
+
+# stop conditions
+class StopCondition(object):
+    def _test_maxiter(self, algo):
+        return algo.iter_ > self.maxiter
+    def _test_tol(self, algo):
+        self.resid = np.abs(algo.last_criterion - algo.current_criterion)
+        self.resid /= algo.first_criterion
+        return self.resid < self.tol
+    def _test_gtol(self, algo):
+        return algo.current_gradient_norm < self.gtol
+    _all_tests = [_test_maxiter, _test_tol, _test_gtol]
+    def __init__(self, maxiter=None, tol=None, gtol=None, cond=np.any):
+        self.cond = cond
+        self.maxiter = maxiter
+        self.tol = tol
+        self.gtol = gtol
+        self.all_val = [self.maxiter, self.tol, self.gtol]
+        # filter out tests with None values
+        self.tests_val = [val for val in self.all_val
+                          if val is not None]
+        self.tests = [test
+                      for test, val in zip(self._all_tests, self.all_val)
+                      if val is not None]
+        # store values for printing
+        self.resid = None
+    def __call__(self, algo):
+        return self.cond([test(self, algo) for test in self.tests])
+
+default_stop = StopCondition(maxiter=MAXITER, tol=TOL, gtol=GTOL)
+
 # update types
 
 def fletcher_reeves(algo):
@@ -25,9 +60,69 @@ def polak_ribiere(algo):
     b /= np.norm(algo.last_gradient)
     return b
 
+# callback function
+
+class Callback(object):
+    def __init__(self, verbose=False, savefile=None):
+        self.verbose = verbose
+        self.savefile = savefile
+    def print_status(self, algo):
+        if self.verbose:
+            if algo.iter_ == 1:
+                print('Iteration \t Criterion')
+            print("\t%i \t %e" %
+                  (algo.iter_, algo.current_criterion))
+    def save(self, algo):
+        if self.savefile is not None:
+            var_dict = {
+                "iter":algo.iter_,
+                "criterion":algo.current_criterion,
+                "solution":algo.current_solution,
+                }
+            np.savez(self.savefile, **var_dict)
+    def __call__(self, algo):
+        if self.verbose:
+            self.print_status(algo)
+        if self.savefile is not None:
+            self.save(algo)
+
+default_callback = Callback()
+
 # algorithms
 
-class ConjugateGradient(object):
+class Algorithm(object):
+    """
+    Abstract class to define iterative algorithms
+    """
+    def initialize(self):
+        self.iter_ = 0
+    def callback(self):
+        NotImplemented
+    def iterate(self):
+        """
+        Perform one iteration and returns current solution.
+        """
+        self.iter_ += 1
+        self.callback(self)
+        # return value not used in loop but usefull in "interactive mode"
+        return self.current_solution
+    def __call__(self):
+        """
+        Perform the optimization.
+        """
+        self.initialize()
+        self.iterate() # at least 1 iteration
+        return self.cont()
+    def cont(self):
+        """
+        Continue an interrupted estimation (like call but avoid
+        initialization).
+        """
+        while not self.stop_condition(self):
+            self.iterate()
+        return self.current_solution
+
+class ConjugateGradient(Algorithm):
     """
     Apply the conjugate gradient algorithm to a Criterion instance.
 
@@ -69,19 +164,17 @@ class ConjugateGradient(object):
     calling the this instance.
 
     """
-    def __init__(self, criterion, x0=None, tol=1e-6, maxiter=None,
-                 verbose=False, savefile=None, update_type=fletcher_reeves,
+    def __init__(self, criterion, x0=None,
+                 callback=default_callback,
+                 stop_condition=default_stop,
+                 update_type=fletcher_reeves,
                  line_search=optimal_step, **kwargs):
         self.criterion = criterion
         self.gradient = criterion.gradient
         self.n_variables = self.criterion.n_variables
-        self.tol = tol
-        if maxiter is None:
-            self.maxiter = self.n_variables
-        else:
-            self.maxiter = maxiter
-        self.savefile = savefile
-        self.verbose = verbose
+        # functions
+        self.callback = callback
+        self.stop_condition = stop_condition
         self.update_type = update_type
         self.line_search = line_search
         self.kwargs = kwargs
@@ -103,8 +196,7 @@ class ConjugateGradient(object):
         self.first_guess()
         self.first_criterion = self.criterion(self.current_solution)
         self.current_criterion = self.first_criterion
-        self.resid = 2 * self.tol
-        self.iter_ = 0
+        Algorithm.initialize(self)
     def first_guess(self, x0=None):
         """
         Sets current_solution attribute to initial value.
@@ -113,11 +205,6 @@ class ConjugateGradient(object):
             self.current_solution = np.zeros(self.n_variables)
         else:
             self.current_solution = copy(x0)
-    def stop_condition(self):
-        """
-        Returns False when algorithm should stop.
-        """
-        return self.iter_ < self.maxiter and self.resid > self.tol
     # update_* functions encode the actual algorithm
     def update_gradient(self):
         self.last_gradient = copy(self.current_gradient)
@@ -126,7 +213,7 @@ class ConjugateGradient(object):
         self.last_gradient_norm = copy(self.current_gradient_norm)
         self.current_gradient_norm = norm2(self.current_gradient)
     def update_descent(self):
-        if self.iter_ == 1:
+        if self.iter_ == 0:
             self.current_descent = - self.current_gradient
         else:
             self.last_descent = copy(self.current_descent)
@@ -139,10 +226,7 @@ class ConjugateGradient(object):
     def update_criterion(self):
         self.last_criterion = copy(self.current_criterion)
         self.current_criterion = self.criterion(self.current_solution)
-    def update_resid(self):
-        self.resid = np.abs(self.last_criterion - self.current_criterion)
-        self.resid /= self.first_criterion
-    def update(self):
+    def iterate(self):
         """
         Update all values.
         """
@@ -151,43 +235,7 @@ class ConjugateGradient(object):
         self.update_descent()
         self.update_solution()
         self.update_criterion()
-        self.update_resid()
-    def print_status(self):
-        if self.verbose:
-            if self.iter_ == 1:
-                print('Iteration \t Residual \t Criterion')
-            print("\t%i \t %e \t %e" %
-                  (self.iter_, self.resid, self.current_criterion))
-    def save(self):
-        if self.savefile is not None:
-            var_dict = {
-                "iter":self.iter_,
-                "resid":self.resid,
-                "criterion":self.current_criterion,
-                "solution":self.current_solution,
-                "gradient":self.current_gradient
-                }
-            np.savez(self.savefile, **var_dict)
-    def callback(self):
-        self.print_status()
-        self.save()
-    def iterate(self):
-        """
-        Perform one iteration and returns current solution.
-        """
-        self.iter_ += 1
-        self.update()
-        self.callback()
-        # return value not used in loop but usefull in "interactive mode"
-        return self.current_solution
-    def __call__(self):
-        """
-        Perform the optimization.
-        """
-        self.initialize()
-        while self.stop_condition():
-            self.iterate()
-        return self.current_solution
+        Algorithm.iterate(self)
 
 class QuadraticConjugateGradient(ConjugateGradient):
     """
