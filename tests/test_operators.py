@@ -7,8 +7,8 @@ Testing of the lo.operators module
 import nose
 from numpy.testing import *
 import numpy as np
-import lo
-from lo import operators as op
+import linear_operators as lo
+from linear_operators import operators as op
 
 def generate_permutation(n):
     a = np.arange(n)

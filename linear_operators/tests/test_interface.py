@@ -8,7 +8,7 @@ from numpy.testing import *
 import numpy as np
 import scipy.sparse as sparse
 
-from lo.interface import *
+from linear_operators.interface import LinearOperator, aslinearoperator
 
 
 class TestLinearOperator(TestCase):

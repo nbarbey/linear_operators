@@ -1,9 +1,9 @@
 """
-lo is a package implementing estimation algorithms for large scale
-linear problems. The workflow is as follows : generate a linear model
-using LinearOperator instances as buildling blocks, define a criterion
-to minimize using this model, and finally perform minimization on the
-criterion using a minimization algorithm.
+linear_operators is a package implementing estimation algorithms for
+large scale linear problems. The workflow is as follows : generate a
+linear model using LinearOperator instances as buildling blocks,
+define a criterion to minimize using this model, and finally perform
+minimization on the criterion using a given minimization algorithm.
 
 Subpackages implements each part of this workflow. Here is a list of
 the subpackages :

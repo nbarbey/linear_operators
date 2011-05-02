@@ -7,8 +7,8 @@ Testing of the lo package
 import nose
 from numpy.testing import *
 import numpy as np
-import lo
-from lo.iterative import utils
+import linear_operators as lo
+from linear_operators.iterative import utils
 
 n = 128
 k = n - 1

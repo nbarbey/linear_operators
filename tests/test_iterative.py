@@ -7,8 +7,8 @@ Testing of the lo.iterative module
 import nose
 from numpy.testing import *
 import numpy as np
-import lo
-from lo import iterative
+import linear_operators as lo
+from linear_operators import iterative
 
 # collection of linear operators to test
 mat16 = lo.aslinearoperator(np.random.rand(16, 16))

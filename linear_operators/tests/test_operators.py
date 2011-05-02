@@ -8,7 +8,7 @@ from numpy.testing import *
 import numpy as np
 import scipy.sparse as sparse
 
-from lo.operators import *
+from linear_operators.operators import *
 
 class TestNDOperator(TestCase):
     def setUp(self):

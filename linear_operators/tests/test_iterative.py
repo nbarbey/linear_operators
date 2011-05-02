@@ -9,7 +9,7 @@ from numpy import zeros, ones, arange, array, abs, max
 from scipy.linalg import norm
 from scipy.sparse import spdiags, csr_matrix
 
-from lo.interface import LinearOperator
+from linear_operators.interface import LinearOperator
 
 if __name__ == "__main__":
     nose.run(argv=['', __file__])

@@ -7,7 +7,7 @@ Testing of the lo package
 import nose
 from numpy.testing import *
 import numpy as np
-import lo
+import linear_operators as lo
 
 # collection of linear operators to test
 mat16 = lo.aslinearoperator(np.random.rand(16, 16))
