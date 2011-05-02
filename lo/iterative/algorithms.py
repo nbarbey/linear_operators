@@ -96,7 +96,6 @@ class ConjugateGradient(object):
         self.last_gradient = None
         self.last_gradient_norm = None
         self.last_descent = None
-        self.optimal_step = None
     def initialize(self):
         """
         Initialize required values.
