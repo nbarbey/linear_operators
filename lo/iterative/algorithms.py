@@ -11,7 +11,7 @@ from criterions import *
 # defaults
 TOL = 1e-6
 GTOL = 1e-6
-MAXITER = 100
+MAXITER = None
 
 # stop conditions
 class StopCondition(object):
@@ -63,9 +63,11 @@ def polak_ribiere(algo):
 # callback function
 
 class Callback(object):
-    def __init__(self, verbose=False, savefile=None):
+    def __init__(self, verbose=False, savefile=None, shape=False):
         self.verbose = verbose
         self.savefile = savefile
+        self.shape = shape
+        self.im = None
     def print_status(self, algo):
         if self.verbose:
             if algo.iter_ == 1:
@@ -80,11 +82,32 @@ class Callback(object):
                 "solution":algo.current_solution,
                 }
             np.savez(self.savefile, **var_dict)
+    def imshow(self, algo):
+        import pylab
+        if algo.iter_ == 1:
+            self.im = pylab.imshow(algo.current_solution.reshape(self.shape))
+        else:
+            self.im.set_data(algo.current_solution.reshape(self.shape))
+        pylab.draw()
+        pylab.show()
+    def plot(self, algo):
+        import pylab
+        if algo.iter_ == 1:
+            self.im = pylab.plot(algo.current_solution)[0]
+        else:
+            self.im.set_data(algo.current_solution)
+        pylab.draw()
+        pylab.show()
     def __call__(self, algo):
         if self.verbose:
             self.print_status(algo)
         if self.savefile is not None:
             self.save(algo)
+        if self.shape is not None:
+            if len(self.shape) == 1:
+                self.plot(algo)
+            elif len(self.shape) == 2:
+                self.imshow(algo)
 
 default_callback = Callback()
 
@@ -203,10 +226,10 @@ class ConjugateGradient(Algorithm):
         """
         Initialize required values.
         """
+        Algorithm.initialize(self)
         self.first_guess()
         self.first_criterion = self.criterion(self.current_solution)
         self.current_criterion = self.first_criterion
-        Algorithm.initialize(self)
     def first_guess(self, x0=None):
         """
         Sets current_solution attribute to initial value.
