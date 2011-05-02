@@ -1,3 +1,26 @@
+"""
+
+Classes
+-------
+
+LinearOperator : Provides the LinearOperator class, which is the base
+    class for all operators. This class is shamelessly taken from the
+    scipy.sparse.linalg package.
+
+Functions
+---------
+
+aslinearoperator : transforms a class with the matvec method into a
+    LinearOperator
+
+concatenate : Transform a list of LinearOperators into a
+    LinearOperator by concatenation.
+
+block_diagonal : Transform a list of LinearOperators into a
+    block-diagonal LinearOperator with given LinearOperators on the
+    diagonal.
+"""
+
 import numpy as np
 import warnings
 #from scipy.sparse.sputils import isshape
