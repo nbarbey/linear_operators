@@ -1,12 +1,12 @@
-=====================
-lo : Linear Operators
-=====================
+================
+linear_opeartors
+================
 
-What is lo ?
-==============
+What is linear_operators ?
+==========================
 
-lo is a package implementing estimation algorithms for large scale
-linear problems. The workflow is as follows :
+linear_operators is a package implementing estimation algorithms for
+large scale linear problems. The workflow is as follows :
 
 - generate a linear model using LinearOperator instances as buildling
   blocks,
