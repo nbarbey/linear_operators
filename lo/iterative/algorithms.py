@@ -92,12 +92,28 @@ default_callback = Callback()
 
 class Algorithm(object):
     """
-    Abstract class to define iterative algorithms
+    Abstract class to define iterative algorithms.
+
+    Attributes
+    ----------
+
+    iter_ : int
+        Current iteration number.
+
+    Methods
+    -------
+
+    initialize : Set variables to initial state
+    iterate : perform one iteration and return current solution
+    callback : user-defined function to print status or save variables
+    cont : continue the optimization skipping initialiaztion
+    __call__ : perform the optimization unt stop_condition is reached
     """
     def initialize(self):
         self.iter_ = 0
+        self.current_solution = None
     def callback(self):
-        NotImplemented
+        pass
     def iterate(self):
         """
         Perform one iteration and returns current solution.
@@ -138,17 +154,11 @@ class ConjugateGradient(Algorithm):
     x0 : ndarray (None)
         The first guess of the algorithm.
 
-    tol : float (1e-6)
-        The tolerance. The algorithm will stop if the residual is below the tolerance.
+    callback : function (default_callback)
+        Perform some printing / saving operations at each iteration.
 
-    maxiter : int (None)
-        Maximal number of iterations.
-
-    verbose : boolean (False)
-        Print information at each iteration.
-
-    savefile : string (None)
-        Save current result to a file (npy / npz format)
+    stop_condition : function (default_stop)
+        Defines when the iterations should stop
 
     update_type : function (fletcher_reeves)
         Type of descent direction update : e.g. fletcher_reeves, polak_ribiere
