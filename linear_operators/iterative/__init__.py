@@ -3,7 +3,6 @@ Implement algorithms using the LinearOperator class
 """
 import numpy as np
 from copy import copy
-import lo
 
 from norms import *
 from linesearch import *

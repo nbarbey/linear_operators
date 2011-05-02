@@ -3,7 +3,6 @@ Implements iterative algorithm class.
 """
 import numpy as np
 from copy import copy
-import lo
 
 from linesearch import *
 from criterions import *

@@ -1,7 +1,8 @@
 """ Wrap pywt transform into LinearOperators """
 import numpy as np
 import pywt
-import lo
+from ..interface import LinearOperator
+from ..ndoperators import NDOperator
 from copy import copy
 
 def wavedec(shapein, wavelet, mode='sym', level=None, dtype=np.float64):

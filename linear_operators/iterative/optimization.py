@@ -3,7 +3,6 @@ Use the optimization scikits to define a set of optimizer and models
 using LinearOperators.
 """
 import numpy as np
-import lo
 from scikits.optimization import step, line_search, criterion, optimizer
 from scikits.optimization.optimizer import StandardOptimizer
 import criterions

@@ -1,7 +1,7 @@
 """Wrap fast hadamard transform (fht) into LinearOperator instances"""
 import numpy as np
 import fht as fht_mod
-import lo
+from ..ndoperators import ndoperator
 
 def fht(shapein, **kargs):
     """
