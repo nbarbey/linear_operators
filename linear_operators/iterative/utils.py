@@ -7,7 +7,17 @@ try:
 except(ImportError):
     import arpack
 
-from .. import operators
+# to handle new names of eigen and eigen_symmetric
+if 'eigen' in arpack.__dict__.keys():
+    eigs = arpack.eigen
+    eigsh = arpack.eigen_symmetric
+elif 'eigs' in arpack.__dict__.keys():
+    eigs = arpack.eigs
+    eigsh = arpack.eigsh
+else:
+    raise ImportError("Unable to find eigen or eigs in arpack.")
+
+from ..operators import SymmetricOperator
 
 def eigendecomposition(A, **kwargs):
     """
@@ -15,12 +25,12 @@ def eigendecomposition(A, **kwargs):
     of the A input matrix, as a LinearOperator storing eigenvalues and
     eigenvectors.
 
-    It passes its arguments arguments as arpack.eigen_symmetric but
+    It passes its arguments arguments as arpack.eigsh but
     forces return_eigenvectors to True.
     """
     return EigendecompositionOperator(A, **kwargs)
 
-class EigendecompositionOperator(operators.SymmetricOperator):
+class EigendecompositionOperator(SymmetricOperator):
     """
     Define a SymmetricOperator from the eigendecomposition of another
     SymmetricOperator. This can be used as an approximation for the
@@ -32,11 +42,11 @@ class EigendecompositionOperator(operators.SymmetricOperator):
     A: LinearOperator (default: None)
       The LinearOperator to approximate.
     v: 2d ndarray (default: None)
-      The eigenvectors as given by arpack.eigen_symmetric
+      The eigenvectors as given by arpack.eigsh
     w: 1d ndarray (default: None)
-      The eigenvalues as given by arpack.eigen_symmetric
+      The eigenvalues as given by arpack.eigsh
     **kwargs: keyword arguments
-      Passed to the arpack.eigen_symmetric function.
+      Passed to the arpack.eigsh function.
 
     You need to specify either A or v and w.
 
@@ -51,7 +61,7 @@ class EigendecompositionOperator(operators.SymmetricOperator):
         from ..operators import diagonal
         kwargs['return_eigenvectors'] = True
         if v is None or w is None:
-            w, v = arpack.eigen_symmetric(A, **kwargs)
+            w, v = eigsh(A, **kwargs)
             shape = A.shape
             dtype = A.dtype
             dtypein = A.dtypein
@@ -67,7 +77,7 @@ class EigendecompositionOperator(operators.SymmetricOperator):
         self.eigenvalues = w
         self.eigenvectors = v
         self.kwargs = kwargs
-        operators.SymmetricOperator.__init__(self, shape, M.matvec,
+        SymmetricOperator.__init__(self, shape, M.matvec,
                                              dtypein=dtypein,
                                              dtypeout=dtypeout,
                                              dtype=dtype)
@@ -129,9 +139,9 @@ def cond(A, k=2, kl=None, ks=None, symmetric=True, M=None, maxiter=None,
         ks = k
 
     if symmetric:
-        eigen = arpack.eigen_symmetric
+        eigen = eigsh
     else:
-        eigen = arpack.eigen
+        eigen = eigs
 
     vmax = eigen(A, which='LM', k=kl, M=M, maxiter=maxiter, tol=tol, return_eigenvectors=False)
     vmin = eigen(A, which='SM', k=ks, M=M, maxiter=maxiter, tol=tol, return_eigenvectors=False)
