@@ -1,5 +1,5 @@
 ================
-linear_opeartors
+linear_operators
 ================
 
 What is linear_operators ?
