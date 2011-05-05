@@ -5,6 +5,8 @@ Implement norm classes. Available now :
 - Huber norm
 - Norm-k
 """
+import numpy as np
+
 try:
     from scipy.linalg.fblas import dnrm2
 except ImportError:
