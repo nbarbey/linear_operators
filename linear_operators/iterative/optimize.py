@@ -1,6 +1,7 @@
 """
 Wraps scipy.optimize.fmin_* algorithms using Criterion instances.
 """
+from copy import copy
 import numpy as np
 import scipy.optimize as opt
 
@@ -26,7 +27,7 @@ class FminWrapper(object):
     """
     def __init__(self, criterion, x0=None, *args, **kwargs):
         self.criterion = criterion
-        self.gradient = criterion.gradient
+        self.gradient = getattr(criterion, "gradient", None)
         self.n_variables = criterion.n_variables
         self.args = args
         self.kwargs = kwargs
@@ -52,9 +53,14 @@ class FminCOBYLA(FminWrapper):
         self.first_guess()
         self.current_solution = opt.fmin_cobyla(self.criterion,
                                                 self.current_solution,
-                                                cons,
+                                                self.cons,
                                                 args=self.args,
                                                 **self.kwargs)
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
 
 class FminPowell(FminWrapper):
@@ -65,7 +71,11 @@ class FminPowell(FminWrapper):
                                                 self.current_solution,
                                                 args=self.args,
                                                 **self.kwargs)
-        self.current_solution = self.optimizer_output[0]
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
 
 class FminCG(FminWrapper):
@@ -83,7 +93,6 @@ class FminCG(FminWrapper):
         else:
             self.current_solution = self.optimizer_output
         return self.current_solution
-        return self.current_solution
 
 class FminTNC(FminWrapper):
     __doc__ = FminWrapper.__doc__ + opt.fmin_tnc.__doc__
@@ -94,7 +103,11 @@ class FminTNC(FminWrapper):
                                              fprime=self.gradient,
                                              args=self.args,
                                              **self.kwargs)
-        self.current_solution = self.optimizer_output[0]
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
 
 class FminNCG(FminWrapper):
@@ -122,7 +135,11 @@ class FminLBFGSB(FminWrapper):
                                                   fprime=self.gradient,
                                                   args=self.args,
                                                   **self.kwargs)
-        self.current_solution = self.optimizer_output[0]
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
 
 class FminSLSQP(FminWrapper):
@@ -134,7 +151,12 @@ class FminSLSQP(FminWrapper):
                                                fprime=self.gradient,
                                                args=self.args,
                                                **self.kwargs)
-        self.current_solution = self.optimizer_output[0]
+
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
 
 class FminBFGS(FminWrapper):
@@ -146,5 +168,9 @@ class FminBFGS(FminWrapper):
                                               fprime=self.gradient,
                                               args=self.args,
                                               **self.kwargs)
-        self.current_solution = self.optimizer_output[0]
+        # output depends on kwargs ...
+        if isinstance(self.optimizer_output, tuple):
+            self.current_solution = self.optimizer_output[0]
+        else:
+            self.current_solution = self.optimizer_output
         return self.current_solution
