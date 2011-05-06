@@ -28,6 +28,8 @@ class FminWrapper(object):
     def __init__(self, criterion, x0=None, *args, **kwargs):
         self.criterion = criterion
         self.gradient = getattr(criterion, "gradient", None)
+        self.hessian = getattr(criterion, "hessian", None)
+        self.hessian_p = getattr(criterion, "hessian_p", None)
         self.n_variables = criterion.n_variables
         self.args = args
         self.kwargs = kwargs
@@ -117,6 +119,7 @@ class FminNCG(FminWrapper):
         self.optimizer_output = opt.fmin_ncg(self.criterion,
                                              self.current_solution,
                                              fprime=self.gradient,
+                                             fhess_p=self.hessian_p,
                                              args=self.args,
                                              **self.kwargs)
         # output depends on kwargs ...
