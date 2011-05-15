@@ -6,6 +6,7 @@ Implement norm classes. Available now :
 - Norm-k
 """
 import numpy as np
+from ..operators import identity
 
 try:
     from scipy.linalg.fblas import dnrm2
@@ -99,11 +100,15 @@ class Norm2(Norm):
                 return norm2(x)
             def diff(x):
                 return 2 * x
+            def hessian(x):
+                return 2 * identity(2 *(x.size,))
         else:
             def call(x):
                 return np.dot(x.T, C * x)
             def diff(x):
                 return 2 * C * x
+            def hessian(x):
+                return 2 * C
         self.C = C
         self._call = call
         self._diff = diff
