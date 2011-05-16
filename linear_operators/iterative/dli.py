@@ -172,7 +172,7 @@ class DoubleLoopAlgorithm(Algorithm):
         self.update_z()
         self.update_g_star()
     def update_inv_cov(self):
-        D = diag(self.gamma ** (-1))
+        D = diag(self.gamma ** (-1), dtype=self.prior.dtypeout)
         X = self.model
         B = self.prior
         self.inv_cov = X.T * X + B.T * D * B
