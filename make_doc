@@ -1,16 +1,3 @@
 #!/bin/bash
-mkdir doc
-pydoc2 -w linear_operators
-mv linear_operators.html doc/
-cd linear_operators
-pydoc2 -w ./
-rename '' linear_operators. *.html
-mv *.html ../doc/
-cd iterative
-pydoc2 -w ./
-rename '' iterative. *.html
-mv *.html ../../doc/
-cd ../wrappers
-pydoc2 -w ./
-rename '' wrappers. *.html
-mv *.html ../../doc/
+epydoc linear_operators
+mv html doc
