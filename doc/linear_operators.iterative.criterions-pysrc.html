@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>linear_operators.iterative.criterions</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
+        <a href="linear_operators.iterative-module.html">Package&nbsp;iterative</a> ::
+        Module&nbsp;criterions
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="linear_operators.iterative.criterions-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="linear_operators.iterative.criterions-module.html">Module linear_operators.iterative.criterions</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">Implement the criterion class. Available :</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-docstring">- Criterion</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring">- QuadraticCriterion</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">- HuberCriterion</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">copy</tt> <tt class="py-keyword">import</tt> <tt class="py-name">copy</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">numpy</tt> <tt class="py-keyword">as</tt> <tt class="py-name">np</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module linear_operators.iterative.norms=linear_operators.iterative.norms-module.html"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-0', 'norms', 'link-0');">norms</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">*</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"> </tt>
+<a name="Criterion"></a><div id="Criterion-def"><a name="L12"></a><tt class="py-lineno"> 12</tt> <a class="py-toggle" href="#" id="Criterion-toggle" onclick="return toggle('Criterion');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html">Criterion</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Criterion-expanded"><a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-docstring">    A class representing criterions such as :</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-docstring">    ..math: || y - H x ||^2 + sum_i \hypers_i || D_i x ||^2</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-docstring">    Parameters</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-docstring">    ----------</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-docstring">    H : LinearOperator</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-docstring">        Model.</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-docstring">    y : ndarray</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-docstring">        Data array.</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-docstring">    hypers: tuple or array</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-docstring">        Hypeparameter of each prior.</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-docstring">    Ds : tuple of LinearOperators</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-docstring">        Prior models.</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-docstring">    norms : tuple</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-docstring">        Can be norm2, huber, normp</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">    store : boolean (default: True)</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">        Store last criterion computation.</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring">    Returns</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-docstring">    -------</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-docstring">    Returns an Criterion instance with __call__ and gradient methods.</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="Criterion.__init__"></a><div id="Criterion.__init__-def"><a name="L38"></a><tt class="py-lineno"> 38</tt> <a class="py-toggle" href="#" id="Criterion.__init__-toggle" onclick="return toggle('Criterion.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">model</tt><tt class="py-op">,</tt> <tt class="py-param">data</tt><tt class="py-op">,</tt> <tt class="py-param">hypers</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">priors</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">norms</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">store</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.__init__-expanded"><a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">model</tt> <tt class="py-op">=</tt> <tt class="py-name">model</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">data</tt> <tt class="py-op">=</tt> <tt class="py-name">data</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">priors</tt> <tt class="py-op">=</tt> <tt class="py-name">priors</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">        <tt class="py-comment"># normalize hyperparameters</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">hypers</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">asarray</tt><tt class="py-op">(</tt><tt class="py-name">hypers</tt><tt class="py-op">)</tt> <tt class="py-op">*</tt> <tt class="py-name">model</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">/</tt> <tt class="py-name">float</tt><tt class="py-op">(</tt><tt class="py-name">model</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">        <tt class="py-comment"># default to Norm2</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-1" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-1', 'norms', 'link-0');">norms</a></tt> <tt class="py-op">=</tt> <tt id="link-2" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-2', 'norms', 'link-0');">norms</a></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-3', 'norms', 'link-0');">norms</a></tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt class="py-number">0</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-4" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-4', 'norms', 'link-0');">norms</a></tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt id="link-5" class="py-name" targets="Class linear_operators.iterative.norms.Norm2=linear_operators.iterative.norms.Norm2-class.html"><a title="linear_operators.iterative.norms.Norm2" class="py-name" href="#" onclick="return doclink('link-5', 'Norm2', 'link-5');">Norm2</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-op">)</tt> <tt class="py-op">*</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">priors</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">        <tt class="py-comment"># get diff of norms</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dnorms</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">n</tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Method linear_operators.iterative.norms.Norm.diff()=linear_operators.iterative.norms.Norm-class.html#diff,Function linear_operators.ndoperators.diff()=linear_operators.ndoperators-module.html#diff"><a title="linear_operators.iterative.norms.Norm.diff
+linear_operators.ndoperators.diff" class="py-name" href="#" onclick="return doclink('link-6', 'diff', 'link-6');">diff</a></tt> <tt class="py-keyword">for</tt> <tt class="py-name">n</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-7" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-7', 'norms', 'link-0');">norms</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">        <tt class="py-comment"># to store intermediate values</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">store</tt> <tt class="py-op">=</tt> <tt class="py-name">store</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_x</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">projection</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_residual</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_prior_residuals</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">        <tt class="py-comment"># if all norms are l2 define optimal step</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_optimal_step</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">all</tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">n</tt> <tt class="py-op">==</tt> <tt id="link-8" class="py-name"><a title="linear_operators.iterative.norms.Norm2" class="py-name" href="#" onclick="return doclink('link-8', 'Norm2', 'link-5');">Norm2</a></tt> <tt class="py-keyword">for</tt> <tt class="py-name">n</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-9', 'norms', 'link-0');">norms</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">        <tt class="py-comment"># set number of unknowns</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">n_variables</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">model</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+</div><a name="Criterion.islast"></a><div id="Criterion.islast-def"><a name="L60"></a><tt class="py-lineno"> 60</tt> <a class="py-toggle" href="#" id="Criterion.islast-toggle" onclick="return toggle('Criterion.islast');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#islast">islast</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.islast-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.islast-expanded"><a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">all</tt><tt class="py-op">(</tt><tt class="py-name">x</tt> <tt class="py-op">==</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_x</tt><tt class="py-op">)</tt> </tt>
+</div><a name="Criterion.load_last"></a><div id="Criterion.load_last-def"><a name="L62"></a><tt class="py-lineno"> 62</tt> <a class="py-toggle" href="#" id="Criterion.load_last-toggle" onclick="return toggle('Criterion.load_last');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#load_last">load_last</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.load_last-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.load_last-expanded"><a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">projection</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_residual</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_prior_residuals</tt> </tt>
+</div><a name="Criterion.get_residuals"></a><div id="Criterion.get_residuals-def"><a name="L64"></a><tt class="py-lineno"> 64</tt> <a class="py-toggle" href="#" id="Criterion.get_residuals-toggle" onclick="return toggle('Criterion.get_residuals');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#get_residuals">get_residuals</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.get_residuals-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.get_residuals-expanded"><a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Method linear_operators.iterative.criterions.Criterion.islast()=linear_operators.iterative.criterions.Criterion-class.html#islast,Method linear_operators.iterative.dli.Criterion.islast()=linear_operators.iterative.dli.Criterion-class.html#islast"><a title="linear_operators.iterative.criterions.Criterion.islast
+linear_operators.iterative.dli.Criterion.islast" class="py-name" href="#" onclick="return doclink('link-10', 'islast', 'link-10');">islast</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">            <tt class="py-name">Hx</tt><tt class="py-op">,</tt> <tt class="py-name">r</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Method linear_operators.iterative.criterions.Criterion.load_last()=linear_operators.iterative.criterions.Criterion-class.html#load_last,Method linear_operators.iterative.dli.Criterion.load_last()=linear_operators.iterative.dli.Criterion-class.html#load_last"><a title="linear_operators.iterative.criterions.Criterion.load_last
+linear_operators.iterative.dli.Criterion.load_last" class="py-name" href="#" onclick="return doclink('link-11', 'load_last', 'link-11');">load_last</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">            <tt class="py-name">Hx</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">model</tt> <tt class="py-op">*</tt> <tt class="py-name">x</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">            <tt class="py-name">r</tt> <tt class="py-op">=</tt> <tt class="py-name">Hx</tt> <tt class="py-op">-</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">data</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">            <tt class="py-name">rd</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">D</tt> <tt class="py-op">*</tt> <tt class="py-name">x</tt> <tt class="py-keyword">for</tt> <tt class="py-name">D</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">priors</tt><tt class="py-op">]</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">Hx</tt><tt class="py-op">,</tt> <tt class="py-name">r</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt> </tt>
+</div><a name="Criterion.save"></a><div id="Criterion.save-def"><a name="L72"></a><tt class="py-lineno"> 72</tt> <a class="py-toggle" href="#" id="Criterion.save-toggle" onclick="return toggle('Criterion.save');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#save">save</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">,</tt> <tt class="py-param">Hx</tt><tt class="py-op">,</tt> <tt class="py-param">r</tt><tt class="py-op">,</tt> <tt class="py-param">rd</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.save-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.save-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">store</tt> <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.islast
+linear_operators.iterative.dli.Criterion.islast" class="py-name" href="#" onclick="return doclink('link-12', 'islast', 'link-10');">islast</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_x</tt> <tt class="py-op">=</tt> <tt class="py-name">copy</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">Hx</tt> <tt class="py-op">=</tt> <tt class="py-name">copy</tt><tt class="py-op">(</tt><tt class="py-name">Hx</tt><tt class="py-op">)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_residual</tt> <tt class="py-op">=</tt> <tt class="py-name">copy</tt><tt class="py-op">(</tt><tt class="py-name">r</tt><tt class="py-op">)</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">last_prior_residuals</tt> <tt class="py-op">=</tt> <tt class="py-name">copy</tt><tt class="py-op">(</tt><tt class="py-name">rd</tt><tt class="py-op">)</tt> </tt>
+</div><a name="Criterion.__call__"></a><div id="Criterion.__call__-def"><a name="L78"></a><tt class="py-lineno"> 78</tt> <a class="py-toggle" href="#" id="Criterion.__call__-toggle" onclick="return toggle('Criterion.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.__call__-expanded"><a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">        <tt class="py-comment"># residuals</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">        <tt class="py-name">Hx</tt><tt class="py-op">,</tt> <tt class="py-name">r</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Method linear_operators.iterative.criterions.Criterion.get_residuals()=linear_operators.iterative.criterions.Criterion-class.html#get_residuals"><a title="linear_operators.iterative.criterions.Criterion.get_residuals" class="py-name" href="#" onclick="return doclink('link-13', 'get_residuals', 'link-13');">get_residuals</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">        <tt class="py-comment"># norms</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">        <tt class="py-name">J</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-14', 'norms', 'link-0');">norms</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">(</tt><tt class="py-name">r</tt><tt class="py-op">)</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">        <tt class="py-name">priors</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">norm</tt><tt class="py-op">(</tt><tt class="py-name">rd_i</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">norm</tt><tt class="py-op">,</tt> <tt class="py-name">rd_i</tt> <tt class="py-keyword">in</tt> <tt class="py-name">zip</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-15', 'norms', 'link-0');">norms</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">:</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">        <tt class="py-name">J</tt> <tt class="py-op">+=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">sum</tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">h</tt> <tt class="py-op">*</tt> <tt class="py-name">prior</tt> <tt class="py-keyword">for</tt> <tt class="py-name">h</tt><tt class="py-op">,</tt> <tt class="py-name">prior</tt> <tt class="py-keyword">in</tt> <tt class="py-name">zip</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">hypers</tt><tt class="py-op">,</tt> <tt class="py-name">priors</tt><tt class="py-op">)</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-16" class="py-name" targets="Method linear_operators.iterative.algorithms.Callback.save()=linear_operators.iterative.algorithms.Callback-class.html#save,Method linear_operators.iterative.criterions.Criterion.save()=linear_operators.iterative.criterions.Criterion-class.html#save"><a title="linear_operators.iterative.algorithms.Callback.save
+linear_operators.iterative.criterions.Criterion.save" class="py-name" href="#" onclick="return doclink('link-16', 'save', 'link-16');">save</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">,</tt> <tt class="py-name">Hx</tt><tt class="py-op">,</tt> <tt class="py-name">r</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">J</tt> </tt>
+</div><a name="Criterion.gradient"></a><div id="Criterion.gradient-def"><a name="L87"></a><tt class="py-lineno"> 87</tt> <a class="py-toggle" href="#" id="Criterion.gradient-toggle" onclick="return toggle('Criterion.gradient');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.Criterion-class.html#gradient">gradient</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Criterion.gradient-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Criterion.gradient-expanded"><a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring">        First order derivative of the criterion as a function of x.</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-name">Hx</tt><tt class="py-op">,</tt> <tt class="py-name">r</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-17" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.get_residuals" class="py-name" href="#" onclick="return doclink('link-17', 'get_residuals', 'link-13');">get_residuals</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt class="py-name">g</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">model</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Variable linear_operators.interface.LinearOperator.T=linear_operators.interface.LinearOperator-class.html#T,Variable linear_operators.ndoperators.NDOperator.T=linear_operators.ndoperators.NDOperator-class.html#T,Variable linear_operators.ndoperators.NDSymmetric.T=linear_operators.ndoperators.NDSymmetric-class.html#T"><a title="linear_operators.interface.LinearOperator.T
+linear_operators.ndoperators.NDOperator.T
+linear_operators.ndoperators.NDSymmetric.T" class="py-name" href="#" onclick="return doclink('link-18', 'T', 'link-18');">T</a></tt> <tt class="py-op">*</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dnorms</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">(</tt><tt class="py-name">r</tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-name">p_dnorms</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">dnorm</tt><tt class="py-op">(</tt><tt class="py-name">el</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">dnorm</tt><tt class="py-op">,</tt> <tt class="py-name">el</tt> <tt class="py-keyword">in</tt> <tt class="py-name">zip</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">dnorms</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">:</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-name">p_diff</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">D</tt><tt class="py-op">.</tt><tt id="link-19" class="py-name"><a title="linear_operators.interface.LinearOperator.T
+linear_operators.ndoperators.NDOperator.T
+linear_operators.ndoperators.NDSymmetric.T" class="py-name" href="#" onclick="return doclink('link-19', 'T', 'link-18');">T</a></tt> <tt class="py-op">*</tt> <tt class="py-name">dn</tt> <tt class="py-keyword">for</tt> <tt class="py-name">D</tt><tt class="py-op">,</tt> <tt class="py-name">dn</tt> <tt class="py-keyword">in</tt> <tt class="py-name">zip</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">priors</tt><tt class="py-op">,</tt> <tt class="py-name">p_dnorms</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-name">drs</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-name">h</tt> <tt class="py-op">*</tt> <tt class="py-name">pd</tt> <tt class="py-keyword">for</tt> <tt class="py-name">h</tt><tt class="py-op">,</tt> <tt class="py-name">pd</tt> <tt class="py-keyword">in</tt> <tt class="py-name">zip</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">hypers</tt><tt class="py-op">,</tt> <tt class="py-name">p_diff</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">dr</tt> <tt class="py-keyword">in</tt> <tt class="py-name">drs</tt><tt class="py-op">:</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">            <tt class="py-name">g</tt> <tt class="py-op">+=</tt> <tt class="py-name">dr</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="linear_operators.iterative.algorithms.Callback.save
+linear_operators.iterative.criterions.Criterion.save" class="py-name" href="#" onclick="return doclink('link-20', 'save', 'link-16');">save</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">,</tt> <tt class="py-name">Hx</tt><tt class="py-op">,</tt> <tt class="py-name">r</tt><tt class="py-op">,</tt> <tt class="py-name">rd</tt><tt class="py-op">)</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">g</tt> </tt>
+</div></div><a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"> </tt>
+<a name="QuadraticCriterion"></a><div id="QuadraticCriterion-def"><a name="L101"></a><tt class="py-lineno">101</tt> <a class="py-toggle" href="#" id="QuadraticCriterion-toggle" onclick="return toggle('QuadraticCriterion');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.QuadraticCriterion-class.html">QuadraticCriterion</a><tt class="py-op">(</tt><tt class="py-base-class">Criterion</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="QuadraticCriterion-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="QuadraticCriterion-expanded"><a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">    Subclass of Criterion with all norms forced to be Norm2 instances.</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="QuadraticCriterion.__init__"></a><div id="QuadraticCriterion.__init__-def"><a name="L105"></a><tt class="py-lineno">105</tt> <a class="py-toggle" href="#" id="QuadraticCriterion.__init__-toggle" onclick="return toggle('QuadraticCriterion.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.QuadraticCriterion-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">model</tt><tt class="py-op">,</tt> <tt class="py-param">data</tt><tt class="py-op">,</tt> <tt class="py-param">hypers</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">priors</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">store</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="QuadraticCriterion.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="QuadraticCriterion.__init__-expanded"><a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt id="link-21" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-21', 'norms', 'link-0');">norms</a></tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="linear_operators.iterative.norms.Norm2" class="py-name" href="#" onclick="return doclink('link-22', 'Norm2', 'link-5');">Norm2</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-op">)</tt> <tt class="py-op">*</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">priors</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">        <tt id="link-23" class="py-name" targets="Class linear_operators.iterative.criterions.Criterion=linear_operators.iterative.criterions.Criterion-class.html,Class linear_operators.iterative.dli.Criterion=linear_operators.iterative.dli.Criterion-class.html"><a title="linear_operators.iterative.criterions.Criterion
+linear_operators.iterative.dli.Criterion" class="py-name" href="#" onclick="return doclink('link-23', 'Criterion', 'link-23');">Criterion</a></tt><tt class="py-op">.</tt><tt id="link-24" class="py-name" targets="Method linear_operators.interface.LinearOperator.__init__()=linear_operators.interface.LinearOperator-class.html#__init__,Method linear_operators.iterative.algorithms.Callback.__init__()=linear_operators.iterative.algorithms.Callback-class.html#__init__,Method linear_operators.iterative.algorithms.ConjugateGradient.__init__()=linear_operators.iterative.algorithms.ConjugateGradient-class.html#__init__,Method linear_operators.iterative.algorithms.HuberConjugateGradient.__init__()=linear_operators.iterative.algorithms.HuberConjugateGradient-class.html#__init__,Method linear_operators.iterative.algorithms.QuadraticConjugateGradient.__init__()=linear_operators.iterative.algorithms.QuadraticConjugateGradient-class.html#__init__,Method linear_operators.iterative.algorithms.StopCondition.__init__()=linear_operators.iterative.algorithms.StopCondition-class.html#__init__,Method linear_operators.iterative.criterions.Criterion.__init__()=linear_operators.iterative.criterions.Criterion-class.html#__init__,Method linear_operators.iterative.criterions.HuberCriterion.__init__()=linear_operators.iterative.criterions.HuberCriterion-class.html#__init__,Method linear_operators.iterative.criterions.QuadraticCriterion.__init__()=linear_operators.iterative.criterions.QuadraticCriterion-class.html#__init__,Method linear_operators.iterative.dli.Criterion.__init__()=linear_operators.iterative.dli.Criterion-class.html#__init__,Method linear_operators.iterative.dli.DoubleLoopAlgorithm.__init__()=linear_operators.iterative.dli.DoubleLoopAlgorithm-class.html#__init__,Method linear_operators.iterative.linesearch'.Backtracking.__init__()=linear_operators.iterative.linesearch%27.Backtracking-class.html#__init__,Method linear_operators.iterative.linesearch'.LineSearch.__init__()=linear_operators.iterative.linesearch%27.LineSearch-class.html#__init__,Method linear_operators.iterative.norms.Huber.__init__()=linear_operators.iterative.norms.Huber-class.html#__init__,Method linear_operators.iterative.norms.Norm2.__init__()=linear_operators.iterative.norms.Norm2-class.html#__init__,Method linear_operators.iterative.norms.Normp.__init__()=linear_operators.iterative.norms.Normp-class.html#__init__,Method linear_operators.iterative.optimization.Optimizer.__init__()=linear_operators.iterative.optimization.Optimizer-class.html#__init__,Method linear_operators.iterative.optimization.QuadraticOptimizer.__init__()=linear_operators.iterative.optimization.QuadraticOptimizer-class.html#__init__,Method linear_operators.iterative.optimize.FminCOBYLA.__init__()=linear_operators.iterative.optimize.FminCOBYLA-class.html#__init__,Method linear_operators.iterative.optimize.FminWrapper.__init__()=linear_operators.iterative.optimize.FminWrapper-class.html#__init__,Method linear_operators.iterative.utils.EigendecompositionOperator.__init__()=linear_operators.iterative.utils.EigendecompositionOperator-class.html#__init__,Method linear_operators.ndoperators.Binning.__init__()=linear_operators.ndoperators.Binning-class.html#__init__,Method linear_operators.ndoperators.Convolve.__init__()=linear_operators.ndoperators.Convolve-class.html#__init__,Method linear_operators.ndoperators.ConvolveFftw3.__init__()=linear_operators.ndoperators.ConvolveFftw3-class.html#__init__,Method linear_operators.ndoperators.ConvolveNDImage.__init__()=linear_operators.ndoperators.ConvolveNDImage-class.html#__init__,Method linear_operators.ndoperators.Decimate.__init__()=linear_operators.ndoperators.Decimate-class.html#__init__,Method linear_operators.ndoperators.Diff.__init__()=linear_operators.ndoperators.Diff-class.html#__init__,Method linear_operators.ndoperators.Fft.__init__()=linear_operators.ndoperators.Fft-class.html#__init__,Method linear_operators.ndoperators.Fft2.__init__()=linear_operators.ndoperators.Fft2-class.html#__init__,Method linear_operators.ndoperators.Fftn.__init__()=linear_operators.ndoperators.Fftn-class.html#__init__,Method linear_operators.ndoperators.Fftw3.__init__()=linear_operators.ndoperators.Fftw3-class.html#__init__,Method linear_operators.ndoperators.NDDiagonal.__init__()=linear_operators.ndoperators.NDDiagonal-class.html#__init__,Method linear_operators.ndoperators.NDHomothetic.__init__()=linear_operators.ndoperators.NDHomothetic-class.html#__init__,Method linear_operators.ndoperators.NDIdentity.__init__()=linear_operators.ndoperators.NDIdentity-class.html#__init__,Method linear_operators.ndoperators.NDMask.__init__()=linear_operators.ndoperators.NDMask-class.html#__init__,Method linear_operators.ndoperators.NDOperator.__init__()=linear_operators.ndoperators.NDOperator-class.html#__init__,Method linear_operators.ndoperators.NDSOperator.__init__()=linear_operators.ndoperators.NDSOperator-class.html#__init__,Method linear_operators.ndoperators.NDSquare.__init__()=linear_operators.ndoperators.NDSquare-class.html#__init__,Method linear_operators.ndoperators.NDSymmetric.__init__()=linear_operators.ndoperators.NDSymmetric-class.html#__init__,Method linear_operators.operators.DiagonalOperator.__init__()=linear_operators.operators.DiagonalOperator-class.html#__init__,Method linear_operators.operators.FftOperator.__init__()=linear_operators.operators.FftOperator-class.html#__init__,Method linear_operators.operators.HomotheticOperator.__init__()=linear_operators.operators.HomotheticOperator-class.html#__init__,Method linear_operators.operators.IdentityOperator.__init__()=linear_operators.operators.IdentityOperator-class.html#__init__,Method linear_operators.operators.MaskOperator.__init__()=linear_operators.operators.MaskOperator-class.html#__init__,Method linear_operators.operators.PermutationOperator.__init__()=linear_operators.operators.PermutationOperator-class.html#__init__,Method linear_operators.operators.ReplicationOperator.__init__()=linear_operators.operators.ReplicationOperator-class.html#__init__,Method linear_operators.operators.ShiftOperator.__init__()=linear_operators.operators.ShiftOperator-class.html#__init__,Method linear_operators.operators.SymmetricOperator.__init__()=linear_operators.operators.SymmetricOperator-class.html#__init__"><a title="linear_operators.interface.LinearOperator.__init__
+linear_operators.iterative.algorithms.Callback.__init__
+linear_operators.iterative.algorithms.ConjugateGradient.__init__
+linear_operators.iterative.algorithms.HuberConjugateGradient.__init__
+linear_operators.iterative.algorithms.QuadraticConjugateGradient.__init__
+linear_operators.iterative.algorithms.StopCondition.__init__
+linear_operators.iterative.criterions.Criterion.__init__
+linear_operators.iterative.criterions.HuberCriterion.__init__
+linear_operators.iterative.criterions.QuadraticCriterion.__init__
+linear_operators.iterative.dli.Criterion.__init__
+linear_operators.iterative.dli.DoubleLoopAlgorithm.__init__
+linear_operators.iterative.linesearch'.Backtracking.__init__
+linear_operators.iterative.linesearch'.LineSearch.__init__
+linear_operators.iterative.norms.Huber.__init__
+linear_operators.iterative.norms.Norm2.__init__
+linear_operators.iterative.norms.Normp.__init__
+linear_operators.iterative.optimization.Optimizer.__init__
+linear_operators.iterative.optimization.QuadraticOptimizer.__init__
+linear_operators.iterative.optimize.FminCOBYLA.__init__
+linear_operators.iterative.optimize.FminWrapper.__init__
+linear_operators.iterative.utils.EigendecompositionOperator.__init__
+linear_operators.ndoperators.Binning.__init__
+linear_operators.ndoperators.Convolve.__init__
+linear_operators.ndoperators.ConvolveFftw3.__init__
+linear_operators.ndoperators.ConvolveNDImage.__init__
+linear_operators.ndoperators.Decimate.__init__
+linear_operators.ndoperators.Diff.__init__
+linear_operators.ndoperators.Fft.__init__
+linear_operators.ndoperators.Fft2.__init__
+linear_operators.ndoperators.Fftn.__init__
+linear_operators.ndoperators.Fftw3.__init__
+linear_operators.ndoperators.NDDiagonal.__init__
+linear_operators.ndoperators.NDHomothetic.__init__
+linear_operators.ndoperators.NDIdentity.__init__
+linear_operators.ndoperators.NDMask.__init__
+linear_operators.ndoperators.NDOperator.__init__
+linear_operators.ndoperators.NDSOperator.__init__
+linear_operators.ndoperators.NDSquare.__init__
+linear_operators.ndoperators.NDSymmetric.__init__
+linear_operators.operators.DiagonalOperator.__init__
+linear_operators.operators.FftOperator.__init__
+linear_operators.operators.HomotheticOperator.__init__
+linear_operators.operators.IdentityOperator.__init__
+linear_operators.operators.MaskOperator.__init__
+linear_operators.operators.PermutationOperator.__init__
+linear_operators.operators.ReplicationOperator.__init__
+linear_operators.operators.ShiftOperator.__init__
+linear_operators.operators.SymmetricOperator.__init__" class="py-name" href="#" onclick="return doclink('link-24', '__init__', 'link-24');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">model</tt><tt class="py-op">,</tt> <tt class="py-name">data</tt><tt class="py-op">,</tt> <tt class="py-name">hypers</tt><tt class="py-op">=</tt><tt class="py-name">hypers</tt><tt class="py-op">,</tt> <tt class="py-name">priors</tt><tt class="py-op">=</tt><tt class="py-name">priors</tt><tt class="py-op">,</tt> <tt class="py-name">store</tt><tt class="py-op">=</tt><tt class="py-name">store</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line"> </tt>
+<a name="HuberCriterion"></a><div id="HuberCriterion-def"><a name="L109"></a><tt class="py-lineno">109</tt> <a class="py-toggle" href="#" id="HuberCriterion-toggle" onclick="return toggle('HuberCriterion');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.HuberCriterion-class.html">HuberCriterion</a><tt class="py-op">(</tt><tt class="py-base-class">Criterion</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="HuberCriterion-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="HuberCriterion-expanded"><a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"><tt class="py-docstring">    Subclass of Criterion with all norms forced to be Huber instances.</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="HuberCriterion.__init__"></a><div id="HuberCriterion.__init__-def"><a name="L113"></a><tt class="py-lineno">113</tt> <a class="py-toggle" href="#" id="HuberCriterion.__init__-toggle" onclick="return toggle('HuberCriterion.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.criterions.HuberCriterion-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">model</tt><tt class="py-op">,</tt> <tt class="py-param">data</tt><tt class="py-op">,</tt> <tt class="py-param">hypers</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">deltas</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">priors</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-param">store</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="HuberCriterion.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HuberCriterion.__init__-expanded"><a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt id="link-25" class="py-name"><a title="linear_operators.iterative.norms" class="py-name" href="#" onclick="return doclink('link-25', 'norms', 'link-0');">norms</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt id="link-26" class="py-name" targets="Class linear_operators.iterative.norms.Huber=linear_operators.iterative.norms.Huber-class.html"><a title="linear_operators.iterative.norms.Huber" class="py-name" href="#" onclick="return doclink('link-26', 'Huber', 'link-26');">Huber</a></tt><tt class="py-op">(</tt><tt class="py-name">d</tt><tt class="py-op">)</tt> <tt class="py-keyword">for</tt> <tt class="py-name">d</tt> <tt class="py-keyword">in</tt> <tt class="py-name">deltas</tt><tt class="py-op">]</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt id="link-27" class="py-name"><a title="linear_operators.iterative.criterions.Criterion
+linear_operators.iterative.dli.Criterion" class="py-name" href="#" onclick="return doclink('link-27', 'Criterion', 'link-23');">Criterion</a></tt><tt class="py-op">.</tt><tt id="link-28" class="py-name"><a title="linear_operators.interface.LinearOperator.__init__
+linear_operators.iterative.algorithms.Callback.__init__
+linear_operators.iterative.algorithms.ConjugateGradient.__init__
+linear_operators.iterative.algorithms.HuberConjugateGradient.__init__
+linear_operators.iterative.algorithms.QuadraticConjugateGradient.__init__
+linear_operators.iterative.algorithms.StopCondition.__init__
+linear_operators.iterative.criterions.Criterion.__init__
+linear_operators.iterative.criterions.HuberCriterion.__init__
+linear_operators.iterative.criterions.QuadraticCriterion.__init__
+linear_operators.iterative.dli.Criterion.__init__
+linear_operators.iterative.dli.DoubleLoopAlgorithm.__init__
+linear_operators.iterative.linesearch'.Backtracking.__init__
+linear_operators.iterative.linesearch'.LineSearch.__init__
+linear_operators.iterative.norms.Huber.__init__
+linear_operators.iterative.norms.Norm2.__init__
+linear_operators.iterative.norms.Normp.__init__
+linear_operators.iterative.optimization.Optimizer.__init__
+linear_operators.iterative.optimization.QuadraticOptimizer.__init__
+linear_operators.iterative.optimize.FminCOBYLA.__init__
+linear_operators.iterative.optimize.FminWrapper.__init__
+linear_operators.iterative.utils.EigendecompositionOperator.__init__
+linear_operators.ndoperators.Binning.__init__
+linear_operators.ndoperators.Convolve.__init__
+linear_operators.ndoperators.ConvolveFftw3.__init__
+linear_operators.ndoperators.ConvolveNDImage.__init__
+linear_operators.ndoperators.Decimate.__init__
+linear_operators.ndoperators.Diff.__init__
+linear_operators.ndoperators.Fft.__init__
+linear_operators.ndoperators.Fft2.__init__
+linear_operators.ndoperators.Fftn.__init__
+linear_operators.ndoperators.Fftw3.__init__
+linear_operators.ndoperators.NDDiagonal.__init__
+linear_operators.ndoperators.NDHomothetic.__init__
+linear_operators.ndoperators.NDIdentity.__init__
+linear_operators.ndoperators.NDMask.__init__
+linear_operators.ndoperators.NDOperator.__init__
+linear_operators.ndoperators.NDSOperator.__init__
+linear_operators.ndoperators.NDSquare.__init__
+linear_operators.ndoperators.NDSymmetric.__init__
+linear_operators.operators.DiagonalOperator.__init__
+linear_operators.operators.FftOperator.__init__
+linear_operators.operators.HomotheticOperator.__init__
+linear_operators.operators.IdentityOperator.__init__
+linear_operators.operators.MaskOperator.__init__
+linear_operators.operators.PermutationOperator.__init__
+linear_operators.operators.ReplicationOperator.__init__
+linear_operators.operators.ShiftOperator.__init__
+linear_operators.operators.SymmetricOperator.__init__" class="py-name" href="#" onclick="return doclink('link-28', '__init__', 'link-24');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">model</tt><tt class="py-op">,</tt> <tt class="py-name">data</tt><tt class="py-op">,</tt> <tt class="py-name">hypers</tt><tt class="py-op">=</tt><tt class="py-name">hypers</tt><tt class="py-op">,</tt> <tt class="py-name">priors</tt><tt class="py-op">=</tt><tt class="py-name">priors</tt><tt class="py-op">,</tt> <tt class="py-name">store</tt><tt class="py-op">=</tt><tt class="py-name">store</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon May 16 11:16:08 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

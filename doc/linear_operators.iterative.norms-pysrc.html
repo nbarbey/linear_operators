@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>linear_operators.iterative.norms</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
+        <a href="linear_operators.iterative-module.html">Package&nbsp;iterative</a> ::
+        Module&nbsp;norms
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="linear_operators.iterative.norms-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="linear_operators.iterative.norms-module.html">Module linear_operators.iterative.norms</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">Implement norm classes. Available now :</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-docstring">- Norm2</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring">- Huber norm</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">- Norm-k</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">numpy</tt> <tt class="py-keyword">as</tt> <tt class="py-name">np</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Module linear_operators.operators=linear_operators.operators-module.html"><a title="linear_operators.operators" class="py-name" href="#" onclick="return doclink('link-0', 'operators', 'link-0');">operators</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Function linear_operators.operators.identity()=linear_operators.operators-module.html#identity"><a title="linear_operators.operators.identity" class="py-name" href="#" onclick="return doclink('link-1', 'identity', 'link-1');">identity</a></tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-name">scipy</tt><tt class="py-op">.</tt><tt class="py-name">linalg</tt><tt class="py-op">.</tt><tt class="py-name">fblas</tt> <tt class="py-keyword">import</tt> <tt class="py-name">dnrm2</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-keyword">except</tt> <tt class="py-name">ImportError</tt><tt class="py-op">:</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-string">'dnrm2'</tt> <tt class="py-keyword">in</tt> <tt class="py-name">locals</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="norm2"></a><div id="norm2-def"><a name="L17"></a><tt class="py-lineno"> 17</tt> <a class="py-toggle" href="#" id="norm2-toggle" onclick="return toggle('norm2');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#norm2">norm2</a><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="norm2-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="norm2-expanded"><a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">dnrm2</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> <tt class="py-op">**</tt> <tt class="py-number">2</tt> </tt>
+</div><a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="norm2"></a><div id="norm2-def"><a name="L20"></a><tt class="py-lineno"> 20</tt> <a class="py-toggle" href="#" id="norm2-toggle" onclick="return toggle('norm2');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#norm2">norm2</a><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="norm2-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="norm2-expanded"><a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">dot</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">ravel</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Variable linear_operators.interface.LinearOperator.T=linear_operators.interface.LinearOperator-class.html#T,Variable linear_operators.ndoperators.NDOperator.T=linear_operators.ndoperators.NDOperator-class.html#T,Variable linear_operators.ndoperators.NDSymmetric.T=linear_operators.ndoperators.NDSymmetric-class.html#T"><a title="linear_operators.interface.LinearOperator.T
+linear_operators.ndoperators.NDOperator.T
+linear_operators.ndoperators.NDSymmetric.T" class="py-name" href="#" onclick="return doclink('link-2', 'T', 'link-2');">T</a></tt><tt class="py-op">,</tt> <tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">ravel</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"> </tt>
+<a name="dnorm2"></a><div id="dnorm2-def"><a name="L23"></a><tt class="py-lineno"> 23</tt> <a class="py-toggle" href="#" id="dnorm2-toggle" onclick="return toggle('dnorm2');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#dnorm2">dnorm2</a><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="dnorm2-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="dnorm2-expanded"><a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">x</tt> </tt>
+</div><a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"> </tt>
+<a name="normp"></a><div id="normp-def"><a name="L26"></a><tt class="py-lineno"> 26</tt> <a class="py-toggle" href="#" id="normp-toggle" onclick="return toggle('normp');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#normp">normp</a><tt class="py-op">(</tt><tt class="py-param">p</tt><tt class="py-op">=</tt><tt class="py-number">2</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="normp-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="normp-expanded"><a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">    <tt class="py-keyword">def</tt> <tt class="py-def-name">norm</tt><tt class="py-op">(</tt><tt class="py-param">t</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">sum</tt><tt class="py-op">(</tt><tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">)</tt> <tt class="py-op">**</tt> <tt class="py-name">p</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">norm</tt> </tt>
+</div><a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="dnormp"></a><div id="dnormp-def"><a name="L31"></a><tt class="py-lineno"> 31</tt> <a class="py-toggle" href="#" id="dnormp-toggle" onclick="return toggle('dnormp');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#dnormp">dnormp</a><tt class="py-op">(</tt><tt class="py-param">p</tt><tt class="py-op">=</tt><tt class="py-number">2</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="dnormp-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="dnormp-expanded"><a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">    <tt class="py-keyword">def</tt> <tt class="py-def-name">norm</tt><tt class="py-op">(</tt><tt class="py-param">t</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">sign</tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">)</tt> <tt class="py-op">*</tt> <tt class="py-name">p</tt> <tt class="py-op">*</tt> <tt class="py-op">(</tt><tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">)</tt> <tt class="py-op">**</tt> <tt class="py-op">(</tt><tt class="py-name">p</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">norm</tt> </tt>
+</div><a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"> </tt>
+<a name="hnorm"></a><div id="hnorm-def"><a name="L36"></a><tt class="py-lineno"> 36</tt> <a class="py-toggle" href="#" id="hnorm-toggle" onclick="return toggle('hnorm');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#hnorm">hnorm</a><tt class="py-op">(</tt><tt class="py-param">d</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="hnorm-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="hnorm-expanded"><a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">d</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-3" class="py-name" targets="Function linear_operators.iterative.norms.norm2()=linear_operators.iterative.norms-module.html#norm2"><a title="linear_operators.iterative.norms.norm2" class="py-name" href="#" onclick="return doclink('link-3', 'norm2', 'link-3');">norm2</a></tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">        <tt class="py-keyword">def</tt> <tt class="py-def-name">norm</tt><tt class="py-op">(</tt><tt class="py-param">t</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">sum</tt><tt class="py-op">(</tt><tt id="link-4" class="py-name" targets="Function linear_operators.iterative.norms.huber()=linear_operators.iterative.norms-module.html#huber"><a title="linear_operators.iterative.norms.huber" class="py-name" href="#" onclick="return doclink('link-4', 'huber', 'link-4');">huber</a></tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">,</tt> <tt class="py-name">d</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">norm</tt> </tt>
+</div><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"> </tt>
+<a name="dhnorm"></a><div id="dhnorm-def"><a name="L44"></a><tt class="py-lineno"> 44</tt> <a class="py-toggle" href="#" id="dhnorm-toggle" onclick="return toggle('dhnorm');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#dhnorm">dhnorm</a><tt class="py-op">(</tt><tt class="py-param">d</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="dhnorm-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="dhnorm-expanded"><a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">d</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-5" class="py-name" targets="Function linear_operators.iterative.norms.dnorm2()=linear_operators.iterative.norms-module.html#dnorm2"><a title="linear_operators.iterative.norms.dnorm2" class="py-name" href="#" onclick="return doclink('link-5', 'dnorm2', 'link-5');">dnorm2</a></tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">        <tt class="py-keyword">def</tt> <tt class="py-def-name">norm</tt><tt class="py-op">(</tt><tt class="py-param">t</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt id="link-6" class="py-name" targets="Function linear_operators.iterative.norms.dhuber()=linear_operators.iterative.norms-module.html#dhuber"><a title="linear_operators.iterative.norms.dhuber" class="py-name" href="#" onclick="return doclink('link-6', 'dhuber', 'link-6');">dhuber</a></tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">,</tt> <tt class="py-name">d</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">norm</tt> </tt>
+</div><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"> </tt>
+<a name="huber"></a><div id="huber-def"><a name="L52"></a><tt class="py-lineno"> 52</tt> <a class="py-toggle" href="#" id="huber-toggle" onclick="return toggle('huber');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#huber">huber</a><tt class="py-op">(</tt><tt class="py-param">t</tt><tt class="py-op">,</tt> <tt class="py-param">delta</tt><tt class="py-op">=</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="huber-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="huber-expanded"><a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">    <tt class="py-docstring">"""Apply the huber function to the vector t, with transition delta"""</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt> <tt class="py-op">=</tt> <tt class="py-name">t</tt><tt class="py-op">.</tt><tt class="py-name">flatten</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">    <tt class="py-name">quadratic_index</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">where</tt><tt class="py-op">(</tt><tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">)</tt> <tt class="py-op">&lt;</tt> <tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">    <tt class="py-name">linear_index</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">where</tt><tt class="py-op">(</tt><tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;=</tt> <tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">quadratic_index</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">quadratic_index</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">**</tt> <tt class="py-number">2</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">linear_index</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">delta</tt> <tt class="py-op">*</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">linear_index</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">-</tt> <tt class="py-name">delta</tt> <tt class="py-op">**</tt> <tt class="py-number">2</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">reshape</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">,</tt> <tt class="py-name">t</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"> </tt>
+<a name="dhuber"></a><div id="dhuber-def"><a name="L61"></a><tt class="py-lineno"> 61</tt> <a class="py-toggle" href="#" id="dhuber-toggle" onclick="return toggle('dhuber');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms-module.html#dhuber">dhuber</a><tt class="py-op">(</tt><tt class="py-param">t</tt><tt class="py-op">,</tt> <tt class="py-param">delta</tt><tt class="py-op">=</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="dhuber-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="dhuber-expanded"><a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-docstring">"""Apply the derivation of the Huber function to t, transition: delta"""</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt> <tt class="py-op">=</tt> <tt class="py-name">t</tt><tt class="py-op">.</tt><tt class="py-name">flatten</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">    <tt class="py-name">quadratic_index</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">where</tt><tt class="py-op">(</tt><tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">abs</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">)</tt> <tt class="py-op">&lt;</tt> <tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-name">linear_index_positive</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">where</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt> <tt class="py-op">&gt;=</tt> <tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">    <tt class="py-name">linear_index_negative</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">where</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt> <tt class="py-op">&lt;=</tt> <tt class="py-op">-</tt> <tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">quadratic_index</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">quadratic_index</tt><tt class="py-op">]</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">linear_index_positive</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">delta</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt class="py-name">t_out</tt><tt class="py-op">[</tt><tt class="py-name">linear_index_negative</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-op">-</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">delta</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">reshape</tt><tt class="py-op">(</tt><tt class="py-name">t_out</tt><tt class="py-op">,</tt> <tt class="py-name">t</tt><tt class="py-op">.</tt><tt class="py-name">shape</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"> </tt>
+<a name="Norm"></a><div id="Norm-def"><a name="L72"></a><tt class="py-lineno"> 72</tt> <a class="py-toggle" href="#" id="Norm-toggle" onclick="return toggle('Norm');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Norm-class.html">Norm</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Norm-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Norm-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">    An abstract class to define norm classes.</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="Norm.__call__"></a><div id="Norm.__call__-def"><a name="L76"></a><tt class="py-lineno"> 76</tt> <a class="py-toggle" href="#" id="Norm.__call__-toggle" onclick="return toggle('Norm.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Norm-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Norm.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Norm.__call__-expanded"><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_call</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+</div><a name="Norm.diff"></a><div id="Norm.diff-def"><a name="L78"></a><tt class="py-lineno"> 78</tt> <a class="py-toggle" href="#" id="Norm.diff-toggle" onclick="return toggle('Norm.diff');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Norm-class.html#diff">diff</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Norm.diff-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Norm.diff-expanded"><a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_diff</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"> </tt>
+<a name="Norm2"></a><div id="Norm2-def"><a name="L81"></a><tt class="py-lineno"> 81</tt> <a class="py-toggle" href="#" id="Norm2-toggle" onclick="return toggle('Norm2');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Norm2-class.html">Norm2</a><tt class="py-op">(</tt><tt class="py-base-class">Norm</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Norm2-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Norm2-expanded"><a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">    A norm-2 class. Optionally accepts a covariance matrix C.</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">    If C is given, the norm would be : np.dot(x.T, C * x).</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-docstring">    Otherwise, it would be norm2(x).</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"><tt class="py-docstring">    Parameters</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"><tt class="py-docstring">    ----------</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">    C : LinearOperator (None)</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">        The covariance matrix of the norm.</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">    Returns</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">    -------</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">    Returns a Norm2 instance with a __call__ and a diff method.</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="Norm2.__init__"></a><div id="Norm2.__init__-def"><a name="L97"></a><tt class="py-lineno"> 97</tt> <a class="py-toggle" href="#" id="Norm2.__init__-toggle" onclick="return toggle('Norm2.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Norm2-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">C</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Norm2.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Norm2.__init__-expanded"><a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">C</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">call</tt><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt id="link-7" class="py-name"><a title="linear_operators.iterative.norms.norm2" class="py-name" href="#" onclick="return doclink('link-7', 'norm2', 'link-3');">norm2</a></tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">diff</tt><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">x</tt> </tt>
+</div><a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">hessian</tt><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt id="link-8" class="py-name"><a title="linear_operators.operators.identity" class="py-name" href="#" onclick="return doclink('link-8', 'identity', 'link-1');">identity</a></tt><tt class="py-op">(</tt><tt class="py-number">2</tt> <tt class="py-op">*</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt class="py-name">size</tt><tt class="py-op">,</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">call</tt><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">dot</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="linear_operators.interface.LinearOperator.T
+linear_operators.ndoperators.NDOperator.T
+linear_operators.ndoperators.NDSymmetric.T" class="py-name" href="#" onclick="return doclink('link-9', 'T', 'link-2');">T</a></tt><tt class="py-op">,</tt> <tt class="py-name">C</tt> <tt class="py-op">*</tt> <tt class="py-name">x</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">diff</tt><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">C</tt> <tt class="py-op">*</tt> <tt class="py-name">x</tt> </tt>
+</div><a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">hessian</tt><tt class="py-op">(</tt><tt class="py-param">x</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-number">2</tt> <tt class="py-op">*</tt> <tt class="py-name">C</tt> </tt>
+</div><a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">C</tt> <tt class="py-op">=</tt> <tt class="py-name">C</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_call</tt> <tt class="py-op">=</tt> <tt class="py-name">call</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_diff</tt> <tt class="py-op">=</tt> <tt id="link-10" class="py-name" targets="Method linear_operators.iterative.norms.Norm.diff()=linear_operators.iterative.norms.Norm-class.html#diff,Function linear_operators.ndoperators.diff()=linear_operators.ndoperators-module.html#diff"><a title="linear_operators.iterative.norms.Norm.diff
+linear_operators.ndoperators.diff" class="py-name" href="#" onclick="return doclink('link-10', 'diff', 'link-10');">diff</a></tt> </tt>
+</div></div><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"> </tt>
+<a name="Huber"></a><div id="Huber-def"><a name="L116"></a><tt class="py-lineno">116</tt> <a class="py-toggle" href="#" id="Huber-toggle" onclick="return toggle('Huber');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Huber-class.html">Huber</a><tt class="py-op">(</tt><tt class="py-base-class">Norm</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Huber-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Huber-expanded"><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt class="py-docstring">    An Huber norm class.</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">    Parameters</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">    ----------</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">    delta: float</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt class="py-docstring">       The Huber parameter of the norm.</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt class="py-docstring">       if abs(x_i) is below delta, returns x_i ** 2</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt class="py-docstring">       else returns 2 * delta * x_i - delta ** 2</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring">    Returns</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring">    -------</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">    Returns an Huber instance with a __call__ and a diff method.</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">     """</tt> </tt>
+<a name="Huber.__init__"></a><div id="Huber.__init__-def"><a name="L132"></a><tt class="py-lineno">132</tt> <a class="py-toggle" href="#" id="Huber.__init__-toggle" onclick="return toggle('Huber.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Huber-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">delta</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Huber.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Huber.__init__-expanded"><a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">delta</tt> <tt class="py-op">=</tt> <tt class="py-name">delta</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_call</tt> <tt class="py-op">=</tt> <tt id="link-11" class="py-name" targets="Function linear_operators.iterative.norms.hnorm()=linear_operators.iterative.norms-module.html#hnorm"><a title="linear_operators.iterative.norms.hnorm" class="py-name" href="#" onclick="return doclink('link-11', 'hnorm', 'link-11');">hnorm</a></tt><tt class="py-op">(</tt><tt class="py-name">d</tt><tt class="py-op">=</tt><tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_diff</tt> <tt class="py-op">=</tt> <tt id="link-12" class="py-name" targets="Function linear_operators.iterative.norms.dhnorm()=linear_operators.iterative.norms-module.html#dhnorm"><a title="linear_operators.iterative.norms.dhnorm" class="py-name" href="#" onclick="return doclink('link-12', 'dhnorm', 'link-12');">dhnorm</a></tt><tt class="py-op">(</tt><tt class="py-name">d</tt><tt class="py-op">=</tt><tt class="py-name">delta</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"> </tt>
+<a name="Normp"></a><div id="Normp-def"><a name="L137"></a><tt class="py-lineno">137</tt> <a class="py-toggle" href="#" id="Normp-toggle" onclick="return toggle('Normp');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Normp-class.html">Normp</a><tt class="py-op">(</tt><tt class="py-base-class">Norm</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Normp-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Normp-expanded"><a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"><tt class="py-docstring">    An Norm-p class.</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">    Parameters</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">    ----------</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring">    p: float</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring">       The power of the norm.</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">       The norm will be np.sum(np.abs(x) ** p)</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">    Returns</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">    -------</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">    Returns a Normp instance with a __call__ and a diff method.</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">     """</tt> </tt>
+<a name="Normp.__init__"></a><div id="Normp.__init__-def"><a name="L152"></a><tt class="py-lineno">152</tt> <a class="py-toggle" href="#" id="Normp.__init__-toggle" onclick="return toggle('Normp.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.norms.Normp-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">p</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Normp.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="Normp.__init__-expanded"><a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">p</tt> <tt class="py-op">=</tt> <tt class="py-name">p</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_call</tt> <tt class="py-op">=</tt> <tt id="link-13" class="py-name" targets="Function linear_operators.iterative.norms.normp()=linear_operators.iterative.norms-module.html#normp"><a title="linear_operators.iterative.norms.normp" class="py-name" href="#" onclick="return doclink('link-13', 'normp', 'link-13');">normp</a></tt><tt class="py-op">(</tt><tt class="py-name">p</tt><tt class="py-op">=</tt><tt class="py-name">p</tt><tt class="py-op">)</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_diff</tt> <tt class="py-op">=</tt> <tt id="link-14" class="py-name" targets="Function linear_operators.iterative.norms.dnormp()=linear_operators.iterative.norms-module.html#dnormp"><a title="linear_operators.iterative.norms.dnormp" class="py-name" href="#" onclick="return doclink('link-14', 'dnormp', 'link-14');">dnormp</a></tt><tt class="py-op">(</tt><tt class="py-name">p</tt><tt class="py-op">=</tt><tt class="py-name">p</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon May 16 11:16:08 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

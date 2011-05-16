@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>linear_operators.iterative.optimize</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
+        <a href="linear_operators.iterative-module.html">Package&nbsp;iterative</a> ::
+        Module&nbsp;optimize
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="linear_operators.iterative.optimize-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="linear_operators.iterative.optimize-module.html">Module linear_operators.iterative.optimize</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">Wraps scipy.optimize.fmin_* algorithms using Criterion instances.</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">copy</tt> <tt class="py-keyword">import</tt> <tt class="py-name">copy</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">numpy</tt> <tt class="py-keyword">as</tt> <tt class="py-name">np</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">scipy</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Module linear_operators.iterative.optimize=linear_operators.iterative.optimize-module.html"><a title="linear_operators.iterative.optimize" class="py-name" href="#" onclick="return doclink('link-0', 'optimize', 'link-0');">optimize</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">opt</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"> </tt>
+<a name="FminWrapper"></a><div id="FminWrapper-def"><a name="L8"></a><tt class="py-lineno">  8</tt> <a class="py-toggle" href="#" id="FminWrapper-toggle" onclick="return toggle('FminWrapper');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminWrapper-class.html">FminWrapper</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminWrapper-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminWrapper-expanded"><a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-docstring">    Abstract class to generate wrappers around scipy.optimize fmin_*</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-docstring">    functions.</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-docstring">    Parameters</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-docstring">    -----------</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-docstring">    criterion : Criterion</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-docstring">        A criterion function with __call__ and gradient methods.</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-docstring">    x0 : ndarray (None)</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-docstring">        First guess</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-docstring">    args=() : tuple</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-docstring">        Extra arguments for the criterion function</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-docstring">    kwargs : dict</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-docstring">        Parameters of the fmin_function</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-docstring">    fmin function docstring</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-docstring">    ------------------------</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="FminWrapper.__init__"></a><div id="FminWrapper.__init__-def"><a name="L28"></a><tt class="py-lineno"> 28</tt> <a class="py-toggle" href="#" id="FminWrapper.__init__-toggle" onclick="return toggle('FminWrapper.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminWrapper-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">criterion</tt><tt class="py-op">,</tt> <tt class="py-param">x0</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">kwargs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminWrapper.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminWrapper.__init__-expanded"><a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt> <tt class="py-op">=</tt> <tt class="py-name">criterion</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Method linear_operators.iterative.criterions.Criterion.gradient()=linear_operators.iterative.criterions.Criterion-class.html#gradient,Method linear_operators.iterative.dli.Criterion.gradient()=linear_operators.iterative.dli.Criterion-class.html#gradient"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-1', 'gradient', 'link-1');">gradient</a></tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> <tt class="py-string">"gradient"</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Method linear_operators.iterative.dli.Criterion.hessian()=linear_operators.iterative.dli.Criterion-class.html#hessian"><a title="linear_operators.iterative.dli.Criterion.hessian" class="py-name" href="#" onclick="return doclink('link-2', 'hessian', 'link-2');">hessian</a></tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> <tt class="py-string">"hessian"</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name" targets="Method linear_operators.iterative.dli.Criterion.hessian_p()=linear_operators.iterative.dli.Criterion-class.html#hessian_p"><a title="linear_operators.iterative.dli.Criterion.hessian_p" class="py-name" href="#" onclick="return doclink('link-3', 'hessian_p', 'link-3');">hessian_p</a></tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> <tt class="py-string">"hessian_p"</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">n_variables</tt> <tt class="py-op">=</tt> <tt class="py-name">criterion</tt><tt class="py-op">.</tt><tt class="py-name">n_variables</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt> <tt class="py-op">=</tt> <tt class="py-name">args</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt> <tt class="py-op">=</tt> <tt class="py-name">kwargs</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-4" class="py-name" targets="Method linear_operators.iterative.algorithms.ConjugateGradient.first_guess()=linear_operators.iterative.algorithms.ConjugateGradient-class.html#first_guess,Method linear_operators.iterative.optimization.Optimizer.first_guess()=linear_operators.iterative.optimization.Optimizer-class.html#first_guess,Method linear_operators.iterative.optimize.FminWrapper.first_guess()=linear_operators.iterative.optimize.FminWrapper-class.html#first_guess"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-4', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-name">x0</tt><tt class="py-op">)</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">        <tt class="py-comment"># to store solution</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+</div><a name="FminWrapper.first_guess"></a><div id="FminWrapper.first_guess-def"><a name="L40"></a><tt class="py-lineno"> 40</tt> <a class="py-toggle" href="#" id="FminWrapper.first_guess-toggle" onclick="return toggle('FminWrapper.first_guess');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminWrapper-class.html#first_guess">first_guess</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">x0</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminWrapper.first_guess-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminWrapper.first_guess-expanded"><a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-docstring">        Sets current_solution attribute to initial value.</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">x0</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">np</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">n_variables</tt><tt class="py-op">)</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">copy</tt><tt class="py-op">(</tt><tt class="py-name">x0</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="FminCOBYLA"></a><div id="FminCOBYLA-def"><a name="L49"></a><tt class="py-lineno"> 49</tt> <a class="py-toggle" href="#" id="FminCOBYLA-toggle" onclick="return toggle('FminCOBYLA');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminCOBYLA-class.html">FminCOBYLA</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminCOBYLA-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminCOBYLA-expanded"><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">    <tt id="link-5" class="py-name" targets="Variable linear_operators.iterative.optimize.FminBFGS.__doc__=linear_operators.iterative.optimize.FminBFGS-class.html#__doc__,Variable linear_operators.iterative.optimize.FminCG.__doc__=linear_operators.iterative.optimize.FminCG-class.html#__doc__,Variable linear_operators.iterative.optimize.FminCOBYLA.__doc__=linear_operators.iterative.optimize.FminCOBYLA-class.html#__doc__,Variable linear_operators.iterative.optimize.FminLBFGSB.__doc__=linear_operators.iterative.optimize.FminLBFGSB-class.html#__doc__,Variable linear_operators.iterative.optimize.FminNCG.__doc__=linear_operators.iterative.optimize.FminNCG-class.html#__doc__,Variable linear_operators.iterative.optimize.FminPowell.__doc__=linear_operators.iterative.optimize.FminPowell-class.html#__doc__,Variable linear_operators.iterative.optimize.FminSLSQP.__doc__=linear_operators.iterative.optimize.FminSLSQP-class.html#__doc__,Variable linear_operators.iterative.optimize.FminTNC.__doc__=linear_operators.iterative.optimize.FminTNC-class.html#__doc__"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-5', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name" targets="Class linear_operators.iterative.optimize.FminWrapper=linear_operators.iterative.optimize.FminWrapper-class.html"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-6', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-7" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-7', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_cobyla</tt><tt class="py-op">.</tt><tt id="link-8" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-8', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminCOBYLA.__init__"></a><div id="FminCOBYLA.__init__-def"><a name="L51"></a><tt class="py-lineno"> 51</tt> <a class="py-toggle" href="#" id="FminCOBYLA.__init__-toggle" onclick="return toggle('FminCOBYLA.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminCOBYLA-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">criterion</tt><tt class="py-op">,</tt> <tt class="py-param">cons</tt><tt class="py-op">,</tt> <tt class="py-param">x0</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">kwargs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminCOBYLA.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminCOBYLA.__init__-expanded"><a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cons</tt> <tt class="py-op">=</tt> <tt class="py-name">cons</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">        <tt id="link-9" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-9', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Method linear_operators.interface.LinearOperator.__init__()=linear_operators.interface.LinearOperator-class.html#__init__,Method linear_operators.iterative.algorithms.Callback.__init__()=linear_operators.iterative.algorithms.Callback-class.html#__init__,Method linear_operators.iterative.algorithms.ConjugateGradient.__init__()=linear_operators.iterative.algorithms.ConjugateGradient-class.html#__init__,Method linear_operators.iterative.algorithms.HuberConjugateGradient.__init__()=linear_operators.iterative.algorithms.HuberConjugateGradient-class.html#__init__,Method linear_operators.iterative.algorithms.QuadraticConjugateGradient.__init__()=linear_operators.iterative.algorithms.QuadraticConjugateGradient-class.html#__init__,Method linear_operators.iterative.algorithms.StopCondition.__init__()=linear_operators.iterative.algorithms.StopCondition-class.html#__init__,Method linear_operators.iterative.criterions.Criterion.__init__()=linear_operators.iterative.criterions.Criterion-class.html#__init__,Method linear_operators.iterative.criterions.HuberCriterion.__init__()=linear_operators.iterative.criterions.HuberCriterion-class.html#__init__,Method linear_operators.iterative.criterions.QuadraticCriterion.__init__()=linear_operators.iterative.criterions.QuadraticCriterion-class.html#__init__,Method linear_operators.iterative.dli.Criterion.__init__()=linear_operators.iterative.dli.Criterion-class.html#__init__,Method linear_operators.iterative.dli.DoubleLoopAlgorithm.__init__()=linear_operators.iterative.dli.DoubleLoopAlgorithm-class.html#__init__,Method linear_operators.iterative.linesearch'.Backtracking.__init__()=linear_operators.iterative.linesearch%27.Backtracking-class.html#__init__,Method linear_operators.iterative.linesearch'.LineSearch.__init__()=linear_operators.iterative.linesearch%27.LineSearch-class.html#__init__,Method linear_operators.iterative.norms.Huber.__init__()=linear_operators.iterative.norms.Huber-class.html#__init__,Method linear_operators.iterative.norms.Norm2.__init__()=linear_operators.iterative.norms.Norm2-class.html#__init__,Method linear_operators.iterative.norms.Normp.__init__()=linear_operators.iterative.norms.Normp-class.html#__init__,Method linear_operators.iterative.optimization.Optimizer.__init__()=linear_operators.iterative.optimization.Optimizer-class.html#__init__,Method linear_operators.iterative.optimization.QuadraticOptimizer.__init__()=linear_operators.iterative.optimization.QuadraticOptimizer-class.html#__init__,Method linear_operators.iterative.optimize.FminCOBYLA.__init__()=linear_operators.iterative.optimize.FminCOBYLA-class.html#__init__,Method linear_operators.iterative.optimize.FminWrapper.__init__()=linear_operators.iterative.optimize.FminWrapper-class.html#__init__,Method linear_operators.iterative.utils.EigendecompositionOperator.__init__()=linear_operators.iterative.utils.EigendecompositionOperator-class.html#__init__,Method linear_operators.ndoperators.Binning.__init__()=linear_operators.ndoperators.Binning-class.html#__init__,Method linear_operators.ndoperators.Convolve.__init__()=linear_operators.ndoperators.Convolve-class.html#__init__,Method linear_operators.ndoperators.ConvolveFftw3.__init__()=linear_operators.ndoperators.ConvolveFftw3-class.html#__init__,Method linear_operators.ndoperators.ConvolveNDImage.__init__()=linear_operators.ndoperators.ConvolveNDImage-class.html#__init__,Method linear_operators.ndoperators.Decimate.__init__()=linear_operators.ndoperators.Decimate-class.html#__init__,Method linear_operators.ndoperators.Diff.__init__()=linear_operators.ndoperators.Diff-class.html#__init__,Method linear_operators.ndoperators.Fft.__init__()=linear_operators.ndoperators.Fft-class.html#__init__,Method linear_operators.ndoperators.Fft2.__init__()=linear_operators.ndoperators.Fft2-class.html#__init__,Method linear_operators.ndoperators.Fftn.__init__()=linear_operators.ndoperators.Fftn-class.html#__init__,Method linear_operators.ndoperators.Fftw3.__init__()=linear_operators.ndoperators.Fftw3-class.html#__init__,Method linear_operators.ndoperators.NDDiagonal.__init__()=linear_operators.ndoperators.NDDiagonal-class.html#__init__,Method linear_operators.ndoperators.NDHomothetic.__init__()=linear_operators.ndoperators.NDHomothetic-class.html#__init__,Method linear_operators.ndoperators.NDIdentity.__init__()=linear_operators.ndoperators.NDIdentity-class.html#__init__,Method linear_operators.ndoperators.NDMask.__init__()=linear_operators.ndoperators.NDMask-class.html#__init__,Method linear_operators.ndoperators.NDOperator.__init__()=linear_operators.ndoperators.NDOperator-class.html#__init__,Method linear_operators.ndoperators.NDSOperator.__init__()=linear_operators.ndoperators.NDSOperator-class.html#__init__,Method linear_operators.ndoperators.NDSquare.__init__()=linear_operators.ndoperators.NDSquare-class.html#__init__,Method linear_operators.ndoperators.NDSymmetric.__init__()=linear_operators.ndoperators.NDSymmetric-class.html#__init__,Method linear_operators.operators.DiagonalOperator.__init__()=linear_operators.operators.DiagonalOperator-class.html#__init__,Method linear_operators.operators.FftOperator.__init__()=linear_operators.operators.FftOperator-class.html#__init__,Method linear_operators.operators.HomotheticOperator.__init__()=linear_operators.operators.HomotheticOperator-class.html#__init__,Method linear_operators.operators.IdentityOperator.__init__()=linear_operators.operators.IdentityOperator-class.html#__init__,Method linear_operators.operators.MaskOperator.__init__()=linear_operators.operators.MaskOperator-class.html#__init__,Method linear_operators.operators.PermutationOperator.__init__()=linear_operators.operators.PermutationOperator-class.html#__init__,Method linear_operators.operators.ReplicationOperator.__init__()=linear_operators.operators.ReplicationOperator-class.html#__init__,Method linear_operators.operators.ShiftOperator.__init__()=linear_operators.operators.ShiftOperator-class.html#__init__,Method linear_operators.operators.SymmetricOperator.__init__()=linear_operators.operators.SymmetricOperator-class.html#__init__"><a title="linear_operators.interface.LinearOperator.__init__
+linear_operators.iterative.algorithms.Callback.__init__
+linear_operators.iterative.algorithms.ConjugateGradient.__init__
+linear_operators.iterative.algorithms.HuberConjugateGradient.__init__
+linear_operators.iterative.algorithms.QuadraticConjugateGradient.__init__
+linear_operators.iterative.algorithms.StopCondition.__init__
+linear_operators.iterative.criterions.Criterion.__init__
+linear_operators.iterative.criterions.HuberCriterion.__init__
+linear_operators.iterative.criterions.QuadraticCriterion.__init__
+linear_operators.iterative.dli.Criterion.__init__
+linear_operators.iterative.dli.DoubleLoopAlgorithm.__init__
+linear_operators.iterative.linesearch'.Backtracking.__init__
+linear_operators.iterative.linesearch'.LineSearch.__init__
+linear_operators.iterative.norms.Huber.__init__
+linear_operators.iterative.norms.Norm2.__init__
+linear_operators.iterative.norms.Normp.__init__
+linear_operators.iterative.optimization.Optimizer.__init__
+linear_operators.iterative.optimization.QuadraticOptimizer.__init__
+linear_operators.iterative.optimize.FminCOBYLA.__init__
+linear_operators.iterative.optimize.FminWrapper.__init__
+linear_operators.iterative.utils.EigendecompositionOperator.__init__
+linear_operators.ndoperators.Binning.__init__
+linear_operators.ndoperators.Convolve.__init__
+linear_operators.ndoperators.ConvolveFftw3.__init__
+linear_operators.ndoperators.ConvolveNDImage.__init__
+linear_operators.ndoperators.Decimate.__init__
+linear_operators.ndoperators.Diff.__init__
+linear_operators.ndoperators.Fft.__init__
+linear_operators.ndoperators.Fft2.__init__
+linear_operators.ndoperators.Fftn.__init__
+linear_operators.ndoperators.Fftw3.__init__
+linear_operators.ndoperators.NDDiagonal.__init__
+linear_operators.ndoperators.NDHomothetic.__init__
+linear_operators.ndoperators.NDIdentity.__init__
+linear_operators.ndoperators.NDMask.__init__
+linear_operators.ndoperators.NDOperator.__init__
+linear_operators.ndoperators.NDSOperator.__init__
+linear_operators.ndoperators.NDSquare.__init__
+linear_operators.ndoperators.NDSymmetric.__init__
+linear_operators.operators.DiagonalOperator.__init__
+linear_operators.operators.FftOperator.__init__
+linear_operators.operators.HomotheticOperator.__init__
+linear_operators.operators.IdentityOperator.__init__
+linear_operators.operators.MaskOperator.__init__
+linear_operators.operators.PermutationOperator.__init__
+linear_operators.operators.ReplicationOperator.__init__
+linear_operators.operators.ShiftOperator.__init__
+linear_operators.operators.SymmetricOperator.__init__" class="py-name" href="#" onclick="return doclink('link-10', '__init__', 'link-10');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-name">criterion</tt><tt class="py-op">,</tt> <tt class="py-name">x0</tt><tt class="py-op">=</tt><tt class="py-name">x0</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+</div><a name="FminCOBYLA.__call__"></a><div id="FminCOBYLA.__call__-def"><a name="L54"></a><tt class="py-lineno"> 54</tt> <a class="py-toggle" href="#" id="FminCOBYLA.__call__-toggle" onclick="return toggle('FminCOBYLA.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminCOBYLA-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminCOBYLA.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminCOBYLA.__call__-expanded"><a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-11', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_cobyla</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">                                                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">                                                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cons</tt><tt class="py-op">,</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">                                                <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">                                                <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"> </tt>
+<a name="FminPowell"></a><div id="FminPowell-def"><a name="L68"></a><tt class="py-lineno"> 68</tt> <a class="py-toggle" href="#" id="FminPowell-toggle" onclick="return toggle('FminPowell');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminPowell-class.html">FminPowell</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminPowell-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminPowell-expanded"><a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt id="link-12" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-12', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-13" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-13', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-14" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-14', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_powell</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-15', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminPowell.__call__"></a><div id="FminPowell.__call__-def"><a name="L70"></a><tt class="py-lineno"> 70</tt> <a class="py-toggle" href="#" id="FminPowell.__call__-toggle" onclick="return toggle('FminPowell.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminPowell-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminPowell.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminPowell.__call__-expanded"><a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-16" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-16', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_powell</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">                                                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">                                                <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">                                                <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"> </tt>
+<a name="FminCG"></a><div id="FminCG-def"><a name="L83"></a><tt class="py-lineno"> 83</tt> <a class="py-toggle" href="#" id="FminCG-toggle" onclick="return toggle('FminCG');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminCG-class.html">FminCG</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminCG-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminCG-expanded"><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">    <tt id="link-17" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-17', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-18" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-18', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-19" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-19', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_cg</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-20', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminCG.__call__"></a><div id="FminCG.__call__-def"><a name="L85"></a><tt class="py-lineno"> 85</tt> <a class="py-toggle" href="#" id="FminCG.__call__-toggle" onclick="return toggle('FminCG.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminCG-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminCG.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminCG.__call__-expanded"><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-21', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_cg</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">                                            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">                                            <tt class="py-name">fprime</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-22" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-22', 'gradient', 'link-1');">gradient</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">                                            <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">                                            <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"> </tt>
+<a name="FminTNC"></a><div id="FminTNC-def"><a name="L99"></a><tt class="py-lineno"> 99</tt> <a class="py-toggle" href="#" id="FminTNC-toggle" onclick="return toggle('FminTNC');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminTNC-class.html">FminTNC</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminTNC-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminTNC-expanded"><a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">    <tt id="link-23" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-23', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-24', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-25', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_tnc</tt><tt class="py-op">.</tt><tt id="link-26" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-26', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminTNC.__call__"></a><div id="FminTNC.__call__-def"><a name="L101"></a><tt class="py-lineno">101</tt> <a class="py-toggle" href="#" id="FminTNC.__call__-toggle" onclick="return toggle('FminTNC.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminTNC-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminTNC.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminTNC.__call__-expanded"><a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-27', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_tnc</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">                                             <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">                                             <tt class="py-name">fprime</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-28" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-28', 'gradient', 'link-1');">gradient</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">                                             <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">                                             <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"> </tt>
+<a name="FminNCG"></a><div id="FminNCG-def"><a name="L115"></a><tt class="py-lineno">115</tt> <a class="py-toggle" href="#" id="FminNCG-toggle" onclick="return toggle('FminNCG');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminNCG-class.html">FminNCG</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminNCG-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminNCG-expanded"><a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">    <tt id="link-29" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-29', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-30" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-30', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-31" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-31', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_ncg</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-32', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminNCG.__call__"></a><div id="FminNCG.__call__-def"><a name="L117"></a><tt class="py-lineno">117</tt> <a class="py-toggle" href="#" id="FminNCG.__call__-toggle" onclick="return toggle('FminNCG.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminNCG-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminNCG.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminNCG.__call__-expanded"><a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-33" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-33', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_ncg</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">                                             <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">                                             <tt class="py-name">fprime</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-34" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-34', 'gradient', 'link-1');">gradient</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">                                             <tt class="py-name">fhess_p</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-35" class="py-name"><a title="linear_operators.iterative.dli.Criterion.hessian_p" class="py-name" href="#" onclick="return doclink('link-35', 'hessian_p', 'link-3');">hessian_p</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">                                             <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">                                             <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"> </tt>
+<a name="FminLBFGSB"></a><div id="FminLBFGSB-def"><a name="L132"></a><tt class="py-lineno">132</tt> <a class="py-toggle" href="#" id="FminLBFGSB-toggle" onclick="return toggle('FminLBFGSB');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminLBFGSB-class.html">FminLBFGSB</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminLBFGSB-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminLBFGSB-expanded"><a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">    <tt id="link-36" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-36', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-37" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-37', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-38" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-38', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_l_bfgs_b</tt><tt class="py-op">.</tt><tt id="link-39" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-39', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminLBFGSB.__call__"></a><div id="FminLBFGSB.__call__-def"><a name="L134"></a><tt class="py-lineno">134</tt> <a class="py-toggle" href="#" id="FminLBFGSB.__call__-toggle" onclick="return toggle('FminLBFGSB.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminLBFGSB-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminLBFGSB.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminLBFGSB.__call__-expanded"><a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-40" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-40', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_l_bfgs_b</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">                                                  <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">                                                  <tt class="py-name">fprime</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-41" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-41', 'gradient', 'link-1');">gradient</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">                                                  <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">                                                  <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"> </tt>
+<a name="FminSLSQP"></a><div id="FminSLSQP-def"><a name="L148"></a><tt class="py-lineno">148</tt> <a class="py-toggle" href="#" id="FminSLSQP-toggle" onclick="return toggle('FminSLSQP');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminSLSQP-class.html">FminSLSQP</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminSLSQP-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminSLSQP-expanded"><a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">    <tt id="link-42" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-42', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-43" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-43', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-44" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-44', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_slsqp</tt><tt class="py-op">.</tt><tt id="link-45" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-45', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminSLSQP.__call__"></a><div id="FminSLSQP.__call__-def"><a name="L150"></a><tt class="py-lineno">150</tt> <a class="py-toggle" href="#" id="FminSLSQP.__call__-toggle" onclick="return toggle('FminSLSQP.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminSLSQP-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminSLSQP.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminSLSQP.__call__-expanded"><a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-46" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-46', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_slsqp</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">                                               <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">                                               <tt class="py-name">fprime</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-47" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-47', 'gradient', 'link-1');">gradient</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">                                               <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">                                               <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line"> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"> </tt>
+<a name="FminBFGS"></a><div id="FminBFGS-def"><a name="L165"></a><tt class="py-lineno">165</tt> <a class="py-toggle" href="#" id="FminBFGS-toggle" onclick="return toggle('FminBFGS');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminBFGS-class.html">FminBFGS</a><tt class="py-op">(</tt><tt class="py-base-class">FminWrapper</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminBFGS-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="FminBFGS-expanded"><a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">    <tt id="link-48" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-48', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">=</tt> <tt id="link-49" class="py-name"><a title="linear_operators.iterative.optimize.FminWrapper" class="py-name" href="#" onclick="return doclink('link-49', 'FminWrapper', 'link-6');">FminWrapper</a></tt><tt class="py-op">.</tt><tt id="link-50" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-50', '__doc__', 'link-5');">__doc__</a></tt> <tt class="py-op">+</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_bfgs</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name"><a title="linear_operators.iterative.optimize.FminBFGS.__doc__
+linear_operators.iterative.optimize.FminCG.__doc__
+linear_operators.iterative.optimize.FminCOBYLA.__doc__
+linear_operators.iterative.optimize.FminLBFGSB.__doc__
+linear_operators.iterative.optimize.FminNCG.__doc__
+linear_operators.iterative.optimize.FminPowell.__doc__
+linear_operators.iterative.optimize.FminSLSQP.__doc__
+linear_operators.iterative.optimize.FminTNC.__doc__" class="py-name" href="#" onclick="return doclink('link-51', '__doc__', 'link-5');">__doc__</a></tt> </tt>
+<a name="FminBFGS.__call__"></a><div id="FminBFGS.__call__-def"><a name="L167"></a><tt class="py-lineno">167</tt> <a class="py-toggle" href="#" id="FminBFGS.__call__-toggle" onclick="return toggle('FminBFGS.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="linear_operators.iterative.optimize.FminBFGS-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="FminBFGS.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="FminBFGS.__call__-expanded"><a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-52" class="py-name"><a title="linear_operators.iterative.algorithms.ConjugateGradient.first_guess
+linear_operators.iterative.optimization.Optimizer.first_guess
+linear_operators.iterative.optimize.FminWrapper.first_guess" class="py-name" href="#" onclick="return doclink('link-52', 'first_guess', 'link-4');">first_guess</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> <tt class="py-op">=</tt> <tt class="py-name">opt</tt><tt class="py-op">.</tt><tt class="py-name">fmin_bfgs</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">criterion</tt><tt class="py-op">,</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">                                              <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt><tt class="py-op">,</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">                                              <tt class="py-name">fprime</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-53" class="py-name"><a title="linear_operators.iterative.criterions.Criterion.gradient
+linear_operators.iterative.dli.Criterion.gradient" class="py-name" href="#" onclick="return doclink('link-53', 'gradient', 'link-1');">gradient</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">                                              <tt class="py-name">args</tt><tt class="py-op">=</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">                                              <tt class="py-op">**</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line">        <tt class="py-comment"># output depends on kwargs ...</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">,</tt> <tt class="py-name">tuple</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">optimizer_output</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">current_solution</tt> </tt>
+</div></div><a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon May 16 11:16:09 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

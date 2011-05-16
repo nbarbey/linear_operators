@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class Hierarchy</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Trees&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">&nbsp;</td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="class-tree.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<center><b>
+ [ <a href="module-tree.html">Module Hierarchy</a>
+ | <a href="class-tree.html">Class Hierarchy</a> ]
+</b></center><br />
+<h1 class="epydoc">Class Hierarchy</h1>
+<ul class="nomargin-top">
+    <li> <strong class="uidlink">object</strong>:
+      <em class="summary">The most base type</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.algorithms.Algorithm-class.html">linear_operators.iterative.algorithms.Algorithm</a></strong>:
+      <em class="summary">Abstract class to define iterative algorithms.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.algorithms.ConjugateGradient-class.html">linear_operators.iterative.algorithms.ConjugateGradient</a></strong>:
+      <em class="summary">Apply the conjugate gradient algorithm to a Criterion instance.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.algorithms.HuberConjugateGradient-class.html">linear_operators.iterative.algorithms.HuberConjugateGradient</a></strong>:
+      <em class="summary">A subclass of ConjugateGradient using an HuberCriterion.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.algorithms.QuadraticConjugateGradient-class.html">linear_operators.iterative.algorithms.QuadraticConjugateGradient</a></strong>:
+      <em class="summary">A subclass of ConjugateGradient using a QuadraticCriterion.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.dli.DoubleLoopAlgorithm-class.html">linear_operators.iterative.dli.DoubleLoopAlgorithm</a></strong>:
+      <em class="summary">A class implementing the double loop algorithm.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.linesearch%27.Backtracking-class.html">linear_operators.iterative.linesearch'.Backtracking</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.algorithms.Callback-class.html">linear_operators.iterative.algorithms.Callback</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.criterions.Criterion-class.html">linear_operators.iterative.criterions.Criterion</a></strong>:
+      <em class="summary">A class representing criterions such as :
+..math: || y - H x ||^2 + sum_i \hypers_i || D_i x ||^2</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.criterions.HuberCriterion-class.html">linear_operators.iterative.criterions.HuberCriterion</a></strong>:
+      <em class="summary">Subclass of Criterion with all norms forced to be Huber instances.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.criterions.QuadraticCriterion-class.html">linear_operators.iterative.criterions.QuadraticCriterion</a></strong>:
+      <em class="summary">Subclass of Criterion with all norms forced to be Norm2 instances.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.dli.Criterion-class.html">linear_operators.iterative.dli.Criterion</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminWrapper-class.html">linear_operators.iterative.optimize.FminWrapper</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminBFGS-class.html">linear_operators.iterative.optimize.FminBFGS</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminCG-class.html">linear_operators.iterative.optimize.FminCG</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminCOBYLA-class.html">linear_operators.iterative.optimize.FminCOBYLA</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminLBFGSB-class.html">linear_operators.iterative.optimize.FminLBFGSB</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminNCG-class.html">linear_operators.iterative.optimize.FminNCG</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminPowell-class.html">linear_operators.iterative.optimize.FminPowell</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminSLSQP-class.html">linear_operators.iterative.optimize.FminSLSQP</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimize.FminTNC-class.html">linear_operators.iterative.optimize.FminTNC</a></strong>:
+      <em class="summary">Abstract class to generate wrappers around scipy.optimize fmin_*
+functions.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.linesearch%27.LineSearch-class.html">linear_operators.iterative.linesearch'.LineSearch</a></strong>:
+      <em class="summary">Wraps scipy.optimize.linesearch.line_search</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.linesearch%27.LineSearchArmijo-class.html">linear_operators.iterative.linesearch'.LineSearchArmijo</a></strong>:
+      <em class="summary">Wraps scipy.optimize.linesearch.line_search_armijo.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.linesearch%27.LineSearchWolfe1-class.html">linear_operators.iterative.linesearch'.LineSearchWolfe1</a></strong>:
+      <em class="summary">Wraps scipy.optimize.linesearch.line_search_wolfe1</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.linesearch%27.LineSearchWolfe2-class.html">linear_operators.iterative.linesearch'.LineSearchWolfe2</a></strong>:
+      <em class="summary">Wraps scipy.optimize.linesearch.line_search_wolfe2</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.interface.LinearOperator-class.html">linear_operators.interface.LinearOperator</a></strong>:
+      <em class="summary">Common interface for performing matrix vector products</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.FftOperator-class.html">linear_operators.operators.FftOperator</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDOperator-class.html">linear_operators.ndoperators.NDOperator</a></strong>:
+      <em class="summary">Subclass of LinearOperator that handle multidimensional inputs and 
+        outputs</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Binning-class.html">linear_operators.ndoperators.Binning</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Convolve-class.html">linear_operators.ndoperators.Convolve</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.ConvolveFftw3-class.html">linear_operators.ndoperators.ConvolveFftw3</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.ConvolveNDImage-class.html">linear_operators.ndoperators.ConvolveNDImage</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Decimate-class.html">linear_operators.ndoperators.Decimate</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Diff-class.html">linear_operators.ndoperators.Diff</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Fft-class.html">linear_operators.ndoperators.Fft</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Fft2-class.html">linear_operators.ndoperators.Fft2</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Fftn-class.html">linear_operators.ndoperators.Fftn</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.Fftw3-class.html">linear_operators.ndoperators.Fftw3</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDSOperator-class.html">linear_operators.ndoperators.NDSOperator</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDSquare-class.html">linear_operators.ndoperators.NDSquare</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDSymmetric-class.html">linear_operators.ndoperators.NDSymmetric</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDDiagonal-class.html">linear_operators.ndoperators.NDDiagonal</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDMask-class.html">linear_operators.ndoperators.NDMask</a></strong>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDHomothetic-class.html">linear_operators.ndoperators.NDHomothetic</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.ndoperators.NDIdentity-class.html">linear_operators.ndoperators.NDIdentity</a></strong>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.PermutationOperator-class.html">linear_operators.operators.PermutationOperator</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.ReplicationOperator-class.html">linear_operators.operators.ReplicationOperator</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.ShiftOperator-class.html">linear_operators.operators.ShiftOperator</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.SymmetricOperator-class.html">linear_operators.operators.SymmetricOperator</a></strong>:
+      <em class="summary">Subclass of LinearOperator for the definition of symmetric 
+        operators, i.e.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.DiagonalOperator-class.html">linear_operators.operators.DiagonalOperator</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.MaskOperator-class.html">linear_operators.operators.MaskOperator</a></strong>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.utils.EigendecompositionOperator-class.html">linear_operators.iterative.utils.EigendecompositionOperator</a></strong>:
+      <em class="summary">Define a SymmetricOperator from the eigendecomposition of another
+SymmetricOperator.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.HomotheticOperator-class.html">linear_operators.operators.HomotheticOperator</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.operators.IdentityOperator-class.html">linear_operators.operators.IdentityOperator</a></strong>
+    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.norms.Norm-class.html">linear_operators.iterative.norms.Norm</a></strong>:
+      <em class="summary">An abstract class to define norm classes.</em>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.norms.Huber-class.html">linear_operators.iterative.norms.Huber</a></strong>:
+      <em class="summary">An Huber norm class.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.norms.Norm2-class.html">linear_operators.iterative.norms.Norm2</a></strong>:
+      <em class="summary">A norm-2 class.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.norms.Normp-class.html">linear_operators.iterative.norms.Normp</a></strong>:
+      <em class="summary">An Norm-p class.</em>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimization.Optimizer-class.html">linear_operators.iterative.optimization.Optimizer</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.optimization.QuadraticOptimizer-class.html">linear_operators.iterative.optimization.QuadraticOptimizer</a></strong>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="linear_operators.iterative.algorithms.StopCondition-class.html">linear_operators.iterative.algorithms.StopCondition</a></strong>
+    </li>
+    </ul>
+    </li>
+</ul>
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="linear_operators-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Trees&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon May 16 11:16:08 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
