@@ -411,9 +411,10 @@ class Fftw3(NDOperator):
         from multiprocessing import cpu_count
         self.n_threads = cpu_count()
         shapeout = shapein
+
         dtype = kwargs.get('dtype', np.float64)
-        dtypein = kwargs.get('dtypein', np.float64)
-        dtypeout = kwargs.get('dtypeout', np.float64)
+        dtypein = kwargs.get('dtypein', dtype)
+        dtypeout = kwargs.get('dtypeout', dtype)
 
         # normalize if required
         self.norm = 1.
