@@ -37,7 +37,7 @@ class Criterion(object):
     """
     def __init__(self, model, data, hypers=[], priors=[], norms=[], store=True):
         self.model = model
-        self.data = data
+        self.data = data.ravel()
         self.priors = priors
         # normalize hyperparameters
         self.hypers = np.asarray(hypers) * model.shape[0] / float(model.shape[1])
