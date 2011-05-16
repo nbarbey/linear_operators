@@ -6,7 +6,7 @@ import linear_operators as lo
 # Load the infamous Lena image from scipy
 im = scipy.lena()
 # Generate a convolution model with a 3x3 uniform kernel
-kernel = np.ones((3, 3))
+kernel = np.ones((5, 5))
 model = lo.convolve_ndimage(im.shape, kernel)
 # convolve the original image
 data = model(im)
