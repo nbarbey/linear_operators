@@ -8,6 +8,7 @@ from norms import *
 from linesearch import *
 from criterions import *
 from algorithms import *
+from dli import *
 
 # functions with optional dependencies
 
