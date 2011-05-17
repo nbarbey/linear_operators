@@ -188,24 +188,19 @@ class MaskOperator(DiagonalOperator):
 
 class ShiftOperator(LinearOperator):
     def __init__(self, shape, shift, **kwargs):
+        if shape[0] != shape[1]:
+            raise ValueError("Only square operator is implemented.")
+        if np.round(shift) != shift:
+            raise ValueError("The shift argument should be an integer value.")
         self.shift = shift
-        matvec = lambda x: np.concatenate((x[shift:], np.zeros(shift)))
-        rmatvec = lambda x: np.concatenate((np.zeros(shift), x[:-shift]))
-        if shape[0] <= shape[1]:
-            def matvec(x):
-                return np.concatenate((x[shift:], np.zeros(shift)))[:shape[0]]
-            def rmatvec(x):
-                tmp = np.zeros(shape[1])
-                tmp[:shape[0]] = np.concatenate((np.zeros(shift), x[:-shift]))
-                return tmp
-        if shape[0] >= shape[1]:
-            def matvec(x):
-                tmp = np.zeros(shape[0])
-                tmp[:shape[1]] = np.concatenate((np.zeros(shift), x[:-shift]))
-                return tmp
-            def rmatvec(x):
-                return np.concatenate((x[shift:], np.zeros(shift)))[:shape[1]]
+        ashift = np.abs(shift)
+        # square case
+        matvec = lambda x: np.concatenate((x[ashift:], np.zeros(ashift)))
+        rmatvec = lambda x: np.concatenate((np.zeros(ashift), x[:-ashift]))
+        if self.shift < 0:
+            matvec, rmatvec = rmatvec, matvec
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
+
     def __repr__(self):
         s = LinearOperator.__repr__(self)
         return s[:-1] + " and shift=%d >" % self.shift
