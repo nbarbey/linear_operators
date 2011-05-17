@@ -120,7 +120,7 @@ class DoubleLoopAlgorithm(Algorithm):
     fmin_args : dict
         Keyword arguments of the function minimization.
     """
-    def __init__(self, model, data, prior, tau, sigma, optimizer=FminSLSQP,
+    def __init__(self, model, data, prior, tau=None, sigma=1., optimizer=FminSLSQP,
                  lanczos={}, fmin_args={},
                  callback=default_callback,
                  stop_condition=default_stop,
@@ -128,7 +128,12 @@ class DoubleLoopAlgorithm(Algorithm):
         self.model = model
         self.data = data
         self.prior = prior
-        self.tau = tau
+        if tau is None:
+            self.tau = np.ones(prior.shape[0])
+        else:
+            if tau.size != prior.shape[0]:
+                raise ValueError("Incorrect shape for tau.")
+            self.tau = tau
         self.sigma = sigma
         self.optimizer = optimizer
         self.lanczos = lanczos
