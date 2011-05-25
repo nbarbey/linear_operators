@@ -363,6 +363,11 @@ class TridiagonalOperator(LinearOperator):
         out += np.diag(self.superdiag, 1)
         return out
 
+# Multiple inheritence
+class SymmetricTridiagonal(SymmetricOperator, TridiagonalOperator):
+    def __init__(self, shape, diag, subdiag, **kwargs):
+        return TridiagonalOperator.__init__(self, shape, diag, subdiag, subdiag, **kwargs)
+
 # functions
 def identity(shape, **kwargs):
     """
