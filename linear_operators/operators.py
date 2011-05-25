@@ -299,6 +299,70 @@ class SliceOperator(LinearOperator):
             return out
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
 
+class TridiagonalOperator(LinearOperator):
+    def __init__(self, shape, diag, subdiag, superdiag, **kwargs):
+        """
+        Parameters
+        ----------
+        shape : length 2 tuple.
+            The shape of the operator.
+
+        diag : ndarray of size shape[0]
+            The diagonal of the matrix.
+
+        subdiag : ndarray of size shape[0] - 1
+            The subdiagonal of the matrix.
+
+        superdiag : ndarray of size shape[0] - 1
+            The superdiagonal of the matrix.
+
+        Returns
+        -------
+        A Tridiagonal matrix operator instance.
+
+        Exemple
+        -------
+        >>> import numpy as np
+        >>> import linear_operators as lo
+        >>> T = lo.TridiagonalOperator((3, 3), [1, 2, 3], [4, 5], [6, 7])
+        >>> T.todense()
+        array([[1, 6, 0],
+               [4, 2, 7],
+               [0, 5, 3]])
+        """
+        if shape[0] != shape[1]:
+            raise ValueError("Only square operator is implemented.")
+        self.diag = diag
+        self.subdiag = subdiag
+        self.superdiag = superdiag
+
+        def matvec(x):
+            out = self.diag * x
+            out[:-1] += self.superdiag * x[1:]
+            out[1:] += self.subdiag * x[:-1]
+            return out
+
+        def rmatvec(x):
+            out = self.diag * x
+            out[:-1] += self.subdiag * x[1:]
+            out[1:] += self.superdiag * x[:-1]
+            return out
+
+        LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
+
+    def __repr__(self):
+        s = LinearOperator.__repr__(self)[:-1]
+        s += ",\n superdiagonal=" + self.superdiag.__repr__()
+        s +=  ",\n diagonal=" + self.diag.__repr__()
+        s += ",\n subdiagonal=" + self.subdiag.__repr__() + ">"
+        return s
+
+    def todense(self):
+        out = np.diag(self.diag)
+        out += np.diag(self.subdiag, -1)
+        out += np.diag(self.superdiag, 1)
+        return out
+
 # functions
 def identity(shape, **kwargs):
     """
@@ -338,3 +402,6 @@ def replication(shape, n, **kwargs):
 
 def slice(shape, slice, **kwargs):
     return SliceOperator(shape, slice, **kwargs)
+
+def tridiagonal(shape, diag, subdiag, superdiag, **kwargs):
+    return TridiagonalOperator(shape, diag, subdiag, superdiag, **kwargs)
