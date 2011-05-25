@@ -575,6 +575,28 @@ class Binning(NDOperator):
             outarr[s0] = arr[s1]
         return outarr
 
+class NDSlice(NDOperator):
+    def __init__(self, shapein, slices, **kwargs):
+        # compute shapeout (np.max handles s.step == None case)
+        shapeout = []
+        for a, s in enumerate(slices):
+            if s.stop is None:
+                stop = shapein[a] -1
+            else:
+                stop = s.stop
+            start = np.max((s.start, 0))
+            step = np.max((1, s.step))
+            shapeout.append(int(np.ceil((stop - start + 1) / float(step))))
+        shapeout = tuple(shapeout)
+        #shapeout = [int(np.floor((s.stop - s.start) / np.max(1, s.step))) for s in slices]
+        def matvec(x):
+            return x[slices]
+        def rmatvec(x):
+            out = np.zeros(shapein)
+            out[slices] = x
+            return out
+        NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec=rmatvec, **kwargs)
+
 # functions
 def ndidentity(shapein, **kwargs):
     return NDIdentity(shapein, **kwargs)
@@ -615,3 +637,6 @@ def diff(shapein, axis=-1, **kwargs):
 
 def binning(shapein, factor, axis=-1, **kwargs):
     return Binning(shapein, factor, axis=axis, **kwargs)
+
+def ndslice(shapein, slices, **kwargs):
+    return NDSlice(shapein, slices, **kwargs)
