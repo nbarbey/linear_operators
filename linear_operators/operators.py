@@ -289,6 +289,16 @@ class ReplicationOperator(LinearOperator):
         s = LinearOperator.__repr__(self)
         return s[:-1] + ",\n Replicate %i times" % self.n + ">"
 
+class SliceOperator(LinearOperator):
+    def __init__(self, shape, slice, **kwargs):
+        def matvec(x):
+            return x[slice]
+        def rmatvec(x):
+            out = np.zeros(shape[1])
+            out[slice] = x
+            return out
+        LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
+
 # functions
 def identity(shape, **kwargs):
     """
@@ -325,3 +335,6 @@ def fft(shape, **kwargs):
 
 def replication(shape, n, **kwargs):
     return ReplicationOperator(shape, n, **kwargs)
+
+def slice(shape, slice, **kwargs):
+    return SliceOperator(shape, slice, **kwargs)
