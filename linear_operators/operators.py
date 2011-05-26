@@ -38,7 +38,7 @@ Functions generate instances of the associated classes. The following are availa
 - permutation
 - fft
 - replication
-- slice
+- slice_operator
 - tridiagonal
 
 """
@@ -364,15 +364,65 @@ class TridiagonalOperator(LinearOperator):
         return s
 
     def todense(self):
-        out = np.diag(self.diag)
+        out = np.zeros(self.shape, dtype=self.dtype)
+        out += np.diag(self.diag)
         out += np.diag(self.subdiag, -1)
         out += np.diag(self.superdiag, 1)
         return out
+
+    def __getitem__(self, y):
+        # if tuple work on two dimensions
+        if isinstance(y, tuple):
+            # test dimension
+            if len(y) > 2:
+                raise IndexError("This is a 2-dimensional array.")
+            yi, yj = y
+            # single element case
+            if isinstance(yi, int) and isinstance(yj, int):
+                i, j = yi, yj
+                # outside
+                if np.abs(i - j) > 1:
+                    return 0
+                # subdiag
+                elif i == j + 1:
+                    return self.subdiag[i]
+                # superdiag
+                elif i == j - 1:
+                    return self.superdiag[i]
+                # diag
+                else:
+                    return self.diag[i]
+            # case of tuple of length 1
+            if len(y) == 1:
+                return self.__getitem__(self, y[0])
+            # if tuples
+            if yi == slice(None, None) and isinstance(yj, int):
+                x = np.zeros(self.shape[1], dtype=self.dtype)
+                x[yj] = 1.
+                return self * x
+        # Work on lines : same cost as recasting to a dense matrix as
+        # all columns need to be accessed.
+        else:
+            d = self.todense()
+            return d[y]
+
+    @property
+    def T(self):
+        kwargs = dict()
+        kwargs["dtype"] = getattr(self, 'dtype', None)
+        kwargs["dtypein"] = getattr(self, 'dtypein', None)
+        kwargs["dtypeout"] = getattr(self, 'dtypeout', None)
+        return TridiagonalOperator(self.shape, self.diag, self.superdiag,
+                                   self.subdiag, **kwargs)
 
 # Multiple inheritence
 class SymmetricTridiagonal(SymmetricOperator, TridiagonalOperator):
     def __init__(self, shape, diag, subdiag, **kwargs):
         return TridiagonalOperator.__init__(self, shape, diag, subdiag, subdiag, **kwargs)
+
+# implement band matrices
+
+# implement triangular matrices ?
 
 # functions
 def identity(shape, **kwargs):
@@ -411,7 +461,7 @@ def fft(shape, **kwargs):
 def replication(shape, n, **kwargs):
     return ReplicationOperator(shape, n, **kwargs)
 
-def slice(shape, slice, **kwargs):
+def slice_operator(shape, slice, **kwargs):
     return SliceOperator(shape, slice, **kwargs)
 
 def tridiagonal(shape, diag, subdiag, superdiag, **kwargs):
