@@ -21,6 +21,10 @@ Classes
 
 - ReplicationOperator : Replicates the input vector n times.
 
+- SliceOperator : Performs slicing on an array.
+
+- TridiagonalOperator : Store a tridiagonal matrix a 3 1d ndarrays.
+
 Functions
 ---------
 
@@ -34,6 +38,8 @@ Functions generate instances of the associated classes. The following are availa
 - permutation
 - fft
 - replication
+- slice
+- tridiagonal
 
 """
 import numpy as np
