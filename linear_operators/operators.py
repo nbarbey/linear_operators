@@ -379,27 +379,40 @@ class TridiagonalOperator(LinearOperator):
             yi, yj = y
             # single element case
             if isinstance(yi, int) and isinstance(yj, int):
-                i, j = yi, yj
+                n = self.shape[0]
+                i, j = yi % n , yj % n
                 # outside
                 if np.abs(i - j) > 1:
-                    return 0
+                    return self.dtype(0)
                 # subdiag
                 elif i == j + 1:
-                    return self.subdiag[i]
+                    # border case
+                    if i == self.shape[0] - 1:
+                        return self.dtype(0)
+                    else:
+                        return self.subdiag[i]
                 # superdiag
                 elif i == j - 1:
-                    return self.superdiag[i]
+                    # border case
+                    if i == self.shape[0]:
+                        return self.dtype(0)
+                    else:
+                        return self.superdiag[i]
                 # diag
                 else:
                     return self.diag[i]
             # case of tuple of length 1
-            if len(y) == 1:
+            elif len(y) == 1:
                 return self.__getitem__(self, y[0])
-            # if tuples
-            if yi == slice(None, None) and isinstance(yj, int):
+            # get a column
+            elif yi == slice(None, None) and isinstance(yj, int):
                 x = np.zeros(self.shape[1], dtype=self.dtype)
                 x[yj] = 1.
                 return self * x
+            # general case: no better way than todense
+            else:
+                d = self.todense()
+                return d[y]
         # Work on lines : same cost as recasting to a dense matrix as
         # all columns need to be accessed.
         else:
@@ -418,9 +431,166 @@ class TridiagonalOperator(LinearOperator):
 # Multiple inheritence
 class SymmetricTridiagonal(SymmetricOperator, TridiagonalOperator):
     def __init__(self, shape, diag, subdiag, **kwargs):
-        return TridiagonalOperator.__init__(self, shape, diag, subdiag, subdiag, **kwargs)
+        return TridiagonalOperator.__init__(self, shape, diag, subdiag,
+                                            subdiag, **kwargs)
 
-# implement band matrices
+    def toband(self):
+        """
+        Convert into a SymmetricBandOperator
+        """
+        u = 2 # tridiagonal
+        n = self.shape[0]
+        # convert to ab format (lower)
+        ab = np.zeros((u, n))
+        ab[0] = self.diag
+        ab[1, :-1] = self.subdiag
+        # options
+        kwargs = dict()
+        kwargs["dtype"] = getattr(self, 'dtype', None)
+        kwargs["dtypein"] = getattr(self, 'dtypein', None)
+        kwargs["dtypeout"] = getattr(self, 'dtypeout', None)
+        return SymmetricBandOperator(self.shape, ab, lower=True, **kwargs)
+
+class BandOperator(LinearOperator):
+    """
+    Store a band matrix in ab format as defined in LAPACK
+    documentation.
+
+    a[i, j] is stored in ab[ku + 1 + i - j, j]
+
+    for max(1, j -ku) < i < min(m, j + kl)
+
+    Band storage of A (5, 5), kl = 2, ku = 1 :
+
+     *  a01 a12 a23 a34
+    a00 a11 a22 a33 a44
+    a10 a21 a32 a43  *
+    a20 a31 a42  *   *
+
+    Arguments
+    ----------
+    shape : 2-tuple
+        Shape of the dense matrix equivalent.
+    kl : int
+        Number of subdiagonals
+    ku : int
+        Number of superdiagonals
+
+    Notes
+    -----
+    For a description of band matrices see LAPACK doc :
+
+    http://www.netlib.org/lapack/lug/node124.html
+
+    """
+    def __init__(self, shape, ab, kl, ku, **kwargs):
+        if ab.shape[0] != kl + ku + 1 or ab.shape[1] != shape[1]:
+            raise ValueError("Wrong ab shape.")
+
+        self.ab = ab
+        self.kl = kl
+        self.ku = ku
+        self.kwargs = kwargs
+
+        def matvec(x):
+            # diag
+            out = self.ab[ku] * x
+            # upper part
+            for i in xrange(ku):
+                j = ku - i
+                out[:j] += self.ab[i, j:] * x[j:]
+            for i in xrange(ku + 1, kl + ku + 1):
+            # lower part
+                out[i:] += self.ab[i, :-i] * x[:-i]
+            return out
+
+        def rmatvec(x):
+            rab = flipud(self.ab)
+            rkl, rku = ku, kl
+            # diag
+            out = rab[ku] * x
+            # upper part
+            for i in xrange(rku):
+                j = rku - i
+                out[:j] += rab[i, j:] * x[j:]
+            for i in xrange(ku + 1, kl + ku + 1):
+            # lower part
+                out[i:] += rab[i, :-i] * x[:-i]
+            return out
+
+        return LinearOperator.__init__(self, shape, matvec, rmatvec,
+                                       **kwargs)
+
+class LowerTriangularOperator(BandOperator):
+    def __init__(self, shape, ab, kl, ku, **kwargs):
+        kl = ab.shape[0] - 1
+        ku = 0
+        BandOperator.__init__(self, shape, ab, kl, ku, **kwargs)
+
+class UpperTriangularOperator(BandOperator):
+    def __init__(self, shape, ab, kl, ku, **kwargs):
+        kl = 0
+        ku = ab.shape[0] - 1
+        BandOperator.__init__(self, shape, ab, kl, ku, **kwargs)
+
+class SymmetricBandOperator(SymmetricOperator):
+    def __init__(self, shape, ab, lower=True, **kwargs):
+        if shape[0] != ab.shape[1]:
+            raise ValueError("ab.shape[1] should be equald to shape[0].")
+        if lower is False:
+            raise NotImplemented
+
+        self.ab = ab
+        self.lower = lower
+        self.kwargs = kwargs
+
+        def matvec(x):
+            out = self.ab[0] * x
+            for i in xrange(1, self.ab.shape[0]):
+                # upper part
+                out[:-i] += self.ab[i, :-i] * x[i:]
+                # lower part
+                out[i:] += self.ab[i, :-i] * x[:-i]
+            return out
+
+        return SymmetricOperator.__init__(self, shape, matvec, **kwargs)
+
+    def eigen(self, eigvals_only=False, overwrite_a_band=False, select='a',
+              select_range=None, max_ev=0):
+        """
+        Solve real symmetric or complex hermitian band matrix
+        eigenvalue problem.
+
+        Uses scipy.linalg.eig_banded function.
+        """
+        from scipy.linalg import eig_banded
+
+        return eig_banded(self.ab, lower=self.lower,
+                          eigvals_only=eigvals_only,
+                          overwrite_a_band=overwrite_a_band,
+                          select=select,
+                          select_range=select_range,
+                          max_ev=max_ev)
+
+    def cholesky(self, overwrite_ab=False):
+        """
+        Chlesky decomposition.
+        Operator needs to be positive-definite.
+
+        Uses scipy.linalg.cholesky_banded.
+
+        Returns a matrix in ab form
+        """
+        from scipy.linalg import cholesky_banded
+
+        ab_chol = cholesky_banded(self.ab,
+                               overwrite_ab=overwrite_ab,
+                               lower=self.lower)
+        if lower:
+            out = LowerTriangularOperator(self.shape, ab_chol, **self.kwargs)
+        else:
+            out = UpperTriangularOperator(self.shape, ab_chol, **self.kwargs)
+        return out
 
 # implement triangular matrices ?
 
