@@ -645,8 +645,6 @@ class SymmetricBandOperator(SymmetricOperator):
             out = UpperTriangularOperator(self.shape, ab_chol, **self.kwargs)
         return out
 
-# implement triangular matrices ?
-
 # functions
 def identity(shape, **kwargs):
     """
