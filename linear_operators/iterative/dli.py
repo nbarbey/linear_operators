@@ -27,90 +27,76 @@ default_stop = StopCondition(maxiter=5)
 
 class LanczosAlgorithm(Algorithm):
     """
-    Inspired by glm-ie inf/diaginv_lanczos.m algorithm.
-    """
-    def __init__(self, A, B, maxiter=100):
-        self.A = A
-        self.B = B
-        self.n = np.max((self.A.shape[1], self.B.shape[1]))
-        self.maxiter = np.min((n, maxiter))
+    Tridiagonalization Lanczos step and eigendecomposition at exit.
 
+    http://en.wikipedia.org/wiki/Lanczos_algorithm
+    """
+    def __init__(self, A, stop_condition=StopCondition(maxiter=300)):
+        self.A = A
+        self.n = self.A.shape[0]
+        self.stop_condition = stop_condition
+        # maxiter default to matrix size if not given.
+        self.maxiter = getattr(self.stop_condition, "maxiter", self.n)
         Algorithm.__init__(self)
 
     def initialize(self):
         Algorithm.initialize(self)
-        # starting point
-        self.w = np.random.randn(self.n)
-        self.w /= norm2(self.w)
-        self.v = np.zeros(self.n)
         # to store results
         # tridiagonal matrix coefficients
-        self.alpha = np.zeros(self.maxiter)
-        self.beta = np.zeros(self.maxiter - 1)
-        self.eigenvalues = np.zeros(self.n)
-        self.logdet = 0.
-        self.lanczos_vectors = np.zeros((self.n, self.maxiter))
-        self.diag = np.zeros(n)
+        self.alpha = np.zeros(self.maxiter + 1)
+        self.beta = np.zeros(self.maxiter)
+        self.vectors = np.zeros((self.maxiter + 1, self.n))
+        self.w = np.zeros(self.n)
+        # starting point
+        self.vectors[0] = np.random.randn(self.n)
+        self.vectors[0] /= np.sqrt(norm2(self.vectors[0]))
 
     def iterate(self):
-        self.update_lanczos_v()
         self.orthogonalization()
-        self.mvm()
-        self.iter_ += 1
         self.update_alpha()
-        self.update_v()
-        self.cholesky()
+        self.update_w()
         self.update_beta()
-        self.store_lanczos_vector()
-        self.update_diag()
-
-    def stop_condition(self):
-        i = self.iter_
-        return np.abs(self.beta[i]) < 1e-10 or i > self.maxiter
-
-    def update_lanczos_v(self):
-        i = self.iter_
-        if i > 0:
-            b = self.beta[i]
-            self.w, self.v = self.v / b, -b * self.w
+        self.update_vectors()
+        self.iter_ += 1
 
     def orthogonalization(self):
-        "Gram-Schmidt"
-        Q = self.lanczos_vectors
-        self.w -= np.dot(Q, np.dot(Q.T, self.w))
-
-    def mvm(self):
-        self.v += A * w
+        self.w = self.A * self.vectors[self.iter_]
+        if self.iter_ > 0:
+            self.w -= self.beta[self.iter_ - 1] * self.vectors[self.iter_ - 1]
 
     def update_alpha(self):
-        self.alpha[self.iter_] = np.dot(self.w.T, self.v)
+        self.alpha[self.iter_] = np.dot(self.w, self.vectors[self.iter_])
 
-    def update_v(self):
-        self.v -= self.alpha[self.iter_] * self.w
-
-    def cholesky(self):
-        i = self.iter_
-        a = self.alpha[i]
-        b = self.beta[i]
-        if i == 1:
-            Lkk = np.sqrt(a)
-            self.p = self.w / Lkk
-        else:
-            Lkk_1 = b / Lkk
-            Lkk = np.sqrt(a - Lkk_1 ** 2)
-            self.p = (self.w - Lkk_1 * self.p) / self.Lkk
-        self.eigenvalues[i] = Lkk ** 2
-        self.logdet += 2 * np.log(Lkk)
+    def update_w(self):
+        self.w -= self.alpha[self.iter_] * self.vectors[self.iter_]
 
     def update_beta(self):
-        self.beta[self.iter_] = norm2(v)
+        self.beta[self.iter_] = np.sqrt(norm2(self.w))
 
-    def store_lanczos_vector(self):
-        self.lanczos_vectors[:, self.iter_] = self.w
+    def update_vectors(self):
+        self.vectors[self.iter_ + 1] = self.w / self.beta[self.iter_]
 
-    def update_diag(self):
-        Bp = self.B * self.p
-        self.diag += Bp * np.conj(Bp)
+    def at_exit(self):
+        """
+        Convert alpha and beta to a TridiagonalOperator and perform
+        eigendecomposition.
+        """
+        from ..operators import SymmetricTridiagonal
+        from ..operators import EigendecompositionOperator
+        self.T = SymmetricTridiagonal(2 * (self.maxiter + 1,),
+                                      self.alpha, self.beta)
+        # use band matrix eigendecomposition as tridiagonal lapack
+        # routine to available
+        self.B = self.T.toband()
+        #select_range = [self.n - 1 - self.maxiter, self.n - 1]
+        #self.E = self.B.eigen(select="i", select_range=select_range)
+        self.E = self.B.eigen()
+        # multiply T eigenvectors with lanczos vectors
+        w = self.E.eigenvalues
+        v = np.zeros((self.n, self.maxiter + 1))
+        for i in xrange(self.E.eigenvectors.shape[1]):
+            v[:, i] = np.dot(self.vectors.T, self.E.eigenvectors[:, i])
+        self.current_solution = EigendecompositionOperator(v=v, w=w)
 
 class Criterion(object):
     def __init__(self, algo):
@@ -273,7 +259,8 @@ class DoubleLoopAlgorithm(Algorithm):
         B = self.prior
         self.inv_cov = X.T * X + B.T * D * B
     def update_inv_cov_approx(self):
-        self.inv_cov_approx = eigendecomposition(self.inv_cov, **self.lanczos)
+        self.lanczos_algorithm = LanczosAlgorithm(self.inv_cov, **self.lanczos)
+        self.inv_cov_approx = self.lanczos_algorithm()
     def update_z(self):
         # get eigenvalues, eigenvectors
         e = self.inv_cov_approx.eigenvalues
