@@ -26,6 +26,9 @@ default_stop = StopCondition(maxiter=5)
 # lanczos algorithm
 
 class LanczosAlgorithm(Algorithm):
+    """
+    Inspired by glm-ie inf/diaginv_lanczos.m algorithm.
+    """
     def __init__(self, A, B, maxiter=100):
         self.A = A
         self.B = B
