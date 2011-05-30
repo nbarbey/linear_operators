@@ -2,6 +2,7 @@
 Useful functions for LinearOperators
 """
 import numpy as np
+
 try:
     from scipy.sparse.linalg import arpack
 except(ImportError):
@@ -28,110 +29,8 @@ def eigendecomposition(A, **kwargs):
     It passes its arguments arguments as arpack.eigsh but
     forces return_eigenvectors to True.
     """
+    from ..operators import EigendecompositionOperator
     return EigendecompositionOperator(A, **kwargs)
-
-class EigendecompositionOperator(SymmetricOperator):
-    """
-    Define a SymmetricOperator from the eigendecomposition of another
-    SymmetricOperator. This can be used as an approximation for the
-    operator.
-
-    Inputs
-    -------
-
-    A: LinearOperator (default: None)
-      The LinearOperator to approximate.
-    v: 2d ndarray (default: None)
-      The eigenvectors as given by arpack.eigsh
-    w: 1d ndarray (default: None)
-      The eigenvalues as given by arpack.eigsh
-    **kwargs: keyword arguments
-      Passed to the arpack.eigsh function.
-
-    You need to specify either A or v and w.
-
-    Returns
-    -------
-
-    An EigendecompositionOperator instance, which is a subclass of the
-    SymmetricOperator.
-
-    Notes
-    -----
-
-    This is really a wrapper for
-    scipy.sparse.linalg.eigen.arpack.eigsh
-    """
-    def __init__(self, A=None, v=None, w=None, **kwargs):
-        from ..interface import aslinearoperator
-        from ..operators import diagonal
-        kwargs['return_eigenvectors'] = True
-        if v is None or w is None:
-            w, v = eigsh(A, **kwargs)
-            shape = A.shape
-            dtype = A.dtype
-            dtypein = A.dtypein
-            dtypeout = A.dtypeout
-        else:
-            shape = 2 * (v.shape[0],)
-            dtype = v.dtype
-            dtypein = dtypeout = dtype
-        W = diagonal(w)
-        V = aslinearoperator(v)
-        M = V * W * V.T
-        # store some information
-        self.eigenvalues = w
-        self.eigenvectors = v
-        self.kwargs = kwargs
-        SymmetricOperator.__init__(self, shape, M.matvec,
-                                             dtypein=dtypein,
-                                             dtypeout=dtypeout,
-                                             dtype=dtype)
-    def det(self):
-        """
-        Output an approximation of the determinant from the
-        eigenvalues.
-        """
-        return np.prod(self.eigenvalues)
-
-    def logdet(self):
-        """
-        Output the log of the determinant. Useful as the determinant
-        of large matrices can exceed floating point capabilities.
-        """
-        return np.sum(np.log(self.eigenvalues))
-
-    def __pow__(self, n):
-        """
-        Raising an eigendecomposition to an integer power requires
-        only raising the eigenvalues to this power.
-        """
-        return EigendecompositionOperator(v=self.eigenvectors,
-                                          w=self.eigenvalues ** n,
-                                          kwargs=self.kwargs)
-
-    def inv(self):
-        """
-        Returns the pseudo-inverse of the operator.
-        """
-        return self ** -1
-
-    def trace(self):
-        return np.sum(self.eigenvalues)
-
-    def cond(self):
-        """
-        Output an approximation of the condition number by taking the
-        ratio of the maximum over the minimum eigenvalues, removing
-        the zeros.
-
-        For better approximation of the condition number, one should
-        consider generating the eigendecomposition with the keyword
-        which='BE', in order to have a correct estimate of the small
-        eigenvalues.
-        """
-        nze = self.eigenvalues[self.eigenvalues != 0]
-        return nze.max() / nze.min()
 
 def cond(A, k=2, kl=None, ks=None, symmetric=True, M=None, maxiter=None,
          tol=1e-6, verbose=False, prune_zeros=False, loweig=None):
