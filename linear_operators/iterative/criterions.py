@@ -8,6 +8,7 @@ Implement the criterion class. Available :
 from copy import copy
 import numpy as np
 from norms import *
+from ..interface import concatenate
 
 class Criterion(object):
     """
@@ -102,9 +103,19 @@ class QuadraticCriterion(Criterion):
     """
     Subclass of Criterion with all norms forced to be Norm2 instances.
     """
-    def __init__(self, model, data, hypers=[], priors=[], store=True):
+    def __init__(self, model, data, hypers=[], priors=[], store=True,
+                 hessian=False):
         norms = (Norm2(), ) * (len(priors) + 1)
+        self.prior = concatenate([h * p for h, p in zip(hypers, priors)])
+        self._hessian_model = model.T * model + self.prior.T * self.prior
+        if hessian:
+            self.hessian = self._hessian
+            self.hessian_p = self._hessian_p
         Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
+    def _hessian(self, u):
+        return self._hessian_model
+    def _hessian_p(self, u, p):
+        return self._hessian_model * p
 
 class HuberCriterion(Criterion):
     """
