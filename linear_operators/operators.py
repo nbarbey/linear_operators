@@ -498,37 +498,79 @@ class BandOperator(LinearOperator):
             # upper part
             for i in xrange(ku):
                 j = ku - i
-                out[:j] += self.ab[i, j:] * x[j:]
-            for i in xrange(ku + 1, kl + ku + 1):
+                out[:-j] += self.ab[i, j:] * x[j:]
+            for i in xrange(ku, kl + ku):
             # lower part
-                out[i:] += self.ab[i, :-i] * x[:-i]
+                out[i:] += self.ab[i + 1, :-i] * x[:-i]
             return out
 
         def rmatvec(x):
-            rab = flipud(self.ab)
+            rab = self._rab
             rkl, rku = ku, kl
             # diag
             out = rab[ku] * x
             # upper part
             for i in xrange(rku):
                 j = rku - i
-                out[:j] += rab[i, j:] * x[j:]
-            for i in xrange(ku + 1, kl + ku + 1):
+                out[:-j] += rab[i, j:] * x[j:]
+            for i in xrange(rku, rkl + rku):
             # lower part
-                out[i:] += rab[i, :-i] * x[:-i]
+                out[i:] += rab[i + 1, :-i] * x[:-i]
             return out
 
         return LinearOperator.__init__(self, shape, matvec, rmatvec,
                                        **kwargs)
 
+    @property
+    def T(self):
+        return BandOperator(self.shape[::-1], self.rab, self.ku, self.kl,
+                            **self.kwargs)
+
+    def _diag(self, ku, i=0):
+        """
+        Return a slice to get the i-th line
+        """
+        # diagonal
+        if i == 0:
+            return slice(ku, ku + 1)
+            #return ab[ku]
+        # superdiagonal
+        if i > 0:
+            return (slice(ku - i, ku - i + 1, None), slice(i, None, None))
+            #return ab[ku - i, i:]
+        # subdiagonal
+        if i < 0:
+            return (slice(ku - i, ku - i + 1, None), slice(None, i, None))
+            #return ab[ku - i, :i]
+
+    def diag(self, i=0):
+        """
+        Returns the i-th diagonal (subdiagonal if i < 0, superdiagonal
+        if i >0).
+        """
+        return self.ab[self._diag(self.ku, i)]
+
+    @property
+    def rab(self):
+        """
+        Output the ab form of the transpose operator
+        """
+        ab = self.ab
+        kl, ku = self.kl, self.ku
+        rku, rkl = kl, ku
+        rab = np.zeros(ab.shape, dtype=ab.dtype)
+        for i in xrange(- kl, ku + 1):
+            rab[BandOperator._diag(self, rku, -i)] = self.diag(i)
+        return rab
+
 class LowerTriangularOperator(BandOperator):
-    def __init__(self, shape, ab, kl, ku, **kwargs):
+    def __init__(self, shape, ab, **kwargs):
         kl = ab.shape[0] - 1
         ku = 0
         BandOperator.__init__(self, shape, ab, kl, ku, **kwargs)
 
 class UpperTriangularOperator(BandOperator):
-    def __init__(self, shape, ab, kl, ku, **kwargs):
+    def __init__(self, shape, ab, **kwargs):
         kl = 0
         ku = ab.shape[0] - 1
         BandOperator.__init__(self, shape, ab, kl, ku, **kwargs)
@@ -586,7 +628,7 @@ class SymmetricBandOperator(SymmetricOperator):
         ab_chol = cholesky_banded(self.ab,
                                overwrite_ab=overwrite_ab,
                                lower=self.lower)
-        if lower:
+        if self.lower:
             out = LowerTriangularOperator(self.shape, ab_chol, **self.kwargs)
         else:
             out = UpperTriangularOperator(self.shape, ab_chol, **self.kwargs)
@@ -636,3 +678,23 @@ def slice_operator(shape, slice, **kwargs):
 
 def tridiagonal(shape, diag, subdiag, superdiag, **kwargs):
     return TridiagonalOperator(shape, diag, subdiag, superdiag, **kwargs)
+
+
+# utilities
+
+def band_approximation(mat, kl=0, ku=0):
+    """
+    Approximate a dense matrix as a BandOperator.
+    """
+    ab = np.zeros((kl + ku + 1, mat.shape[1]), dtype=mat.dtype)
+    # diag
+    ab[ku] = np.diag(mat)
+    # upper
+    for i in xrange(ku):
+        j = ku - i
+        ab[i, j:] = np.diag(mat, j)
+    # lower
+    for i in xrange(ku + 1, kl + ku + 1):
+        j = ku - i
+        ab[i, :j] = np.diag(mat, j)
+    return BandOperator(mat.shape, ab, kl, ku, dtype=mat.dtype)
