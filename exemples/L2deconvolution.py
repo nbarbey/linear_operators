@@ -17,7 +17,8 @@ data += noise
 prior = [lo.diff(im.shape, axis=i) for i in xrange(im.ndim)]
 hypers = (1e1, 1e1)
 # generate an conjugate gradient algorithm from model, data and priors
-algo = lo.QuadraticConjugateGradient(model, data, prior, hypers)
+algo = lo.QuadraticConjugateGradient(model, data, prior, hypers,
+                                     stop_condition=lo.StopCondition(gtol=1e-5))
 # start the estimation algorithm
 xe = algo()
 # reshape the output as the algorithm only handles vectors
