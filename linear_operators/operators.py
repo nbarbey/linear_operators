@@ -604,6 +604,10 @@ class SymmetricBandOperator(SymmetricOperator):
 
         return SymmetricOperator.__init__(self, shape, matvec, **kwargs)
 
+    @property
+    def rab(self):
+        return self.ab
+
     def eigen(self, eigvals_only=False, overwrite_a_band=False, select='a',
               select_range=None, max_ev=0):
         """
@@ -705,3 +709,13 @@ def band_approximation(mat, kl=0, ku=0):
         j = ku - i
         ab[i, :j] = np.diag(mat, j)
     return BandOperator(mat.shape, ab, kl, ku, dtype=mat.dtype)
+
+def symmetric_band_approximation(mat, k=0):
+    """
+    Approximate a symmetrix matrix as a SymmetricBandOperator.
+    """
+    ab = np.zeros((k + 1, mat.shape[1]), dtype=mat.dtype)
+    ab[0] = np.diag(mat)
+    for i in xrange(1, k + 1):
+        ab[i, :-i] = np.diag(mat, i)
+    return SymmetricBandOperator(mat.shape, ab, dtype=mat.dtype)
