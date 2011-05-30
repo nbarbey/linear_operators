@@ -21,6 +21,94 @@ from norms import norm2, dnorm2
 
 default_stop = StopCondition(maxiter=5)
 
+
+
+# lanczos algorithm
+
+class LanczosAlgorithm(Algorithm):
+    def __init__(self, A, B, maxiter=100):
+        self.A = A
+        self.B = B
+        self.n = np.max((self.A.shape[1], self.B.shape[1]))
+        self.maxiter = np.min((n, maxiter))
+
+        Algorithm.__init__(self)
+
+    def initialize(self):
+        Algorithm.initialize(self)
+        # starting point
+        self.w = np.random.randn(self.n)
+        self.w /= norm2(self.w)
+        self.v = np.zeros(self.n)
+        # to store results
+        # tridiagonal matrix coefficients
+        self.alpha = np.zeros(self.maxiter)
+        self.beta = np.zeros(self.maxiter - 1)
+        self.eigenvalues = np.zeros(self.n)
+        self.logdet = 0.
+        self.lanczos_vectors = np.zeros((self.n, self.maxiter))
+        self.diag = np.zeros(n)
+
+    def iterate(self):
+        self.update_lanczos_v()
+        self.orthogonalization()
+        self.mvm()
+        self.iter_ += 1
+        self.update_alpha()
+        self.update_v()
+        self.cholesky()
+        self.update_beta()
+        self.store_lanczos_vector()
+        self.update_diag()
+
+    def stop_condition(self):
+        i = self.iter_
+        return np.abs(self.beta[i]) < 1e-10 or i > self.maxiter
+
+    def update_lanczos_v(self):
+        i = self.iter_
+        if i > 0:
+            b = self.beta[i]
+            self.w, self.v = self.v / b, -b * self.w
+
+    def orthogonalization(self):
+        "Gram-Schmidt"
+        Q = self.lanczos_vectors
+        self.w -= np.dot(Q, np.dot(Q.T, self.w))
+
+    def mvm(self):
+        self.v += A * w
+
+    def update_alpha(self):
+        self.alpha[self.iter_] = np.dot(self.w.T, self.v)
+
+    def update_v(self):
+        self.v -= self.alpha[self.iter_] * self.w
+
+    def cholesky(self):
+        i = self.iter_
+        a = self.alpha[i]
+        b = self.beta[i]
+        if i == 1:
+            Lkk = np.sqrt(a)
+            self.p = self.w / Lkk
+        else:
+            Lkk_1 = b / Lkk
+            Lkk = np.sqrt(a - Lkk_1 ** 2)
+            self.p = (self.w - Lkk_1 * self.p) / self.Lkk
+        self.eigenvalues[i] = Lkk ** 2
+        self.logdet += 2 * np.log(Lkk)
+
+    def update_beta(self):
+        self.beta[self.iter_] = norm2(v)
+
+    def store_lanczos_vector(self):
+        self.lanczos_vectors[:, self.iter_] = self.w
+
+    def update_diag(self):
+        Bp = self.B * self.p
+        self.diag += Bp * np.conj(Bp)
+
 class Criterion(object):
     def __init__(self, algo):
         self.algo = algo
