@@ -16,7 +16,7 @@ MAXITER = None
 # stop conditions
 class StopCondition(object):
     def _test_maxiter(self, algo):
-        return algo.iter_ > self.maxiter
+        return algo.iter_ >= self.maxiter
     def _test_tol(self, algo):
         self.resid = np.abs(algo.last_criterion - algo.current_criterion)
         self.resid /= algo.first_criterion
@@ -156,13 +156,21 @@ class Algorithm(object):
         self.callback(self)
         # return value not used in loop but usefull in "interactive mode"
         return self.current_solution
+    def at_exit(self):
+        """
+        Perform some task at exit.
+        Does nothing by default.
+        """
+        pass
     def __call__(self):
         """
         Perform the optimization.
         """
         self.initialize()
         self.iterate() # at least 1 iteration
-        return self.cont()
+        self.cont()
+        self.at_exit()
+        return self.current_solution
     def cont(self):
         """
         Continue an interrupted estimation (like call but avoid
