@@ -341,6 +341,7 @@ class TridiagonalOperator(LinearOperator):
         self.diag = diag
         self.subdiag = subdiag
         self.superdiag = superdiag
+        self.kwargs = kwargs
 
         def matvec(x):
             out = self.diag * x
@@ -427,6 +428,15 @@ class TridiagonalOperator(LinearOperator):
         kwargs["dtypeout"] = getattr(self, 'dtypeout', None)
         return TridiagonalOperator(self.shape, self.diag, self.superdiag,
                                    self.subdiag, **kwargs)
+
+    def toband(self):
+        kl, ku = 1, 1
+        n = self.shape[1]
+        ab = np.zeros((kl + ku + 1, n))
+        diags = (self.subdiag, self.diag, self.superdiag)
+        for i, d in zip((-1, 0, 1), diags):
+            ab[_band_diag(ku, i)] = d
+        return BandOperator(self.shape, ab, kl, ku, **self.kwargs)
 
 # Multiple inheritence
 class SymmetricTridiagonal(SymmetricOperator, TridiagonalOperator):
@@ -526,29 +536,12 @@ class BandOperator(LinearOperator):
         return BandOperator(self.shape[::-1], self.rab, self.ku, self.kl,
                             **self.kwargs)
 
-    def _diag(self, ku, i=0):
-        """
-        Return a slice to get the i-th line
-        """
-        # diagonal
-        if i == 0:
-            return slice(ku, ku + 1)
-            #return ab[ku]
-        # superdiagonal
-        if i > 0:
-            return (slice(ku - i, ku - i + 1, None), slice(i, None, None))
-            #return ab[ku - i, i:]
-        # subdiagonal
-        if i < 0:
-            return (slice(ku - i, ku - i + 1, None), slice(None, i, None))
-            #return ab[ku - i, :i]
-
     def diag(self, i=0):
         """
         Returns the i-th diagonal (subdiagonal if i < 0, superdiagonal
         if i >0).
         """
-        return self.ab[self._diag(self.ku, i)]
+        return self.ab[_band_diag(self.ku, i)]
 
     @property
     def rab(self):
@@ -560,8 +553,22 @@ class BandOperator(LinearOperator):
         rku, rkl = kl, ku
         rab = np.zeros(ab.shape, dtype=ab.dtype)
         for i in xrange(- kl, ku + 1):
-            rab[BandOperator._diag(self, rku, -i)] = self.diag(i)
+            rab[_band_diag(rku, -i)] = self.diag(i)
         return rab
+
+def _band_diag(ku, i=0):
+    """
+    Return a slice to get the i-th line of a band operator
+    """
+    # diagonal
+    if i == 0:
+        return slice(ku, ku + 1)
+    # superdiagonal
+    if i > 0:
+        return (slice(ku - i, ku - i + 1, None), slice(i, None, None))
+    # subdiagonal
+    if i < 0:
+        return (slice(ku - i, ku - i + 1, None), slice(None, i, None))
 
 class LowerTriangularOperator(BandOperator):
     def __init__(self, shape, ab, **kwargs):
