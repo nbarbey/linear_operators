@@ -55,6 +55,12 @@ class EigendecompositionOperator(SymmetricOperator):
 
     An EigendecompositionOperator instance, which is a subclass of the
     SymmetricOperator.
+
+    Notes
+    -----
+
+    This is really a wrapper for
+    scipy.sparse.linalg.eigen.arpack.eigsh
     """
     def __init__(self, A=None, v=None, w=None, **kwargs):
         from ..interface import aslinearoperator
@@ -143,8 +149,10 @@ def cond(A, k=2, kl=None, ks=None, symmetric=True, M=None, maxiter=None,
     else:
         eigen = eigs
 
-    vmax = eigen(A, which='LM', k=kl, M=M, maxiter=maxiter, tol=tol, return_eigenvectors=False)
-    vmin = eigen(A, which='SM', k=ks, M=M, maxiter=maxiter, tol=tol, return_eigenvectors=False)
+    vmax = eigen(A, which='LM', k=kl, M=M, maxiter=maxiter, tol=tol,
+                 return_eigenvectors=False)
+    vmin = eigen(A, which='SM', k=ks, M=M, maxiter=maxiter, tol=tol,
+                 return_eigenvectors=False)
     nb_null = np.sum(vmin == 0)
     if verbose:
         print("Found %d zero-valued eigenvalues" % nb_null)
