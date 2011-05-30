@@ -6,6 +6,7 @@ from copy import copy
 
 from linesearch import *
 from criterions import *
+from norms import norm2
 
 # defaults
 TOL = 1e-6
