@@ -21,8 +21,6 @@ from norms import norm2, dnorm2
 
 default_stop = StopCondition(maxiter=5)
 
-
-
 # lanczos algorithm
 
 class LanczosAlgorithm(Algorithm):
@@ -101,6 +99,9 @@ class LanczosAlgorithm(Algorithm):
         v = np.zeros((self.n, self.maxiter + 1))
         for i in xrange(self.E.eigenvectors.shape[1]):
             v[:, i] = np.dot(self.vectors.T, self.E.eigenvectors[:, i])
+        # remove the last eigenpair with negative eigenvalue XXX
+        w = w[1:]
+        v = v[:, 1:]
         self.current_solution = EigendecompositionOperator(v=v, w=w)
 
 class Criterion(object):
