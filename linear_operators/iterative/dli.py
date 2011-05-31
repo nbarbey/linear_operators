@@ -31,10 +31,15 @@ class LanczosAlgorithm(Algorithm):
 
     http://en.wikipedia.org/wiki/Lanczos_algorithm
     """
-    def __init__(self, A, stop_condition=StopCondition(maxiter=300)):
+    def __init__(self, A, **kwargs):
         self.A = A
         self.n = self.A.shape[0]
-        self.stop_condition = stop_condition
+        self.kwargs = kwargs
+        # extract appropriate kwargs for stop condition
+        maxiter = getattr(kwargs, "maxiter", 300)
+        tol = getattr(kwargs, "tol", None)
+        gtol = getattr(kwargs, "gtol", None)
+        self.stop_condition = StopCondition(maxiter=maxiter, tol=tol, gtol=gtol)
         # maxiter default to matrix size if not given.
         self.maxiter = getattr(self.stop_condition, "maxiter", self.n)
         Algorithm.__init__(self)
