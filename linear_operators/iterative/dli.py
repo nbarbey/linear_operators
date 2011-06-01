@@ -15,9 +15,9 @@ import numpy as np
 import numexpr as ne
 from utils import eigendecomposition
 from algorithms import Algorithm, default_callback, StopCondition
-from ..operators import diag
+from ..operators import diag, identity
 from optimize import *
-from norms import norm2, dnorm2
+from norms import norm2, dnorm2, Norm2
 
 default_stop = StopCondition(maxiter=5)
 
@@ -108,6 +108,8 @@ class Criterion(object):
     def __init__(self, algo):
         self.algo = algo
         self.n_variables = self.algo.model.shape[1]
+        # likelihood norm
+        self.norm = Norm2(C=algo.noise_covariance)
         # storing
         self.last_u = None
         self.Xu = None
@@ -131,17 +133,21 @@ class Criterion(object):
         X = self.algo.model
         y = self.algo.data
         Xu, Bu = self.get_projections(u)
-        return sigma ** (-2) * norm2(Xu - y)
+        return sigma ** (-2) * self.norm(Xu - y)
     def dlike(self, u):
         sigma = self.algo.sigma
         X = self.algo.model
         y = self.algo.data
         Xu, Bu = self.get_projections(u)
-        return sigma ** (-2) * X.T * dnorm2(Xu - y)
+        return sigma ** (-2) * X.T * self.norm.diff(Xu - y)
     def d2like(self, u):
         sigma = self.algo.sigma
         X = self.algo.model
-        return sigma ** (-2) * X.T * X
+        I = identity(2 * (X.shape[0],))
+        N = getattr(self.algo, "noise_covariance", I)
+        if N is None:
+            N = I
+        return sigma ** (-2) * X.T * N * X
     def d2lik_p(self, u, p):
         return self.d2like(u) * p
     def penalization(self, u):
@@ -194,16 +200,17 @@ class DoubleLoopAlgorithm(Algorithm):
         Data.
     prior : LinearOperator
         Prior.
-    tau : ndarray
+    tau : ndarray (optional)
         Parameters of the Laplace potential on priors coefficients.
-    sigma : float
+    sigma : float  (optional)
         Likelihood standard deviation.
     lanczos : dict
         Keyword arguments of the Lanczos decomposition.
     fmin_args : dict
         Keyword arguments of the function minimization.
     """
-    def __init__(self, model, data, prior, tau=None, sigma=1., optimizer=FminSLSQP,
+    def __init__(self, model, data, prior, noise_covariance=None,
+                 tau=None, sigma=1., optimizer=FminSLSQP,
                  lanczos={}, fmin_args={},
                  callback=default_callback,
                  stop_condition=default_stop,
@@ -211,6 +218,7 @@ class DoubleLoopAlgorithm(Algorithm):
         self.model = model
         self.data = data
         self.prior = prior
+        self.noise_covariance = noise_covariance
         if tau is None:
             self.tau = np.ones(prior.shape[0])
         else:
@@ -263,7 +271,11 @@ class DoubleLoopAlgorithm(Algorithm):
         D = diag(self.gamma ** (-1), dtype=self.prior.dtypeout)
         X = self.model
         B = self.prior
-        self.inv_cov = X.T * X + B.T * D * B
+        N = self.noise_covariance
+        if N is None:
+            self.inv_cov = X.T * X + B.T * D * B
+        else:
+            self.inv_cov = X.T * N * X + B.T * D * B
     def update_inv_cov_approx(self):
         self.lanczos_algorithm = LanczosAlgorithm(self.inv_cov, **self.lanczos)
         self.inv_cov_approx = self.lanczos_algorithm()
