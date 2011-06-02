@@ -1,51 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset='utf-8'>
+---
+layout: default
+title: linear_operators/exemples
+---
 
-  <title>nbarbey/linear_operators @ GitHub</title>
-
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #121421;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #ffffff;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #edebde; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #edebde; }
-    h3 { text-align: center; color: #edebde; }
-    a { color: #edebde; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
-</head>
-
-<body>
-  <a href="http://github.com/nbarbey/linear_operators"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-  <div id="container">
-    <div class="download">
-      <a href="http://github.com/nbarbey/linear_operators/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/nbarbey/linear_operators/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-    <h1><a href="http://github.com/nbarbey/linear_operators">linear_operators</a>
-      <span class="small">by <a href="http://github.com/nbarbey">nbarbey</a></span></h1>
-    <div class="description">
-      Linear Operators and related optimization algorithms
-    </div>
-
-    <h2> Exemples </h2>
+<div id="home">
+  <h1 id="intro">exemples</h1>
+  <div>
 
     <h3> Quadratic deconvolution </h3>
 
@@ -62,7 +22,7 @@
       <pre>import numpy as np
 import scipy
 import linear_operators as lo
-</pre>
+      </pre>
     </p>
     <p>
       Scipy is used in the script only to load an exemple image:
@@ -88,20 +48,19 @@ model = lo.convolve_ndimage(im.shape, kernel)</pre>
       This defines a convolution with an uniform kernel of shape 3x3
       which is to be applied to an ndarray of the shape of the image.
     </p>
-
     <p>
       To perform the convolution on the image, simply call the operator:
- 
-    <pre>data = model(im)</pre>
 
-    Alternatively, you can multiply the operator with the vectorized image:
+      <pre>data = model(im)</pre>
 
-    <pre>data = model * im.ravel()</pre>
+      Alternatively, you can multiply the operator with the vectorized image:
 
-    The ravel method is required here as LinearOperators can only be
-    multiplied to vectors. If an 2d array is passed, it is assumed to
-    be a matrix and the matmat method is called, which is probably not
-    what you want.
+      <pre>data = model * im.ravel()</pre>
+
+      The ravel method is required here as LinearOperators can only be
+      multiplied to vectors. If an 2d array is passed, it is assumed to
+      be a matrix and the matmat method is called, which is probably not
+      what you want.
     </p>
 
     <p>
@@ -122,23 +81,22 @@ data += noise</pre>
       the inversion. Otherwise, the result would be way too noisy.
       <pre>prior = [lo.diff(im.shape, axis=i) for i in xrange(im.ndim)]
 hypers = (1e1, 1e1)</pre>
-    The hyperparameters "hypers" determines the importance to give to
-    the priors relative to the likelihood. It is related to the amount
-    of noise in the data.
+      The hyperparameters "hypers" determines the importance to give to
+      the priors relative to the likelihood. It is related to the amount
+      of noise in the data.
     </p>
 
     <p>Finally, we instantiate and call the conjugate gradient
-    algorithm:
+      algorithm:
       <pre>algo = lo.QuadraticConjugateGradient(model, data, prior, hypers)
 xe = algo()
-      </pre>
+  </pre>
       The output need to be reshaped as an image as algorithms work
       only on vectors since the rely on the matvec method of LinearOperators
       <pre>xe.resize(im.shape)</pre>
     </p>
-
     <p>
-    Now, you can take a look at the result:
+      Now, you can take a look at the result:
     <p align="center" >
       <img src="deconvolved_lena.png" WIDTH="50%" HEIGHT="50%" /> 
     </p>
@@ -151,9 +109,5 @@ xe = algo()
       linear_operators package to set up a simple deconvolution script
       in about 15 lines of code.
     </p>
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/nbarbey/linear_operators">nbarbey/linear_operators</a>
-    </div>
   </div>
-</body>
-</html>
+</div>
