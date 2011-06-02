@@ -71,7 +71,9 @@ class SymmetricOperator(LinearOperator):
     same function as matvec.
     """
     def __init__(self, shape, matvec, **kwargs):
-        """
+        """Returns a SymmetricOperator of given shape and matvec
+        function.
+
         Parameters
         ----------
 
@@ -91,8 +93,11 @@ class SymmetricOperator(LinearOperator):
         LinearOperator.__init__(self, shape, matvec, **kwargs)
 
 class IdentityOperator(SymmetricOperator):
+    """SymmetricOperator with identity matvec (lambda x: x).
+    """
     def __init__(self, shape, **kwargs):
-        """
+        """Instantiate an IdentityOperator.
+
         Parameters
         ----------
 
@@ -117,11 +122,19 @@ class IdentityOperator(SymmetricOperator):
         SymmetricOperator.__init__(self, shape, matvec, **kwargs)
 
 class HomotheticOperator(SymmetricOperator):
+    """
+    Generate a SymmetricOperator performing an homothety, i.e. a
+    multiplication of the input vector by a scalar.
+
+    Arguments
+    ----------
+    coef : int float
+        Multiplication coefficient
+    """
     def __init__(self, shape, coef, **kwargs):
         """
         Parameters
         ----------
-
         shape : length 2 tuple
             The shape of the operator. Should be square.
 
@@ -150,11 +163,19 @@ class HomotheticOperator(SymmetricOperator):
         return s[:-1] + " and coef=%f >" % self.coef
 
 class DiagonalOperator(SymmetricOperator):
-    def __init__(self, d, **kwargs):
+    """
+    An operator which mimics a diagonal matrix.
+
+    Attributes
+    ----------
+    diag: ndarray of 1 dim
+       The diagonal of the matrix.
+    """
+    def __init__(self, diag, **kwargs):
         """
         Parameters
         ----------
-        d : ndarray with ndim == 1.
+        diag : ndarray with ndim == 1.
             The diagonal of the operator.
 
         Returns
@@ -171,15 +192,24 @@ class DiagonalOperator(SymmetricOperator):
                [ 0.,  1.,  0.],
                [ 0.,  0.,  2.]])
         """
-        shape = 2 * (d.size,)
-        self.d = d
-        matvec = lambda x: x * d
+        shape = 2 * (diag.size,)
+        self.diag = diag
+        matvec = lambda x: x * diag
         SymmetricOperator.__init__(self, shape, matvec, **kwargs)
     def __repr__(self):
         s = LinearOperator.__repr__(self)
-        return s[:-1] + ",\n diagonal=" + self.d.__repr__() + ">"
+        return s[:-1] + ",\n diagonal=" + self.diag.__repr__() + ">"
 
 class MaskOperator(DiagonalOperator):
+    """
+    A subclass of DiagonalOperator with a boolean diagonal. Elements
+    corresponding to zeros of the diagonal are masked out in the
+    output vector.
+
+    Attributes
+    -----------
+    mask : ndarray of type bool and ndim==1
+    """
     def __init__(self, mask, **kwargs):
         """
         Parameters
@@ -208,6 +238,19 @@ class MaskOperator(DiagonalOperator):
         DiagonalOperator.__init__(self, self.mask, **kwargs)
 
 class ShiftOperator(LinearOperator):
+    """
+    A LinearOperator corresponding to a shift matrix
+
+    Attributes
+    ----------
+    shift: signed int
+        Output vector elements are shifted according to the shift attribute.
+        If positive, shift toward superdiagonals, and toward subdiagonal if negative.
+
+    References
+    ----------
+    http://en.wikipedia.org/wiki/Shift_matrix
+    """
     def __init__(self, shape, shift, **kwargs):
         if shape[0] != shape[1]:
             raise ValueError("Only square operator is implemented.")
@@ -227,11 +270,19 @@ class ShiftOperator(LinearOperator):
         return s[:-1] + " and shift=%d >" % self.shift
 
 class PermutationOperator(LinearOperator):
-    def __init__(self, p, **kwargs):
+    """
+    Perform permutations to the vector elements.
+
+    Attributes
+    ----------
+    perm : list or tuple
+        The permutation of coefficients.
+    """
+    def __init__(self, perm, **kwargs):
         """
         Parameters
         ----------
-        p : list or tuple
+        perm : list or tuple
             The permutation of coefficients.
 
         Returns
@@ -251,34 +302,41 @@ class PermutationOperator(LinearOperator):
 
         """
 
-        shape = 2 * (len(p),)
-        self.p = p
+        shape = 2 * (len(perm),)
+        self.perm = perm
         # reverse permutation
-        self.p_inv = np.argsort(p)
+        self.perm_inv = np.argsort(perm)
         def matvec(x):
-            return np.asarray([x[pi] for pi in self.p])
+            return np.asarray([x[pi] for pi in self.perm])
         def rmatvec(x):
-            return np.asarray([x[pi] for pi in self.p_inv])
+            return np.asarray([x[pi] for pi in self.perm_inv])
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
     def __repr__(self):
         s = LinearOperator.__repr__(self)
-        return s[:-1] + ",\n permutation=" + self.p.__repr__() + ">"
+        return s[:-1] + ",\n permutation=" + self.perm.__repr__() + ">"
 
 class FftOperator(LinearOperator):
+    """
+    Generate an Operator performing Fast Fourier Transform.
+    Uses rescaled numpy.fft.ftt and numpy.fft.ifft as matvec and rmatvec.
+    """
     def __init__(self, shape, **kwargs):
         matvec = lambda x: np.fft.fft(x, n=shape[0]) / np.sqrt(shape[0])
         rmatvec = lambda x: np.fft.ifft(x, n=shape[1]) * np.sqrt(shape[0])
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
 
 class ReplicationOperator(LinearOperator):
-    def __init__(self, shape, n, **kwargs):
+    """
+    Generate an operator which replicates the input vector n times.
+    """
+    def __init__(self, shape, rep_num, **kwargs):
         """
         Parameters
         ----------
         shape : length 2 tuple.
             The shape of the operator.
 
-        n : int
+        rep_num : int
             The number of replications.
 
         Returns
@@ -296,22 +354,46 @@ class ReplicationOperator(LinearOperator):
                [ 1.,  0.],
                [ 0.,  1.]])
         """
-        self.n = n
+        self.rep_num = rep_num
         # ensure coherent input
-        if not shape[0] == shape[1] * n:
+        if not shape[0] == shape[1] * rep_num:
             raise ValueError("Output vector should be n times the size of input vector.")
         def matvec(x):
-            return np.tile(x, n)
+            return np.tile(x, self.rep_num)
         def rmatvec(x):
             N = shape[1]
-            return sum([x[i * N:(i + 1) * N] for i in xrange(n)])
+            return sum([x[i * N:(i + 1) * N] for i in xrange(self.rep_num)])
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
     def __repr__(self):
         s = LinearOperator.__repr__(self)
         return s[:-1] + ",\n Replicate %i times" % self.n + ">"
 
 class SliceOperator(LinearOperator):
+    """
+    Perform slicing on the input vector.
+
+    Attributes
+    ----------
+    slice: slice
+       Slice applied to the input vector.
+    """
     def __init__(self, shape, slice, **kwargs):
+        """
+
+        Exemple
+        -------
+        >>> S = lo.SliceOperator((2, 4), slice(None, None, 2))
+        >>> S.todense()
+        array([[ 1.,  0.,  0.,  0.],
+               [ 0.,  0.,  1.,  0.]])
+
+        >>> S.T.todense()
+        array([[ 1.,  0.],
+               [ 0.,  0.],
+               [ 0.,  1.],
+               [ 0.,  0.]])
+
+        """
         def matvec(x):
             return x[slice]
         def rmatvec(x):
@@ -321,6 +403,23 @@ class SliceOperator(LinearOperator):
         LinearOperator.__init__(self, shape, matvec, rmatvec=rmatvec, **kwargs)
 
 class TridiagonalOperator(LinearOperator):
+    """
+    Store a tridiagonal operator in the form of 3 arrays
+
+    Attributes
+    -----------
+    shape : length 2 tuple.
+        The shape of the operator.
+
+    diag : ndarray of size shape[0]
+        The diagonal of the matrix.
+
+    subdiag : ndarray of size shape[0] - 1
+        The subdiagonal of the matrix.
+
+    superdiag : ndarray of size shape[0] - 1
+        The superdiagonal of the matrix.
+    """
     def __init__(self, shape, diag, subdiag, superdiag, **kwargs):
         """
         Parameters
@@ -445,6 +544,9 @@ class TridiagonalOperator(LinearOperator):
                                    self.subdiag, **kwargs)
 
     def toband(self):
+        """
+        Convert the TridiagonalOperator into a BandOperator
+        """
         kl, ku = 1, 1
         n = self.shape[1]
         ab = np.zeros((kl + ku + 1, n))
@@ -456,12 +558,38 @@ class TridiagonalOperator(LinearOperator):
 # Multiple inheritence
 class SymmetricTridiagonal(SymmetricOperator, TridiagonalOperator):
     def __init__(self, shape, diag, subdiag, **kwargs):
+        """
+        Parameters
+        ----------
+        shape : length 2 tuple.
+            The shape of the operator.
+
+        diag : ndarray of size shape[0]
+            The diagonal of the matrix.
+
+        subdiag : ndarray of size shape[0] - 1
+            The subdiagonal and superdiagonal of the matrix.
+
+        Returns
+        -------
+        A Tridiagonal matrix operator instance.
+
+        Exemple
+        -------
+        >>> import numpy as np
+        >>> import linear_operators as lo
+        >>> T = lo.TridiagonalOperator((3, 3), [1, 2, 3], [4, 5])
+        >>> T.todense()
+        array([[1, 4, 0],
+               [4, 2, 5],
+               [0, 5, 3]])
+        """
         return TridiagonalOperator.__init__(self, shape, diag, subdiag,
                                             subdiag, **kwargs)
 
     def toband(self):
         """
-        Convert into a SymmetricBandOperator
+        Convert into a SymmetricBandOperator.
         """
         u = 2 # tridiagonal
         n = self.shape[0]
@@ -509,6 +637,20 @@ class BandOperator(LinearOperator):
 
     """
     def __init__(self, shape, ab, kl, ku, **kwargs):
+        """
+        Generate a BandOperator instance
+
+        Arguments
+        ---------
+        shape : 2-tuple
+           The shape of the operator
+        ab : ndarray with ndim == 2
+           Store the bands of the matrix using LAPACK storage scheme.
+        kl : int
+            Number of subdiagonals
+        ku : int
+            Number of superdiagonals
+        """
         if ab.shape[0] != kl + ku + 1 or ab.shape[1] != shape[1]:
             raise ValueError("Wrong ab shape.")
 
@@ -561,7 +703,7 @@ class BandOperator(LinearOperator):
     @property
     def rab(self):
         """
-        Output the ab form of the transpose operator
+        Output the ab form of the transpose operator.
         """
         ab = self.ab
         kl, ku = self.kl, self.ku
