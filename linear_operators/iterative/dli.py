@@ -215,9 +215,13 @@ class DoubleLoopAlgorithm(Algorithm):
                  callback=default_callback,
                  stop_condition=default_stop,
                  ):
-        self.model = model
+        from ..interface import aslinearoperator
+
+        self.model = aslinearoperator(model)
         self.data = data
-        self.prior = prior
+        self.prior = aslinearoperator(prior)
+        if noise_covariance is not None:
+            noise_covariance = aslinearoperator(noise_covariance)
         self.noise_covariance = noise_covariance
         if tau is None:
             self.tau = np.ones(prior.shape[0])
@@ -229,7 +233,7 @@ class DoubleLoopAlgorithm(Algorithm):
         self.optimizer = optimizer
         self.lanczos = lanczos
         self.fmin_args = fmin_args
-        # 
+        #
         self.callback = callback
         self.stop_condition = stop_condition
         # to store internal variables
