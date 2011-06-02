@@ -23,7 +23,19 @@ Classes
 
 - SliceOperator : Performs slicing on an array.
 
-- TridiagonalOperator : Store a tridiagonal matrix a 3 1d ndarrays.
+- TridiagonalOperator : A tridiagonal matrix a 3 1d arrays.
+
+- SymmetricTridiagonal : A symmetric tridiagonal matrix a 2 1d arrays.
+
+- BandOperator : A band matrix using lapack storage scheme.
+
+- SymmetricBandOperator : A symmetric band matrix using lapack storage scheme.
+
+- LoweTriangularOperator : A special case of band operator with only subdiagonal bands.
+
+- UpperTriangularOperator : A special case of band operator with only superdiagonal bands.
+
+- EigendecompositionOperator : A class storing eigenpairs of another operator.
 
 Functions
 ---------
@@ -40,6 +52,9 @@ Functions generate instances of the associated classes. The following are availa
 - replication
 - slice_operator
 - tridiagonal
+
+- band_approximation : Generate a BandOperator from a dense matrix.
+- symmetric_band_approximation : Generate a BandOperator from a dense matrix.
 
 """
 import numpy as np
@@ -791,6 +806,14 @@ def slice_operator(shape, slice, **kwargs):
 def tridiagonal(shape, diag, subdiag, superdiag, **kwargs):
     return TridiagonalOperator(shape, diag, subdiag, superdiag, **kwargs)
 
+def symmetric_tridiagonal(shape, diag, subdiag, **kwargs):
+    return SymmetricTridiagonal(shape, diag, subdiag, **kwargs)
+
+def band_operator(shape, ab, kl, ku, **kwargs):
+    return BandOperator(shape, ab, kl, ku, **kwargs)
+
+def symmetric_band_operator(shape, ab, lower=True, **kwargs):
+    return SymmetricBandOperator(shape, ab, lower=lower, **kwargs)
 
 # utilities
 
