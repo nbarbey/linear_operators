@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>linear_operators.ndoperators.NDSquare</title>
+  <title>linear_operators.operators.SymmetricTridiagonal</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -38,8 +38,8 @@
     <td width="100%">
       <span class="breadcrumbs">
         <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
-        <a href="linear_operators.ndoperators-module.html">Module&nbsp;ndoperators</a> ::
-        Class&nbsp;NDSquare
+        <a href="linear_operators.operators-module.html">Module&nbsp;operators</a> ::
+        Class&nbsp;SymmetricTridiagonal
       </span>
     </td>
     <td>
@@ -49,29 +49,29 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="linear_operators.ndoperators.NDSquare-class.html"
+            >]&nbsp;|&nbsp;<a href="linear_operators.operators.SymmetricTridiagonal-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class NDSquare</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare">source&nbsp;code</a></span></p>
+<h1 class="epydoc">Class SymmetricTridiagonal</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.operators-pysrc.html#SymmetricTridiagonal">source&nbsp;code</a></span></p>
 <pre class="base-tree">
               object --+        
                        |        
 <a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a> --+    
                            |    
-                  <a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a> --+
+           <a href="linear_operators.operators.SymmetricOperator-class.html">SymmetricOperator</a> --+
                                |
-                              <strong class="uidshort">NDSquare</strong>
+              object --+       |
+                       |       |
+<a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a> --+   |
+                           |   |
+         <a href="linear_operators.operators.TridiagonalOperator-class.html">TridiagonalOperator</a> --+
+                               |
+                              <strong class="uidshort">SymmetricTridiagonal</strong>
 </pre>
-
-<dl><dt>Known Subclasses:</dt>
-<dd>
-      <ul class="subclass-list">
-<li><a href="linear_operators.ndoperators.NDSymmetric-class.html">NDSymmetric</a></li>  </ul>
-</dd></dl>
 
 <hr />
 <!-- ==================== INSTANCE METHODS ==================== -->
@@ -97,13 +97,33 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="linear_operators.ndoperators.NDSquare-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shapein</span>,
-        <span class="summary-sig-arg">matvec</span>,
+          <td><span class="summary-sig"><a href="linear_operators.operators.SymmetricTridiagonal-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">diag</span>,
+        <span class="summary-sig-arg">subdiag</span>,
         <span class="summary-sig-arg">**kwargs</span>)</span><br />
-      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+      Parameters
+----------
+shape : length 2 tuple.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#SymmetricTridiagonal.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="linear_operators.operators.SymmetricTridiagonal-class.html#toband" class="summary-sig-name">toband</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Convert into a SymmetricBandOperator.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#SymmetricTridiagonal.toband">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -113,8 +133,10 @@
   </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a></code></b>:
-      <code><a href="linear_operators.ndoperators.NDOperator-class.html#__call__">__call__</a></code>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.operators.TridiagonalOperator-class.html">TridiagonalOperator</a></code></b>:
+      <code><a href="linear_operators.operators.TridiagonalOperator-class.html#__getitem__">__getitem__</a></code>,
+      <code><a href="linear_operators.operators.TridiagonalOperator-class.html#__repr__">__repr__</a></code>,
+      <code><a href="linear_operators.operators.TridiagonalOperator-class.html#todense">todense</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a></code></b>:
       <code><a href="linear_operators.interface.LinearOperator-class.html#__add__">__add__</a></code>,
@@ -125,13 +147,11 @@
       <code><a href="linear_operators.interface.LinearOperator-class.html#__neg__">__neg__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__pow__">__pow__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__radd__">__radd__</a></code>,
-      <code><a href="linear_operators.interface.LinearOperator-class.html#__repr__">__repr__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__rmul__">__rmul__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__rsub__">__rsub__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__sub__">__sub__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#matmat">matmat</a></code>,
-      <code><a href="linear_operators.interface.LinearOperator-class.html#matvec">matvec</a></code>,
-      <code><a href="linear_operators.interface.LinearOperator-class.html#todense">todense</a></code>
+      <code><a href="linear_operators.interface.LinearOperator-class.html#matvec">matvec</a></code>
       </p>
     <div class="private">    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a></code></b> (private):
       <code><a href="linear_operators.interface.LinearOperator-class.html#_matmat" onclick="show_private();">_matmat</a></code>
@@ -171,8 +191,8 @@
 </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a></code></b>:
-      <code><a href="linear_operators.ndoperators.NDOperator-class.html#T">T</a></code>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.operators.TridiagonalOperator-class.html">TridiagonalOperator</a></code></b>:
+      <code><a href="linear_operators.operators.TridiagonalOperator-class.html#T">T</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__class__</code>
@@ -206,21 +226,70 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">shapein</span>,
-        <span class="sig-arg">matvec</span>,
+        <span class="sig-arg">shape</span>,
+        <span class="sig-arg">diag</span>,
+        <span class="sig-arg">subdiag</span>,
         <span class="sig-arg">**kwargs</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare.__init__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="linear_operators.operators-pysrc.html#SymmetricTridiagonal.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <pre class="literalblock">
+
+Parameters
+----------
+shape : length 2 tuple.
+    The shape of the operator.
+
+diag : ndarray of size shape[0]
+    The diagonal of the matrix.
+
+subdiag : ndarray of size shape[0] - 1
+    The subdiagonal and superdiagonal of the matrix.
+
+Returns
+-------
+A Tridiagonal matrix operator instance.
+
+Exemple
+-------
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; import linear_operators as lo
+&gt;&gt;&gt; T = lo.TridiagonalOperator((3, 3), [1, 2, 3], [4, 5])
+&gt;&gt;&gt; T.todense()
+array([[1, 4, 0],
+       [4, 2, 5],
+       [0, 5, 3]])
+
+</pre>
   <dl class="fields">
     <dt>Overrides:
         object.__init__
-        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="toband"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">toband</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="linear_operators.operators-pysrc.html#SymmetricTridiagonal.toband">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Convert into a SymmetricBandOperator.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        <a href="linear_operators.operators.TridiagonalOperator-class.html#toband">TridiagonalOperator.toband</a>
     </dt>
   </dl>
 </td></tr></table>

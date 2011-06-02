@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>linear_operators.ndoperators.NDSquare</title>
+  <title>linear_operators.operators.BandOperator</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -38,8 +38,8 @@
     <td width="100%">
       <span class="breadcrumbs">
         <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
-        <a href="linear_operators.ndoperators-module.html">Module&nbsp;ndoperators</a> ::
-        Class&nbsp;NDSquare
+        <a href="linear_operators.operators-module.html">Module&nbsp;operators</a> ::
+        Class&nbsp;BandOperator
       </span>
     </td>
     <td>
@@ -49,31 +49,62 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="linear_operators.ndoperators.NDSquare-class.html"
+            >]&nbsp;|&nbsp;<a href="linear_operators.operators.BandOperator-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class NDSquare</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare">source&nbsp;code</a></span></p>
+<h1 class="epydoc">Class BandOperator</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.operators-pysrc.html#BandOperator">source&nbsp;code</a></span></p>
 <pre class="base-tree">
-              object --+        
-                       |        
-<a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a> --+    
-                           |    
-                  <a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a> --+
-                               |
-                              <strong class="uidshort">NDSquare</strong>
+              object --+    
+                       |    
+<a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a> --+
+                           |
+                          <strong class="uidshort">BandOperator</strong>
 </pre>
 
 <dl><dt>Known Subclasses:</dt>
 <dd>
       <ul class="subclass-list">
-<li><a href="linear_operators.ndoperators.NDSymmetric-class.html">NDSymmetric</a></li>  </ul>
+<li><a href="linear_operators.operators.LowerTriangularOperator-class.html">LowerTriangularOperator</a></li><li>, <a href="linear_operators.operators.UpperTriangularOperator-class.html">UpperTriangularOperator</a></li>  </ul>
 </dd></dl>
 
 <hr />
+<pre class="literalblock">
+
+Store a band matrix in ab format as defined in LAPACK
+documentation.
+
+a[i, j] is stored in ab[ku + 1 + i - j, j]
+
+for max(1, j -ku) &lt; i &lt; min(m, j + kl)
+
+Band storage of A (5, 5), kl = 2, ku = 1 :
+
+ *  a01 a12 a23 a34
+a00 a11 a22 a33 a44
+a10 a21 a32 a43  *
+a20 a31 a42  *   *
+
+Arguments
+----------
+shape : 2-tuple
+    Shape of the dense matrix equivalent.
+kl : int
+    Number of subdiagonals
+ku : int
+    Number of superdiagonals
+
+Notes
+-----
+For a description of band matrices see LAPACK doc :
+
+http://www.netlib.org/lapack/lug/node124.html
+
+</pre>
+
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -97,13 +128,34 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="linear_operators.ndoperators.NDSquare-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shapein</span>,
-        <span class="summary-sig-arg">matvec</span>,
+          <td><span class="summary-sig"><a href="linear_operators.operators.BandOperator-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">ab</span>,
+        <span class="summary-sig-arg">kl</span>,
+        <span class="summary-sig-arg">ku</span>,
         <span class="summary-sig-arg">**kwargs</span>)</span><br />
-      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+      Generate a BandOperator instance</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#BandOperator.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="diag"></a><span class="summary-sig-name">diag</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">i</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns the i-th diagonal (subdiagonal if i &lt; 0, superdiagonal if 
+      i &gt;0).</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#BandOperator.diag">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -113,9 +165,6 @@
   </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a></code></b>:
-      <code><a href="linear_operators.ndoperators.NDOperator-class.html#__call__">__call__</a></code>
-      </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a></code></b>:
       <code><a href="linear_operators.interface.LinearOperator-class.html#__add__">__add__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__iadd__">__iadd__</a></code>,
@@ -169,11 +218,23 @@
     </table>
   </td>
 </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.BandOperator-class.html#T" class="summary-name">T</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.BandOperator-class.html#rab" class="summary-name">rab</a><br />
+      Output the ab form of the transpose operator.
+    </td>
+  </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a></code></b>:
-      <code><a href="linear_operators.ndoperators.NDOperator-class.html#T">T</a></code>
-      </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__class__</code>
       </p>
@@ -206,22 +267,86 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">shapein</span>,
-        <span class="sig-arg">matvec</span>,
+        <span class="sig-arg">shape</span>,
+        <span class="sig-arg">ab</span>,
+        <span class="sig-arg">kl</span>,
+        <span class="sig-arg">ku</span>,
         <span class="sig-arg">**kwargs</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare.__init__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="linear_operators.operators-pysrc.html#BandOperator.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <pre class="literalblock">
+
+Generate a BandOperator instance
+
+Arguments
+---------
+shape : 2-tuple
+   The shape of the operator
+ab : ndarray with ndim == 2
+   Store the bands of the matrix using LAPACK storage scheme.
+kl : int
+    Number of subdiagonals
+ku : int
+    Number of superdiagonals
+
+</pre>
   <dl class="fields">
     <dt>Overrides:
         object.__init__
-        <dd><em class="note">(inherited documentation)</em></dd>
     </dt>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== PROPERTY DETAILS ==================== -->
+<a name="section-PropertyDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Property Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-PropertyDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="T"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">T</h3>
+  
+  <dl class="fields">
+    <dt>Get Method:</dt>
+    <dd class="value"><span class="summary-sig"><i>unreachable</i>.T(<span class="summary-sig-arg">self</span>)</span>
+    </dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="rab"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">rab</h3>
+  <p>Output the ab form of the transpose operator.</p>
+  <dl class="fields">
+    <dt>Get Method:</dt>
+    <dd class="value"><span class="summary-sig"><i>unreachable</i>.rab(<span class="summary-sig-arg">self</span>)</span>
+        - Output the ab form of the transpose operator.
+    </dd>
   </dl>
 </td></tr></table>
 </div>

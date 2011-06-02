@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>linear_operators.iterative.dli.Criterion</title>
+  <title>linear_operators.iterative.dli.LanczosAlgorithm</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -40,7 +40,7 @@
         <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
         <a href="linear_operators.iterative-module.html">Package&nbsp;iterative</a> ::
         <a href="linear_operators.iterative.dli-module.html">Module&nbsp;dli</a> ::
-        Class&nbsp;Criterion
+        Class&nbsp;LanczosAlgorithm
       </span>
     </td>
     <td>
@@ -50,21 +50,26 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="linear_operators.iterative.dli.Criterion-class.html"
+            >]&nbsp;|&nbsp;<a href="linear_operators.iterative.dli.LanczosAlgorithm-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class Criterion</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion">source&nbsp;code</a></span></p>
+<h1 class="epydoc">Class LanczosAlgorithm</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm">source&nbsp;code</a></span></p>
 <pre class="base-tree">
-object --+
-         |
-        <strong class="uidshort">Criterion</strong>
+          object --+    
+                   |    
+<a href="linear_operators.iterative.algorithms.Algorithm-class.html">algorithms.Algorithm</a> --+
+                       |
+                      <strong class="uidshort">LanczosAlgorithm</strong>
 </pre>
 
 <hr />
+<p>Tridiagonalization Lanczos step and eigendecomposition at exit.</p>
+  <p>http://en.wikipedia.org/wiki/Lanczos_algorithm</p>
+
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -88,11 +93,12 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="linear_operators.iterative.dli.Criterion-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">algo</span>)</span><br />
+          <td><span class="summary-sig"><a href="linear_operators.iterative.dli.LanczosAlgorithm-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">A</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       x.__init__(...) initializes x; see help(type(x)) for signature</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -106,10 +112,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="islast"></a><span class="summary-sig-name">islast</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
+          <td><span class="summary-sig"><a href="linear_operators.iterative.dli.LanczosAlgorithm-class.html#initialize" class="summary-sig-name">initialize</a>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.islast">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.initialize">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -123,9 +128,10 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="load_last"></a><span class="summary-sig-name">load_last</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td><span class="summary-sig"><a href="linear_operators.iterative.dli.LanczosAlgorithm-class.html#iterate" class="summary-sig-name">iterate</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Perform one iteration and returns current solution.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.load_last">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.iterate">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -139,10 +145,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="get_projections"></a><span class="summary-sig-name">get_projections</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
+          <td><span class="summary-sig"><a name="orthogonalization"></a><span class="summary-sig-name">orthogonalization</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.get_projections">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.orthogonalization">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -156,10 +161,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="likelihood"></a><span class="summary-sig-name">likelihood</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
+          <td><span class="summary-sig"><a name="update_alpha"></a><span class="summary-sig-name">update_alpha</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.likelihood">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.update_alpha">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -173,10 +177,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="dlike"></a><span class="summary-sig-name">dlike</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
+          <td><span class="summary-sig"><a name="update_w"></a><span class="summary-sig-name">update_w</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.dlike">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.update_w">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -190,10 +193,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="d2like"></a><span class="summary-sig-name">d2like</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
+          <td><span class="summary-sig"><a name="update_beta"></a><span class="summary-sig-name">update_beta</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.d2like">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.update_beta">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -207,11 +209,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="d2lik_p"></a><span class="summary-sig-name">d2lik_p</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>,
-        <span class="summary-sig-arg">p</span>)</span></td>
+          <td><span class="summary-sig"><a name="update_vectors"></a><span class="summary-sig-name">update_vectors</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.d2lik_p">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.update_vectors">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -225,131 +225,11 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="penalization"></a><span class="summary-sig-name">penalization</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
+          <td><span class="summary-sig"><a href="linear_operators.iterative.dli.LanczosAlgorithm-class.html#at_exit" class="summary-sig-name">at_exit</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Convert alpha and beta to a TridiagonalOperator and perform 
+      eigendecomposition.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.penalization">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="dpen"></a><span class="summary-sig-name">dpen</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.dpen">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="d2pen"></a><span class="summary-sig-name">d2pen</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.d2pen">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="d2pen_p"></a><span class="summary-sig-name">d2pen_p</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>,
-        <span class="summary-sig-arg">p</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.d2pen_p">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="__call__"></a><span class="summary-sig-name">__call__</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.__call__">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="gradient"></a><span class="summary-sig-name">gradient</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.gradient">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="hessian"></a><span class="summary-sig-name">hessian</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.hessian">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="hessian_p"></a><span class="summary-sig-name">hessian_p</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">u</span>,
-        <span class="summary-sig-arg">p</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.hessian_p">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.at_exit">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -359,6 +239,11 @@ object --+
   </tr>
   <tr>
     <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.iterative.algorithms.Algorithm-class.html">algorithms.Algorithm</a></code></b>:
+      <code><a href="linear_operators.iterative.algorithms.Algorithm-class.html#__call__">__call__</a></code>,
+      <code><a href="linear_operators.iterative.algorithms.Algorithm-class.html#callback">callback</a></code>,
+      <code><a href="linear_operators.iterative.algorithms.Algorithm-class.html#cont">cont</a></code>
+      </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__delattr__</code>,
       <code>__format__</code>,
@@ -427,11 +312,12 @@ object --+
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">algo</span>)</span>
+        <span class="sig-arg">A</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#Criterion.__init__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -440,6 +326,74 @@ object --+
     <dt>Overrides:
         object.__init__
         <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="initialize"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">initialize</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.initialize">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Overrides:
+        <a href="linear_operators.iterative.algorithms.Algorithm-class.html#initialize">algorithms.Algorithm.initialize</a>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="iterate"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">iterate</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.iterate">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Perform one iteration and returns current solution.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        <a href="linear_operators.iterative.algorithms.Algorithm-class.html#iterate">algorithms.Algorithm.iterate</a>
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="at_exit"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">at_exit</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="linear_operators.iterative.dli-pysrc.html#LanczosAlgorithm.at_exit">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Convert alpha and beta to a TridiagonalOperator and perform 
+  eigendecomposition.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        <a href="linear_operators.iterative.algorithms.Algorithm-class.html#at_exit">algorithms.Algorithm.at_exit</a>
     </dt>
   </dl>
 </td></tr></table>

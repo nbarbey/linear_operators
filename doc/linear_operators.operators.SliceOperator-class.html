@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>linear_operators.ndoperators.NDSquare</title>
+  <title>linear_operators.operators.SliceOperator</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -38,8 +38,8 @@
     <td width="100%">
       <span class="breadcrumbs">
         <a href="linear_operators-module.html">Package&nbsp;linear_operators</a> ::
-        <a href="linear_operators.ndoperators-module.html">Module&nbsp;ndoperators</a> ::
-        Class&nbsp;NDSquare
+        <a href="linear_operators.operators-module.html">Module&nbsp;operators</a> ::
+        Class&nbsp;SliceOperator
       </span>
     </td>
     <td>
@@ -49,31 +49,34 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="linear_operators.ndoperators.NDSquare-class.html"
+            >]&nbsp;|&nbsp;<a href="linear_operators.operators.SliceOperator-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class NDSquare</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare">source&nbsp;code</a></span></p>
+<h1 class="epydoc">Class SliceOperator</h1><p class="nomargin-top"><span class="codelink"><a href="linear_operators.operators-pysrc.html#SliceOperator">source&nbsp;code</a></span></p>
 <pre class="base-tree">
-              object --+        
-                       |        
-<a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a> --+    
-                           |    
-                  <a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a> --+
-                               |
-                              <strong class="uidshort">NDSquare</strong>
+              object --+    
+                       |    
+<a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a> --+
+                           |
+                          <strong class="uidshort">SliceOperator</strong>
 </pre>
 
-<dl><dt>Known Subclasses:</dt>
-<dd>
-      <ul class="subclass-list">
-<li><a href="linear_operators.ndoperators.NDSymmetric-class.html">NDSymmetric</a></li>  </ul>
-</dd></dl>
-
 <hr />
+<pre class="literalblock">
+
+Perform slicing on the input vector.
+
+Attributes
+----------
+slice: slice
+   Slice applied to the input vector.
+
+</pre>
+
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -97,13 +100,18 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="linear_operators.ndoperators.NDSquare-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shapein</span>,
-        <span class="summary-sig-arg">matvec</span>,
+          <td><span class="summary-sig"><a href="linear_operators.operators.SliceOperator-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">slice</span>,
         <span class="summary-sig-arg">**kwargs</span>)</span><br />
-      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+      Exemple
+-------
+&gt;&gt;&gt; S = lo.SliceOperator((2, 4), slice(None, None, 2))
+&gt;&gt;&gt; S.todense()
+array([[ 1.,  0.,  0.,  0.],
+       [ 0.,  0.,  1.,  0.]])</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#SliceOperator.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -113,9 +121,6 @@
   </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a></code></b>:
-      <code><a href="linear_operators.ndoperators.NDOperator-class.html#__call__">__call__</a></code>
-      </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a></code></b>:
       <code><a href="linear_operators.interface.LinearOperator-class.html#__add__">__add__</a></code>,
       <code><a href="linear_operators.interface.LinearOperator-class.html#__iadd__">__iadd__</a></code>,
@@ -171,8 +176,8 @@
 </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.ndoperators.NDOperator-class.html">NDOperator</a></code></b>:
-      <code><a href="linear_operators.ndoperators.NDOperator-class.html#T">T</a></code>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="linear_operators.interface.LinearOperator-class.html">interface.LinearOperator</a></code></b>:
+      <code><a href="linear_operators.interface.LinearOperator-class.html#T">T</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__class__</code>
@@ -206,21 +211,36 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">shapein</span>,
-        <span class="sig-arg">matvec</span>,
+        <span class="sig-arg">shape</span>,
+        <span class="sig-arg">slice</span>,
         <span class="sig-arg">**kwargs</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="linear_operators.ndoperators-pysrc.html#NDSquare.__init__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="linear_operators.operators-pysrc.html#SliceOperator.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <pre class="literalblock">
+
+
+Exemple
+-------
+&gt;&gt;&gt; S = lo.SliceOperator((2, 4), slice(None, None, 2))
+&gt;&gt;&gt; S.todense()
+array([[ 1.,  0.,  0.,  0.],
+       [ 0.,  0.,  1.,  0.]])
+
+&gt;&gt;&gt; S.T.todense()
+array([[ 1.,  0.],
+       [ 0.,  0.],
+       [ 0.,  1.],
+       [ 0.,  0.]])
+
+</pre>
   <dl class="fields">
     <dt>Overrides:
         object.__init__
-        <dd><em class="note">(inherited documentation)</em></dd>
     </dt>
   </dl>
 </td></tr></table>

@@ -80,6 +80,22 @@ Classes
 
 - ReplicationOperator : Replicates the input vector n times.
 
+- SliceOperator : Performs slicing on an array.
+
+- TridiagonalOperator : A tridiagonal matrix a 3 1d arrays.
+
+- SymmetricTridiagonal : A symmetric tridiagonal matrix a 2 1d arrays.
+
+- BandOperator : A band matrix using lapack storage scheme.
+
+- SymmetricBandOperator : A symmetric band matrix using lapack storage scheme.
+
+- LoweTriangularOperator : A special case of band operator with only subdiagonal bands.
+
+- UpperTriangularOperator : A special case of band operator with only superdiagonal bands.
+
+- EigendecompositionOperator : A class storing eigenpairs of another operator.
+
 Functions
 ---------
 
@@ -93,6 +109,11 @@ Functions generate instances of the associated classes. The following are availa
 - permutation
 - fft
 - replication
+- slice_operator
+- tridiagonal
+
+- band_approximation : Generate a BandOperator from a dense matrix.
+- symmetric_band_approximation : Generate a BandOperator from a dense matrix.
 
 </pre>
 
@@ -126,56 +147,126 @@ Functions generate instances of the associated classes. The following are availa
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.IdentityOperator-class.html" class="summary-name">IdentityOperator</a>
+        <a href="linear_operators.operators.IdentityOperator-class.html" class="summary-name">IdentityOperator</a><br />
+      SymmetricOperator with identity matvec (lambda x: x).
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.HomotheticOperator-class.html" class="summary-name">HomotheticOperator</a>
+        <a href="linear_operators.operators.HomotheticOperator-class.html" class="summary-name">HomotheticOperator</a><br />
+      Generate a SymmetricOperator performing an homothety, i.e.
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.DiagonalOperator-class.html" class="summary-name">DiagonalOperator</a>
+        <a href="linear_operators.operators.DiagonalOperator-class.html" class="summary-name">DiagonalOperator</a><br />
+      An operator which mimics a diagonal matrix.
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.MaskOperator-class.html" class="summary-name">MaskOperator</a>
+        <a href="linear_operators.operators.MaskOperator-class.html" class="summary-name">MaskOperator</a><br />
+      A subclass of DiagonalOperator with a boolean diagonal.
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.ShiftOperator-class.html" class="summary-name">ShiftOperator</a>
+        <a href="linear_operators.operators.ShiftOperator-class.html" class="summary-name">ShiftOperator</a><br />
+      A LinearOperator corresponding to a shift matrix
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.PermutationOperator-class.html" class="summary-name">PermutationOperator</a>
+        <a href="linear_operators.operators.PermutationOperator-class.html" class="summary-name">PermutationOperator</a><br />
+      Perform permutations to the vector elements.
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.FftOperator-class.html" class="summary-name">FftOperator</a>
+        <a href="linear_operators.operators.FftOperator-class.html" class="summary-name">FftOperator</a><br />
+      Generate an Operator performing Fast Fourier Transform.
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="linear_operators.operators.ReplicationOperator-class.html" class="summary-name">ReplicationOperator</a>
+        <a href="linear_operators.operators.ReplicationOperator-class.html" class="summary-name">ReplicationOperator</a><br />
+      Generate an operator which replicates the input vector n times.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.SliceOperator-class.html" class="summary-name">SliceOperator</a><br />
+      Perform slicing on the input vector.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.TridiagonalOperator-class.html" class="summary-name">TridiagonalOperator</a><br />
+      Store a tridiagonal operator in the form of 3 arrays
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.SymmetricTridiagonal-class.html" class="summary-name">SymmetricTridiagonal</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.BandOperator-class.html" class="summary-name">BandOperator</a><br />
+      Store a band matrix in ab format as defined in LAPACK
+documentation.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.LowerTriangularOperator-class.html" class="summary-name">LowerTriangularOperator</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.UpperTriangularOperator-class.html" class="summary-name">UpperTriangularOperator</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.SymmetricBandOperator-class.html" class="summary-name">SymmetricBandOperator</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="linear_operators.operators.EigendecompositionOperator-class.html" class="summary-name">EigendecompositionOperator</a><br />
+      Define a SymmetricOperator from the eigendecomposition of another
+SymmetricOperator.
     </td>
   </tr>
 </table>
@@ -196,6 +287,24 @@ Functions generate instances of the associated classes. The following are availa
     </table>
   </td>
 </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_band_diag"></a><span class="summary-sig-name">_band_diag</span>(<span class="summary-sig-arg">ku</span>,
+        <span class="summary-sig-arg">i</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Return a slice to get the i-th line of a band operator</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#_band_diag">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -354,6 +463,139 @@ Functions generate instances of the associated classes. The following are availa
       
     </td>
   </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="slice_operator"></a><span class="summary-sig-name">slice_operator</span>(<span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">slice</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#slice_operator">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="tridiagonal"></a><span class="summary-sig-name">tridiagonal</span>(<span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">diag</span>,
+        <span class="summary-sig-arg">subdiag</span>,
+        <span class="summary-sig-arg">superdiag</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#tridiagonal">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="symmetric_tridiagonal"></a><span class="summary-sig-name">symmetric_tridiagonal</span>(<span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">diag</span>,
+        <span class="summary-sig-arg">subdiag</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#symmetric_tridiagonal">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="band_operator"></a><span class="summary-sig-name">band_operator</span>(<span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">ab</span>,
+        <span class="summary-sig-arg">kl</span>,
+        <span class="summary-sig-arg">ku</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#band_operator">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="symmetric_band_operator"></a><span class="summary-sig-name">symmetric_band_operator</span>(<span class="summary-sig-arg">shape</span>,
+        <span class="summary-sig-arg">ab</span>,
+        <span class="summary-sig-arg">lower</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#symmetric_band_operator">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="band_approximation"></a><span class="summary-sig-name">band_approximation</span>(<span class="summary-sig-arg">mat</span>,
+        <span class="summary-sig-arg">kl</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">ku</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Approximate a dense matrix as a BandOperator.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#band_approximation">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="symmetric_band_approximation"></a><span class="summary-sig-name">symmetric_band_approximation</span>(<span class="summary-sig-arg">mat</span>,
+        <span class="summary-sig-arg">k</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Approximate a symmetrix matrix as a SymmetricBandOperator.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="linear_operators.operators-pysrc.html#symmetric_band_approximation">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 </table>
 <!-- ==================== VARIABLES ==================== -->
 <a name="section-Variables"></a>
@@ -447,7 +689,7 @@ Functions generate instances of the associated classes. The following are availa
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Mon May 16 11:16:08 2011
+    Generated by Epydoc 3.0.1 on Thu Jun  2 17:46:15 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
