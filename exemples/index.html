@@ -164,5 +164,11 @@ data += 1e0 * np.random.randn(*data.shape)
     coded by plugging together off-the-shelf algorithms for sparse
     estimation and covariance approximation.
 
+    As you can see, there is no ringing effect on the estimated image.
+    This is a benefit from the underlying statistical model of the
+    algorithm : automatic relevence determination, which is way better
+    than the quadratic model for image deconvolution as it is closer
+    to the true statistics of natural images.
+
   </div>
 </div>
