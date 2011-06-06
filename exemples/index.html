@@ -109,5 +109,60 @@ xe = algo()
       linear_operators package to set up a simple deconvolution script
       in about 15 lines of code.
     </p>
+
+
+    <h3> Deconvolution with the double loop algorithm </h3>
+
+    <p> The following exemple can be found
+      <a href="https://github.com/nbarbey/linear_operators/blob/master/exemples/deconvolution_dli.py">
+	in the exemples directory </a>.
+      It illustrates the performances of an unsupervised algorithm derived in
+      <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.165.8284&rep=rep1&type=pdf">
+	Seeger et al. 2010 </a>.
+      The algorithm itself is coded in
+      <a href="https://github.com/nbarbey/linear_operators/blob/master/linear_operators/iterative/dli.py">
+	iterative/dli.py </a>
+    </p>
+
+    For this exemple Lena has been convolved with an uniform kernel of
+    ones of size 7 times 7. The original image has been downsampled by
+    a factor 4 for speed. In addition, there is noise white noise
+    added to the date too.
+
+    <pre>
+#!/usr/bin/env python
+import numpy as np
+import scipy
+import linear_operators as lo
+
+# Load the infamous Lena image from scipy
+im = scipy.lena()
+im = im[::4, ::4]
+# Generate a convolution model with a 7x7 uniform kernel
+model = lo.convolve_ndimage(im.shape, np.ones((7, 7)))
+# convolve the original image
+data = model * im.ravel()
+# add noise to the convolved data
+data += 1e0 * np.random.randn(*data.shape)
+# define smoothness prior
+</pre>
+
+    The data looks very blurred :
+
+    <p align="center" >
+      <img src="dli_data.png" WIDTH="50%" HEIGHT="50%" />
+    </p>
+
+    Amazingly enough, the algorithm manages to get back most of the
+    information.
+
+    <p align="center" >
+      <img src="dli_estimation.png" WIDTH="50%" HEIGHT="50%" />
+    </p>
+
+    The algorithm used for this exemple is quite complex but can be
+    coded by plugging together off-the-shelf algorithms for sparse
+    estimation and covariance approximation.
+
   </div>
 </div>
