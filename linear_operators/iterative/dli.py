@@ -34,9 +34,9 @@ class LanczosAlgorithm(Algorithm):
         self.n = self.A.shape[0]
         self.kwargs = kwargs
         # extract appropriate kwargs for stop condition
-        maxiter = getattr(kwargs, "maxiter", 300)
-        tol = getattr(kwargs, "tol", None)
-        gtol = getattr(kwargs, "gtol", None)
+        maxiter = kwargs.get("maxiter", 300)
+        tol = kwargs.get("tol", None)
+        gtol = kwargs.get("gtol", None)
         self.stop_condition = StopCondition(maxiter=maxiter, tol=tol, gtol=gtol)
         # maxiter default to matrix size if not given.
         self.maxiter = getattr(self.stop_condition, "maxiter", self.n)
