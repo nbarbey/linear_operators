@@ -9,5 +9,5 @@ def fht(shapein, **kargs):
     """
     def matvec(arr):
         return fht_mod.fht(arr, **kargs)
-    return lo.ndoperator(shapein, shapein, matvec=matvec, rmatvec=matvec, 
-                         dtype=np.float64)
+    return ndoperator(shapein, shapein, matvec=matvec, rmatvec=matvec, 
+                      dtype=np.float64)
