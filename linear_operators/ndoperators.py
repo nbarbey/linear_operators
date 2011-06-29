@@ -458,14 +458,17 @@ class Fftw3(NDOperator):
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class ConvolveFftw3(NDOperator):
-    def __init__(self, shapein, kernel, **kwargs):
+    def __init__(self, shapein, kernel, n_threads=None, **kwargs):
         import fftw3
         from multiprocessing import cpu_count
-        self.n_threads = cpu_count()
+        if n_threads is None:
+            self.n_threads = cpu_count()
+        else:
+            self.n_threads = n_threads
         self.kernel = kernel
         # reverse kernel
-        s = (slice(None, None, -1), ) * kernel.ndim
-        self.rkernel = kernel[s]
+        #s = (slice(None, None, -1), ) * kernel.ndim
+        #self.rkernel = kernel[s]
         # shapes
         shapeout = shapein
         fullshape = np.array(shapein) + np.array(kernel.shape) - 1
@@ -493,9 +496,9 @@ class ConvolveFftw3(NDOperator):
         self.padded_kernel[sk] = kernel
         self.fft_kernel = copy(self.fft(self.padded_kernel))
         # fft transform of rkernel
-        self.rpadded_kernel = np.zeros(shapein, dtype=self.rkernel.dtype)
-        self.rpadded_kernel[sk] = self.rkernel
-        self.rfft_kernel = copy(self.fft(self.padded_kernel))
+        #self.rpadded_kernel = np.zeros(shapein, dtype=self.rkernel.dtype)
+        #self.rpadded_kernel[sk] = self.rkernel
+        self.rfft_kernel = np.conj(copy(self.fft_kernel))
         # matvec
         def matvec(x):
             return self._centered(self.convolve(x, self.fft_kernel), shapeout) / self.norm
