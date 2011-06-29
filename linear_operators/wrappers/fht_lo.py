@@ -10,4 +10,4 @@ def fht(shapein, **kargs):
     def matvec(arr):
         return fht_mod.fht(arr, **kargs)
     return ndoperator(shapein, shapein, matvec=matvec, rmatvec=matvec, 
-                      dtype=np.float64)
+                      dtype=kargs.get("dtype", np.float64))
