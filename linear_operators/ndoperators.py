@@ -626,7 +626,7 @@ def fftn(shapein, s=None, axes=None, **kwargs):
     return Fftn(shapein, s=s, axes=axes, **kwargs)
 
 def convolve(shapein, kernel, mode="full", fft=False, **kwargs):
-    return Convolve(shapein, kernel, mode=mode, **kwargs)
+    return Convolve(shapein, kernel, mode=mode, fft=fft, **kwargs)
 
 def convolve_ndimage(shapein, kernel, mode="reflect", cval=0.0, origin=0,
                      **kwargs):
