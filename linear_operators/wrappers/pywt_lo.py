@@ -5,7 +5,9 @@ from ..interface import LinearOperator
 from ..ndoperators import NDOperator
 from copy import copy
 
-def wavedec(shapein, wavelet, mode='sym', level=None, dtype=np.float64):
+# LinearOperators factories :
+
+def wavelet(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
     a = np.zeros(shapein)
     b = pywt.wavedec(a, wavelet, mode=mode, level=level)
     def matvec(x):
@@ -18,14 +20,38 @@ def wavedec(shapein, wavelet, mode='sym', level=None, dtype=np.float64):
             n_el = np.asarray(el).size
             x_list.append(np.array(x[count:count+n_el]))
             count += n_el
-        return pywt.waverec(x_list, wavelet, mode=mode)
+        return pywt.waverec(x_list, wavelet, mode=mode)[:shapein]
     shapeout = matvec(a).size
     return LinearOperator((shapeout, shapein), matvec=matvec, rmatvec=rmatvec,
                              dtype=dtype)
 
 def wavelet2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
     """
-    2d wavelet decomposition / reconstruction as a NDOperator
+    2d wavelet decomposition, storing coefficients in a 1d vector.
+    """
+    a = np.zeros(shapein)
+    b = pywt.wavedec2(a, wavelet, mode=mode, level=level)
+    sizeout = vectorize_coefficients(b).size
+    size = (sizeout, np.prod(shapein))
+    def matvec(x):
+        x = x.reshape(shapein)
+        coefs = pywt.wavedec2(x, wavelet, mode=mode, level=level)
+        return vectorize_coefficients(coefs)
+    def rmatvec(x):
+        coefs = vectors2coefs(x, b)
+        rec = pywt.waverec2(coefs, wavelet, mode=mode)[:shapein[0], :shapein[1]]
+        return rec.ravel()
+    return LinearOperator(size, matvec, rmatvec, dtype=dtype)
+
+def wavedec2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
+    """
+    2d wavelet decomposition / reconstruction as a NDOperator.
+    
+    Notes
+    -----
+    Does not work with all parameters depending if wavelet coefficients
+    can be concatenated as 2d arrays !
+    Otherwise, take a look at wavelet2
     """
     a = np.zeros(shapein)
     b = pywt.wavedec2(a, wavelet, mode=mode, level=level)
@@ -37,6 +63,27 @@ def wavelet2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
         coefs = array2coefs(x, b)
         return pywt.waverec2(coefs, wavelet, mode=mode)[:shapein[0], :shapein[1]]
     return NDOperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
+
+# utility functions (to put wavelet coefficients into arrays and back)
+    
+def vectorize_coefficients(coefs):
+    out = coefs[0].ravel()
+    for scale in coefs[1:]:
+        out = np.concatenate([out,] + [scale[i].ravel() for i in xrange(3)])
+    return out
+
+def vectors2coefs(x, b):
+    p = 0
+    q = b[0].size
+    coefs = [x[p:q].reshape(b[0].shape), ]
+    for i in xrange(1, len(b)):
+        scale = list()
+        for j in xrange(3):
+            p = copy(q)
+            q = p + b[i][j].size
+            scale += [x[p:q].reshape(b[i][j].shape), ]
+        coefs.append(scale)
+    return coefs
 
 def coefs2array(coefs):
     out = coefs[0]
