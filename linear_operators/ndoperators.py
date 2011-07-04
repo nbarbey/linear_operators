@@ -471,14 +471,14 @@ class ConvolveFftw3(NDOperator):
         #self.rkernel = kernel[s]
         # shapes
         shapeout = shapein
-        fullshape = np.array(shapein) + np.array(kernel.shape) - 1
+        self.fullshape = np.array(shapein) + np.array(kernel.shape) - 1
         # normalize
-        self.norm = np.prod(fullshape)
+        self.norm = float(np.prod(self.fullshape))
         # plans
-        self.inarray = np.zeros(fullshape, dtype=kernel.dtype)
-        self.outarray = np.zeros(fullshape, dtype=np.complex128)
-        self.rinarray = np.zeros(fullshape, dtype=np.complex128)
-        self.routarray = np.zeros(fullshape, dtype=kernel.dtype)
+        self.inarray = np.zeros(self.fullshape, dtype=kernel.dtype)
+        self.outarray = np.zeros(self.fullshape, dtype=np.complex128)
+        self.rinarray = np.zeros(self.fullshape, dtype=np.complex128)
+        self.routarray = np.zeros(self.fullshape, dtype=kernel.dtype)
         self.plan = fftw3.Plan(inarray=self.inarray,
                                outarray=self.outarray,
                                direction='forward',
@@ -488,31 +488,38 @@ class ConvolveFftw3(NDOperator):
                                 direction='backward',
                                 nthreads=self.n_threads)
         # for slicing
-        sk = [slice(None, shapei, None) for shapei in kernel.shape]
-        self.si = [slice(None, shapei, None) for shapei in shapein]
-        self.so = [slice(None, shapei, None) for shapei in shapeout]
+        sk = [slice(0, shapei) for shapei in kernel.shape]
+        self.si = [slice(0, shapei) for shapei in shapein]
+        self.so = [slice(0, shapei) for shapei in shapeout]
         # fft transform of kernel
         self.padded_kernel = np.zeros(shapein, dtype=kernel.dtype)
         self.padded_kernel[sk] = kernel
         self.fft_kernel = copy(self.fft(self.padded_kernel))
         # fft transform of rkernel
-        #self.rpadded_kernel = np.zeros(shapein, dtype=self.rkernel.dtype)
-        #self.rpadded_kernel[sk] = self.rkernel
-        self.rfft_kernel = np.conj(copy(self.fft_kernel))
+        # reverse kernel
+        s = (slice(None, None, -1), ) * kernel.ndim
+        self.rkernel = kernel[s]
+        self.rpadded_kernel = np.zeros(shapein, dtype=self.rkernel.dtype)
+        self.rpadded_kernel[sk] = self.rkernel
+        self.rfft_kernel = copy(self.fft(self.rpadded_kernel))
         # matvec
         def matvec(x):
             return self._centered(self.convolve(x, self.fft_kernel), shapeout) / self.norm
         # rmatvec
         def rmatvec(x):
-            return self._centered(self.convolve(x, self.rfft_kernel), shapeout) / self.norm
+            return self._centered(self.convolve(x, self.rfft_kernel), shapein) / self.norm
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
     def fft(self, arr):
+        self.inarray[:] = 0.
+        self.outarray[:] = 0.
         self.inarray[self.si] = arr
         self.plan()
         return self.outarray
 
     def ifft(self, arr):
+        self.rinarray[:] = 0.
+        self.routarray[:] = 0.
         self.rinarray[self.si] = arr[self.si]
         self.rplan()
         return self.routarray
