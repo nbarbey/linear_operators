@@ -458,7 +458,7 @@ class Fftw3(NDOperator):
         NDOperator.__init__(self, shapein, shapeout, matvec, rmatvec, **kwargs)
 
 class ConvolveFftw3(NDOperator):
-    def __init__(self, shapein, kernel, n_threads=None, **kwargs):
+    def __init__(self, shapein, kernel, flags=["measure"], n_threads=None, **kwargs):
         import fftw3
         from multiprocessing import cpu_count
         if n_threads is None:
@@ -482,10 +482,12 @@ class ConvolveFftw3(NDOperator):
         self.plan = fftw3.Plan(inarray=self.inarray,
                                outarray=self.outarray,
                                direction='forward',
+                               flags=flags,
                                nthreads=self.n_threads)
         self.rplan = fftw3.Plan(inarray=self.rinarray,
                                 outarray=self.routarray,
                                 direction='backward',
+                                flags=flags,
                                 nthreads=self.n_threads)
         # for slicing
         sk = [slice(0, shapei) for shapei in kernel.shape]
