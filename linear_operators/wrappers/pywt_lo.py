@@ -20,7 +20,7 @@ def wavedec(shapein, wavelet, mode='sym', level=None, dtype=np.float64):
             count += n_el
         return pywt.waverec(x_list, wavelet, mode=mode)
     shapeout = matvec(a).size
-    return lo.LinearOperator((shapeout, shapein), matvec=matvec, rmatvec=rmatvec,
+    return LinearOperator((shapeout, shapein), matvec=matvec, rmatvec=rmatvec,
                              dtype=dtype)
 
 def wavelet2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
@@ -36,7 +36,7 @@ def wavelet2(shapein, wavelet, mode='zpd', level=None, dtype=np.float64):
     def rmatvec(x):
         coefs = array2coefs(x, b)
         return pywt.waverec2(coefs, wavelet, mode=mode)[:shapein[0], :shapein[1]]
-    return lo.NDOperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
+    return NDOperator(shapein, shapeout, matvec, rmatvec, dtype=dtype)
 
 def coefs2array(coefs):
     out = coefs[0]
