@@ -257,9 +257,11 @@ class DoubleLoopAlgorithm(Algorithm):
         self.gamma = np.ones(self.prior.shape[0])
         self.update_inv_gamma()
     def iterate(self):
-        print "outer"
+        print("Iteration %i / %i" %
+              (self.iter_ + 1, self.stop_condition.maxiter))
+        print("Outer loop")
         self.outer()
-        print "inner"
+        print("Inner loop")
         self.inner()
         return Algorithm.iterate(self)
     # outer loop
