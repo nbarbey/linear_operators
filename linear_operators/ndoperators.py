@@ -465,13 +465,18 @@ class ConvolveFftw3(NDOperator):
             self.n_threads = cpu_count()
         else:
             self.n_threads = n_threads
-        self.kernel = kernel
+        # increase shape to upper odd shape
+        sh = np.asarray(kernel.shape)
+        sh += 1 - sh % 2
+        self.kernel = np.zeros(sh)
+        sk = [slice(0, shapei) for shapei in kernel.shape]
+        self.kernel[sk] = kernel
         # reverse kernel
         #s = (slice(None, None, -1), ) * kernel.ndim
         #self.rkernel = kernel[s]
         # shapes
         shapeout = shapein
-        self.fullshape = np.array(shapein) + np.array(kernel.shape) - 1
+        self.fullshape = np.array(shapein) + np.array(self.kernel.shape) - 1
         # normalize
         self.norm = float(np.prod(self.fullshape))
         # plans
@@ -490,17 +495,17 @@ class ConvolveFftw3(NDOperator):
                                 flags=flags,
                                 nthreads=self.n_threads)
         # for slicing
-        sk = [slice(0, shapei) for shapei in kernel.shape]
+        sk = [slice(0, shapei) for shapei in self.kernel.shape]
         self.si = [slice(0, shapei) for shapei in shapein]
         self.so = [slice(0, shapei) for shapei in shapeout]
         # fft transform of kernel
-        self.padded_kernel = np.zeros(shapein, dtype=kernel.dtype)
-        self.padded_kernel[sk] = kernel
+        self.padded_kernel = np.zeros(shapein, dtype=self.kernel.dtype)
+        self.padded_kernel[sk] = self.kernel
         self.fft_kernel = copy(self.fft(self.padded_kernel))
         # fft transform of rkernel
         # reverse kernel
         s = (slice(None, None, -1), ) * kernel.ndim
-        self.rkernel = kernel[s]
+        self.rkernel = self.kernel[s]
         self.rpadded_kernel = np.zeros(shapein, dtype=self.rkernel.dtype)
         self.rpadded_kernel[sk] = self.rkernel
         self.rfft_kernel = copy(self.fft(self.rpadded_kernel))
