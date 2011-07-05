@@ -210,8 +210,8 @@ class DoubleLoopAlgorithm(Algorithm):
         Keyword arguments of the function minimization.
     """
     def __init__(self, model, data, prior, noise_covariance=None,
-                 tau=None, sigma=1., optimizer=FminSLSQP,
-                 lanczos={}, fmin_args={},
+                 tau=None, sigma=1., optimizer=FminNCG,
+                 lanczos={"maxiter":300}, fmin_args={},
                  callback=default_callback,
                  stop_condition=default_stop,
                  ):
@@ -223,12 +223,18 @@ class DoubleLoopAlgorithm(Algorithm):
         if noise_covariance is not None:
             noise_covariance = aslinearoperator(noise_covariance)
         self.noise_covariance = noise_covariance
+        # tau can be None or scalar or vector
         if tau is None:
             self.tau = np.ones(prior.shape[0])
-        else:
-            if tau.size != prior.shape[0]:
-                raise ValueError("Incorrect shape for tau.")
+        elif np.asarray(tau).size == prior.shape[0]:
             self.tau = tau
+        else:
+            try:
+                if not np.isscalar(tau):
+                    tau = np.asscalar(tau)
+                self.tau = tau * np.ones(prior.shape[0])
+            except(ValueError):
+                raise ValueError("Incorrect shape for tau.")
         self.sigma = sigma
         self.optimizer = optimizer
         self.lanczos = lanczos
