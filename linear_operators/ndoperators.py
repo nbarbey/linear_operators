@@ -471,9 +471,6 @@ class ConvolveFftw3(NDOperator):
         self.kernel = np.zeros(sh)
         sk = [slice(0, shapei) for shapei in kernel.shape]
         self.kernel[sk] = kernel
-        # reverse kernel
-        #s = (slice(None, None, -1), ) * kernel.ndim
-        #self.rkernel = kernel[s]
         # shapes
         shapeout = shapein
         self.fullshape = np.array(shapein) + np.array(self.kernel.shape) - 1
