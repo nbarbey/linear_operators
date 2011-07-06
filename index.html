@@ -32,26 +32,26 @@ title: linear_operators
     <h2> Design </h2>
     <p>
       In its most simple form, linear inverse estimation simply
-      consists in find the variable x knowing the equation
-      \( y = A x \), the data y and the linear model (or matrix) A. As
+      consists in find the variable x knowing the equation \( y = A x
+      \), the data y and the linear model (or matrix) \( A \). As
       large scale problems can scale to millions of data element and
-      unknowns, inverting the A matrix or even storing it is
-      impossible. Fortunately, x can be found with algorithms which
-      require only to perform the matrix vector operations A x and A^T
-      y. The LinearOperator object is an object which stores precisely
-      those operations and mimics the behavior of a standard matrix to
-      a given extent. For instance, it is possible to add or multiply
-      LinearOperators.
+      unknowns, inverting the matrix \( A \) or even storing it is
+      impossible. Fortunately, \( x \) can be found with algorithms
+      which require only to perform the matrix vector operations \( A
+      x \) and \( A^T y \). The LinearOperator object is an object
+      which stores precisely those operations and mimics the behavior
+      of a standard matrix to a given extent. For instance, it is
+      possible to add or multiply LinearOperators.
     </p>
 
     <p>
-      It can be shown that inverting the equation {% math %} y = A x {% endmath %}
-      can be done by minimizing the cost function
-      <pre> || y - Ax ||^2 </pre> with respect to x (this is
+      It can be shown that inverting the equation \( y = A x \) can be
+      done by minimizing the cost function \( \| y - Ax \|^2 \) with
+      respect to \( x \) (this is
       instance <a href="http://en.wikipedia.org/wiki/Least_squares">the
-      method of least squares</a>. Using LinearOperators it is possible
-      to define cost functions (also called criterions) whose minimum
-      correspond to a least squares solution.
+      method of least squares</a>. Using LinearOperators it is
+      possible to define cost functions (also called criterions) whose
+      minimum correspond to a least squares solution.
     </p>
 
     <p>
