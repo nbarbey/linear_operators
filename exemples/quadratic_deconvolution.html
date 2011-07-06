@@ -6,31 +6,43 @@ title: linear_operators/exemples/quadratic_deconvolution
 <div id="home">
   <h1 id="intro">quadratic deconvolution</h1>
 
-    <p> The following exemple can be found
-      <a href="https://github.com/nbarbey/linear_operators/blob/master/exemples/L2deconvolution.py">here</a>.
-      It shows how simple it is using linear_operators to perform simple
-      deconvolution using the conjugate gradient algorithm.</p>
+  <p> The following exemple can be found
+    <a href="https://github.com/nbarbey/linear_operators/blob/master/exemples/L2deconvolution.py">here</a>.
+    It shows how simple it is using linear_operators to perform simple
+    deconvolution using the conjugate gradient algorithm.</p>
 
-    <p>The first line allows to call the script from the shell as an executable:
-      <pre>#!/usr/bin/env python</pre>
-    </p>
+  <p>The first line allows to call the script from the shell as an executable:
 
-    <p> Then, you need to import the required Python packages:
-      {% highlight python %}
-      import numpy as np
-      import scipy
-      import linear_operators as lo
-      {% endhighlight %}
-    </p>
-    <p>
-      Scipy is used in the script only to load an exemple image:
-      <pre>im = scipy.lena() </pre>
+    {% highlight python %}
+    #!/usr/bin/env python
+    {% endhighlight %}
+  </p>
+
+  <p> Then, you need to import the required Python packages:
+
+    {% highlight python %}
+    import numpy as np
+    import scipy
+    import linear_operators as lo
+    {% endhighlight %}
+
+  </p>
+  <p>
+    Scipy is used in the script only to load an exemple image:
+
+    {% highlight python %}
+    im = scipy.lena()
+    {% endhighlight %}
+
       Using matplotlib, you could take a look at the image using
       imshow for instance.  Of course you need to import imshow from
       pylab if this is not already done.  If your are using IPython
       with the --pylab option, the imshow import have already been
       done for you :
-      <pre>imshow(im)</pre>
+
+    {% highlight python %}
+    imshow(im)
+    {% endhighlight %}
       You would get this image :
     <p align="center" >
       <img src="lena.png" WIDTH="50%" HEIGHT="50%" /> 
@@ -40,8 +52,10 @@ title: linear_operators/exemples/quadratic_deconvolution
     <p>
       Now, we start to use the linear_operator package to define a
       convolution operator:
-      <pre>kernel = np.ones((3, 3))
-model = lo.convolve_ndimage(im.shape, kernel)</pre>
+      {% highlight python %}
+      kernel = np.ones((3, 3))
+      model = lo.convolve_ndimage(im.shape, kernel)
+      {% endhighlight %}
 
       This defines a convolution with an uniform kernel of shape 3x3
       which is to be applied to an ndarray of the shape of the image.
@@ -49,11 +63,15 @@ model = lo.convolve_ndimage(im.shape, kernel)</pre>
     <p>
       To perform the convolution on the image, simply call the operator:
 
-      <pre>data = model(im)</pre>
+      {% highlight python %}
+      data = model(im)
+      {% endhighlight %}
 
       Alternatively, you can multiply the operator with the vectorized image:
 
-      <pre>data = model * im.ravel()</pre>
+      {% highlight python %}
+      data = model * im.ravel()
+      {% endhighlight %}
 
       The ravel method is required here as LinearOperators can only be
       multiplied to vectors. If an 2d array is passed, it is assumed to
@@ -63,8 +81,10 @@ model = lo.convolve_ndimage(im.shape, kernel)</pre>
 
     <p>
       Adding noise to the data is quite simple thanks to numpy.random subpackage:
-      <pre>noise = 1e1 * np.random.randn(*data.shape)
-data += noise</pre>
+      {% highlight python %}
+      noise = 1e1 * np.random.randn(*data.shape)
+      data += noise
+      {% endhighlight %}
       Taking a look at the image, you would get something like this:
     <p align="center" >
       <img src="convolved_lena.png" WIDTH="50%" HEIGHT="50%" /> 
@@ -77,8 +97,10 @@ data += noise</pre>
       deconvolution using the conjugate gradient algorithm provided in
       linear_operators.  First, we need to define priors to regularize
       the inversion. Otherwise, the result would be way too noisy.
-      <pre>prior = [lo.diff(im.shape, axis=i) for i in xrange(im.ndim)]
-hypers = (1e1, 1e1)</pre>
+      {% highlight python %}
+      prior = [lo.diff(im.shape, axis=i) for i in xrange(im.ndim)]
+      hypers = (1e1, 1e1)
+      {% endhighlight %}
       The hyperparameters "hypers" determines the importance to give to
       the priors relative to the likelihood. It is related to the amount
       of noise in the data.
@@ -86,12 +108,15 @@ hypers = (1e1, 1e1)</pre>
 
     <p>Finally, we instantiate and call the conjugate gradient
       algorithm:
-      <pre>algo = lo.QuadraticConjugateGradient(model, data, prior, hypers)
-xe = algo()
-  </pre>
+      {% highlight python %}
+      algo = lo.QuadraticConjugateGradient(model, data, prior, hypers)
+      xe = algo()
+      {% endhighlight %}
       The output need to be reshaped as an image as algorithms work
       only on vectors since the rely on the matvec method of LinearOperators
-      <pre>xe.resize(im.shape)</pre>
+      {% highlight python %}
+      xe.resize(im.shape)
+      {% endhighlight %}
     </p>
     <p>
       Now, you can take a look at the result:
