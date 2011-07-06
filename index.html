@@ -8,10 +8,15 @@ title: linear_operators
   <h1 id="intro">about</h1>
   <div>
 
-    <p>linear_operators is a package implementing estimation
-      algorithms for large scale linear problems. The workflow is as
-      follows :
+    <h2> Introduction </h2>
+    <p>
+    linear_operators is a package implementing estimation algorithms
+    for large scale linear inverse problems. This class of problem
+    includes deconvolution or tomography for instance.
+    </p>
 
+    <h2> workflow </h2>
+    <p>
       <ul>
 	<li> generate a linear model using LinearOperator instances as
 	  buildling blocks, </li>
@@ -24,10 +29,46 @@ title: linear_operators
       </ul>
     </p>
 
+    <h2> design </h2>
     <p>
-      Subpackages implements each part of this workflow. Here is a
-      list of the subpackages :
+      In its most simple form, linear inverse estimation simply
+      consists in find the variable x knowing the equation <pre>y = A
+      x </pre>, the data y and the linear model (or matrix) A. As
+      large scale problems can scale to millions of data element and
+      unknowns, inverting the A matrix or even storing it is
+      impossible. Fortunately, x can be found with algorithms which
+      require only to perform the matrix vector operations A x and A^T
+      y. The LinearOperator object is an object which stores precisely
+      those operations and mimics the behavior of a standard matrix to
+      a given extent. For instance, it is possible to add or multiply
+      LinearOperators.
+    </p>
 
+    <p>
+      It can be shown that inverting the equation <pre> y = A x </pre>
+      can be done by minimizing the cost function <pre> ||y - Ax
+      ||^2 </pre> (this is
+      instance <a href="http://en.wikipedia.org/wiki/Least_squares">the
+      method of least squares<a>. Using LinearOperators it is possible
+      to define cost functions (also called criterions) whose minimum
+      correspond to a least squares solution.
+    </p>
+
+    <p>
+      These criterions can then be passed to minimization algorithms
+      which handle functions as arguments, as do the optimizers
+      provided by the scipy.optimize package.
+    </p>
+
+    <p> The linear_operators package provide a set of standard
+    LinearOperators subclasses such as convolution, Fourier transform,
+    wavelets, ... It also provides a set of minimization algorithms
+    and bindings to scipy.optimize optimizer and also
+    scikits.optimization.
+    </p>
+
+    <h2> subpackages </h2>
+    <p>
       <ul>
 	<li>interface : Taken from the scipy.sparse package. It
 	  implement the LinearOperator class which replaces matrices
