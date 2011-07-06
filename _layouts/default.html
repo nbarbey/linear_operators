@@ -10,8 +10,19 @@
     <link rel="stylesheet" href="/css/screen.css" type="text/css"
 	  media="screen, projection" />
 
-    <script type="text/javascript"
-	    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="http://github.com/javascripts/other/MathJax/MathJax.js"
+	    type="text/javascript">
+      if (window.location.protocol == "https:") {
+      MathJax.OutputJax.fontDir = "https://github.com/assets/MathJax/fonts"
+      } else {
+      MathJax.OutputJax.fontDir = "http://github.com/assets/MathJax/fonts"
+      }
+      MathJax.Hub.Config({
+      extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js"],
+      jax: ["input/TeX", "output/HTML-CSS"]
+      })
+    </script>
+
   </head>
   <body>
     <div class="site">
