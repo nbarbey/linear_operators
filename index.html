@@ -63,8 +63,14 @@ title: linear_operators
     <p> The linear_operators package provide a set of standard
     LinearOperators subclasses such as convolution, Fourier transform,
     wavelets, ... It also provides a set of minimization algorithms
-    and bindings to scipy.optimize optimizer and also
+    and bindings to scipy.optimize optimizers and also
     scikits.optimization.
+    </p>
+
+    <p>
+      Other packages can define their own linear_operators
+      instances. This is the case of the TomograPy package. Python
+      objects having a matvec method can also be recasted as LinearOperators.
     </p>
 
     <h2> Subpackages </h2>
