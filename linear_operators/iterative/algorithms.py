@@ -293,10 +293,12 @@ class QuadraticConjugateGradient(ConjugateGradient):
     """
     A subclass of ConjugateGradient using a QuadraticCriterion.
     """
-    def __init__(self, model, data, priors=[], hypers=[], **kwargs):
+    def __init__(self, model, data, priors=[], hypers=[], hessian=False,
+                 **kwargs):
         store = kwargs.pop("store", True)
         criterion = QuadraticCriterion(model, data, hypers=hypers,
-                                       priors=priors, store=store)
+                                       priors=priors, store=store,
+                                       hessian=hessian)
         ConjugateGradient.__init__(self, criterion, **kwargs)
 
 class HuberConjugateGradient(ConjugateGradient):
@@ -311,9 +313,10 @@ class HuberConjugateGradient(ConjugateGradient):
  
 # for backward compatibility
 
-def acg(model, data, priors=[], hypers=[], **kwargs):
+def acg(model, data, priors=[], hypers=[], hessian=False, **kwargs):
     algorithm = QuadraticConjugateGradient(model, data, priors=priors,
-                                           hypers=hypers, **kwargs)
+                                           hypers=hypers, hessian=hessian,
+                                           **kwargs)
     sol = algorithm()
     return sol
 
