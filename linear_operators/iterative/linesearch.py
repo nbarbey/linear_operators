@@ -47,7 +47,7 @@ def optimal_step(algo):
     algo_norms = [n if isinstance(n, norms.Norm2) else norms.Norm2() for n in algo_norms]
     # compute quadratic optimal step
     a = -.5 * np.dot(d.T, g)
-    a /= algo_norms[0](H * d) + np.sum([h * n(D * d) for h, D, n in zip(hypers, Ds, algo_norms)])
+    a /= algo_norms[0](H * d) + np.sum([h * n(D * d) for h, D, n in zip(hypers, Ds, algo_norms[1:])])
     return a
 
 class Backtracking(object):
