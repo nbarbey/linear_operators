@@ -113,7 +113,8 @@ class QuadraticCriterion(Criterion):
         if hessian:
             self.hessian = self._hessian
             self.hessian_p = self._hessian_p
-        Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
+        Criterion.__init__(self, model, data, hypers=hypers, priors=priors,
+                           norms=norms, store=store)
     def _hessian(self, u):
         return self._hessian_model
     def _hessian_p(self, u, p):
@@ -125,4 +126,5 @@ class HuberCriterion(Criterion):
     """
     def __init__(self, model, data, hypers=[], deltas=[], priors=[], store=True):
         norms = [Huber(d) for d in deltas]
-        Criterion.__init__(self, model, data, hypers=hypers, priors=priors, store=store)
+        Criterion.__init__(self, model, data, hypers=hypers, priors=priors,
+                           norms=norms, store=store)
