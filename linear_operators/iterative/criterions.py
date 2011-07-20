@@ -103,9 +103,11 @@ class QuadraticCriterion(Criterion):
     """
     Subclass of Criterion with all norms forced to be Norm2 instances.
     """
-    def __init__(self, model, data, hypers=[], priors=[], store=True,
-                 hessian=False):
-        norms = (Norm2(), ) * (len(priors) + 1)
+    def __init__(self, model, data, hypers=[], priors=[], covariances=None,
+                 store=True, hessian=False):
+        if covariances is None:
+            covariances = (None,) * (len(priors) + 1)
+        norms = [Norm2(C=C) for C in covariances]
         self.prior = concatenate([h * p for h, p in zip(hypers, priors)])
         self._hessian_model = model.T * model + self.prior.T * self.prior
         if hessian:
