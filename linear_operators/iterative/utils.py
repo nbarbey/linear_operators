@@ -18,8 +18,6 @@ elif 'eigs' in arpack.__dict__.keys():
 else:
     raise ImportError("Unable to find eigen or eigs in arpack.")
 
-from ..operators import SymmetricOperator
-
 def eigendecomposition(A, **kwargs):
     """
     A wrapper to arpack eigen_symmetric which output an approximation
