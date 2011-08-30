@@ -17,7 +17,7 @@ from utils import eigendecomposition
 from algorithms import Algorithm, default_callback, StopCondition
 from ..operators import diag, identity
 from optimize import *
-from norms import norm2, dnorm2, Norm2
+from norms import norm2, Norm2
 
 default_stop = StopCondition(maxiter=5)
 
@@ -130,7 +130,6 @@ class Criterion(object):
             return self.Xu, self.Bu
     def likelihood(self, u):
         sigma = self.algo.sigma
-        X = self.algo.model
         y = self.algo.data
         Xu, Bu = self.get_projections(u)
         return sigma ** (-2) * self.norm(Xu - y)
