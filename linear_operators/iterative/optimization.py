@@ -3,9 +3,11 @@ Use the optimization scikits to define a set of optimizer and models
 using LinearOperators.
 """
 import numpy as np
+from copy import copy
 from scikits.optimization import step, line_search, criterion, optimizer
 from scikits.optimization.optimizer import StandardOptimizer
 import criterions
+import norms
 
 # defaults
 default_step = step.PRPConjugateGradientStep()
